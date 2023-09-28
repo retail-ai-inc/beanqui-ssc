@@ -20,6 +20,8 @@ func main() {
 	rt.Delete("/log/del", routers.Auth(routers.LogDelHandler))
 	rt.Post("/log/retry", routers.Auth(routers.LogRetryHandler))
 	rt.Post("/log/archive", routers.Auth(routers.LogArchiveHandler))
+	rt.Get("/clients", routers.ClientListHandler)
+	rt.Get("/dashboard", routers.DashboardHandler)
 
 	if err := rt.Run(":9090"); err != nil {
 		log.Fatalln(err)

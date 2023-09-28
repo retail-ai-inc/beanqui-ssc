@@ -8,9 +8,9 @@
           <li class="nav-item">
             <router-link to="/admin/home" class="nav-link text-muted" :class="route == '/admin/home' ? 'active' : ''">Home</router-link>
           </li>
-          <li class="nav-item">
-            <router-link to="/admin/server" class="nav-link text-muted" :class="route == '/admin/server' ? 'active' : ''">Server</router-link>
-          </li>
+<!--          <li class="nav-item">-->
+<!--            <router-link to="/admin/server" class="nav-link text-muted" :class="route == '/admin/server' ? 'active' : ''">Server</router-link>-->
+<!--          </li>-->
           <li class="nav-item">
             <router-link to="/admin/schedule" class="nav-link text-muted" :class="route == '/admin/schedule' ? 'active' : ''">Schedule</router-link>
           </li>

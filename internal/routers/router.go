@@ -2,7 +2,6 @@ package routers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"path"
@@ -14,10 +13,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/retail-ai-inc/beanq"
 	"github.com/retail-ai-inc/beanq/helper/json"
-	"github.com/retail-ai-inc/beanq/helper/stringx"
 	"github.com/retail-ai-inc/beanqui/internal/jwtx"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/results"
 	"github.com/retail-ai-inc/beanqui/internal/simple_router"
 
 	"github.com/spf13/cast"
@@ -39,18 +38,42 @@ func IndexHandler(ctx *simple_router.Context) error {
 	hdl.ServeHTTP(ctx.Response(), ctx.Request())
 	return nil
 }
+func DashboardHandler(ctx *simple_router.Context) error {
 
+	result, cancel := results.Get()
+	defer cancel()
+
+	client := redisx.Client()
+	// get queue total
+	keys, err := redisx.Keys(ctx.Context(), client, strings.Join([]string{redisx.BqConfig.Prefix, "*", "stream"}, ":"))
+	if err != nil {
+		result.Code = consts.InternalServerErrorCode
+		result.Msg = err.Error()
+		return ctx.Json(http.StatusInternalServerError, result)
+	}
+	keysLen := len(keys)
+
+	// db size
+	db_size, err := client.DBSize(ctx.Context()).Result()
+	if err != nil {
+		result.Msg = err.Error()
+		return ctx.Json(http.StatusInternalServerError, result)
+	}
+
+	result.Data = map[string]any{
+		"queue_total": keysLen,
+		"db_size":     db_size,
+	}
+	return ctx.Json(http.StatusOK, result)
+}
 func LoginHandler(ctx *simple_router.Context) error {
 
 	request := ctx.Request()
 	username := request.PostFormValue("username")
 	password := request.PostFormValue("password")
 
-	result := resultPool.Get().(*Result)
-	defer func() {
-		result.Reset()
-		resultPool.Put(result)
-	}()
+	result, cancel := results.Get()
+	defer cancel()
 
 	if username != "aa" && password != "bb" {
 		result.Code = consts.InternalServerErrorCode
@@ -84,11 +107,8 @@ func LoginHandler(ctx *simple_router.Context) error {
 
 func ScheduleHandler(ctx *simple_router.Context) error {
 
-	result := resultPool.Get().(*Result)
-	defer func() {
-		result.Reset()
-		resultPool.Put(result)
-	}()
+	result, cancel := results.Get()
+	defer cancel()
 
 	bt, err := queueInfo(ctx.Context(), redisx.ScheduleQueueKey(redisx.BqConfig.Redis.Prefix))
 
@@ -103,11 +123,8 @@ func ScheduleHandler(ctx *simple_router.Context) error {
 
 func QueueHandler(ctx *simple_router.Context) error {
 
-	result := resultPool.Get().(*Result)
-	defer func() {
-		result.Reset()
-		resultPool.Put(result)
-	}()
+	result, cancel := results.Get()
+	defer cancel()
 	nctx := ctx.Context()
 
 	bt, err := queueInfo(nctx, redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
@@ -123,21 +140,18 @@ func QueueHandler(ctx *simple_router.Context) error {
 }
 
 func LogArchiveHandler(ctx *simple_router.Context) error {
-	result := resultPool.Get().(*Result)
-	defer func() {
-		result.Reset()
-		resultPool.Put(result)
-	}()
+
+	result, cancel := results.Get()
+	defer cancel()
 
 	return ctx.Json(http.StatusOK, result)
 }
 
 func LogRetryHandler(ctx *simple_router.Context) error {
-	result := resultPool.Get().(*Result)
-	defer func() {
-		result.Reset()
-		resultPool.Put(result)
-	}()
+
+	result, cancel := results.Get()
+	defer cancel()
+
 	req := ctx.Request()
 	id := req.PostFormValue("id")
 	if id == "" {
@@ -195,11 +209,8 @@ func LogRetryHandler(ctx *simple_router.Context) error {
 
 func LogDelHandler(ctx *simple_router.Context) error {
 
-	result := resultPool.Get().(*Result)
-	defer func() {
-		result.Reset()
-		resultPool.Put(result)
-	}()
+	result, cancel := results.Get()
+	defer cancel()
 	req := ctx.Request()
 	id := req.FormValue("id")
 	if id == "" {
@@ -230,11 +241,8 @@ func LogDelHandler(ctx *simple_router.Context) error {
 
 func LogHandler(ctx *simple_router.Context) error {
 
-	resultRes := resultPool.Get().(*Result)
-	defer func() {
-		resultRes.Reset()
-		resultPool.Put(resultRes)
-	}()
+	resultRes, cancel := results.Get()
+	defer cancel()
 
 	client := redisx.Client()
 
@@ -269,66 +277,23 @@ func LogHandler(ctx *simple_router.Context) error {
 	if dataType == "error" {
 		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "error"}, ":")
 	}
-	nctx := ctx.Context()
-	cmd := client.ZRange(nctx, matchStr, nowPage, nowPageSize)
-	if cmd.Err() != nil {
-		resultRes.Msg = cmd.Err().Error()
-		resultRes.Code = consts.InternalServerErrorCode
-		return ctx.Json(http.StatusInternalServerError, resultRes)
-	}
 
-	result, err := cmd.Result()
+	data, err := redisx.ZRange(ctx.Context(), client, matchStr, nowPage, nowPageSize)
 	if err != nil {
-		resultRes.Msg = cmd.Err().Error()
-		resultRes.Code = consts.InternalServerErrorCode
-		return ctx.Json(http.StatusInternalServerError, resultRes)
-	}
-
-	njson := json.Json
-
-	length, err := client.ZLexCount(nctx, matchStr, "-", "+").Result()
-	if err != nil {
+		resultRes.Code = "1001"
 		resultRes.Msg = err.Error()
-		resultRes.Code = consts.InternalServerErrorCode
+
 		return ctx.Json(http.StatusInternalServerError, resultRes)
 	}
-	d := make([]map[string]any, 0, pageSize)
-	for _, v := range result {
-
-		cmd := client.ZRank(nctx, matchStr, v)
-		key, err := cmd.Result()
-		if err != nil {
-			continue
-		}
-		payloadByte := stringx.StringToByte(v)
-		npayload := njson.Get(payloadByte, "Payload")
-		addTime := njson.Get(payloadByte, "AddTime")
-		runTime := njson.Get(payloadByte, "RunTime")
-		group := njson.Get(payloadByte, "Group")
-
-		queuestr := njson.Get(payloadByte, "Queue").ToString()
-		queues := strings.Split(queuestr, ":")
-		queue := queuestr
-		if len(queues) >= 4 {
-			queue = queues[2]
-		}
-
-		ttl := cast.ToTime(njson.Get(payloadByte, "ExpireTime").ToString()).Sub(time.Now()).Seconds()
-		d = append(d, map[string]any{"key": key, "ttl": fmt.Sprintf("%.3f", ttl), "addTime": addTime, "runTime": runTime, "group": group, "queue": queue, "payload": npayload})
-
-	}
-	resultRes.Data = map[string]any{"data": d, "total": length}
+	resultRes.Data = data
 
 	return ctx.Json(http.StatusOK, resultRes)
 }
 
 func RedisHandler(ctx *simple_router.Context) error {
-	result := resultPool.Get().(*Result)
 
-	defer func() {
-		result.Reset()
-		resultPool.Put(result)
-	}()
+	result, cancel := results.Get()
+	defer cancel()
 
 	client := redisx.Client()
 
@@ -343,7 +308,21 @@ func RedisHandler(ctx *simple_router.Context) error {
 
 	return ctx.Json(http.StatusOK, result)
 }
+func ClientListHandler(ctx *simple_router.Context) error {
 
+	result, cancel := results.Get()
+	defer cancel()
+
+	client := redisx.Client()
+	data, err := redisx.ClientList(ctx.Context(), client)
+	if err != nil {
+		result.Code = "1001"
+		result.Msg = err.Error()
+		return ctx.Json(http.StatusInternalServerError, result)
+	}
+	result.Data = data
+	return ctx.Json(http.StatusOK, result)
+}
 func queueInfo(ctx context.Context, queueKey string) (any, error) {
 
 	client := redisx.Client()

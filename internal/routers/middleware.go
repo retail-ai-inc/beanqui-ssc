@@ -6,18 +6,16 @@ import (
 
 	"github.com/retail-ai-inc/beanqui/internal/jwtx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/results"
 	"github.com/retail-ai-inc/beanqui/internal/simple_router"
 )
 
 func Auth(next simple_router.HandlerFunc) simple_router.HandlerFunc {
 
 	return func(ctx *simple_router.Context) error {
-		result := resultPool.Get().(*Result)
-		defer func() {
-			result.Reset()
-			resultPool.Put(result)
-		}()
 
+		result, cancel := results.Get()
+		defer cancel()
 		req := ctx.Request()
 
 		auth := req.Header.Get("Beanq-Authorization")

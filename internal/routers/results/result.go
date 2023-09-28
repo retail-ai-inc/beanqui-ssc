@@ -1,4 +1,4 @@
-package routers
+package results
 
 import (
 	"sync"
@@ -12,7 +12,7 @@ type Result struct {
 	Data any    `json:"data"`
 }
 
-func (t *Result) Reset() {
+func (t *Result) reset() {
 	t.Data = nil
 	t.Msg = consts.SuccessMsg
 	t.Code = consts.SuccessCode
@@ -25,3 +25,11 @@ var resultPool = sync.Pool{New: func() any {
 		Data: nil,
 	}
 }}
+
+func Get() (*Result, func()) {
+	result := resultPool.Get().(*Result)
+	return result, func() {
+		result.reset()
+		resultPool.Put(result)
+	}
+}
