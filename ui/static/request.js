@@ -13,6 +13,7 @@ request.interceptors.request.use(
         if(token){
             config.headers["BEANQ-Authorization"] = "Bearer " + token;
         }
+
         return config;
     },
     err=>{

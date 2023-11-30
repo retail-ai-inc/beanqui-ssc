@@ -56,6 +56,7 @@ func DashboardHandler(ctx *simple_router.Context) error {
 	// db size
 	db_size, err := client.DBSize(ctx.Context()).Result()
 	if err != nil {
+		result.Code = consts.InternalServerErrorCode
 		result.Msg = err.Error()
 		return ctx.Json(http.StatusInternalServerError, result)
 	}
@@ -80,6 +81,7 @@ func LoginHandler(ctx *simple_router.Context) error {
 		result.Msg = "username or password mismatch"
 		return ctx.Json(http.StatusUnauthorized, result)
 	}
+
 	claim := jwtx.Claim{
 		UserName: username,
 		Claims: jwt.RegisteredClaims{
@@ -101,6 +103,7 @@ func LoginHandler(ctx *simple_router.Context) error {
 	}
 
 	result.Data = map[string]any{"token": token}
+
 	return ctx.Json(http.StatusOK, result)
 
 }

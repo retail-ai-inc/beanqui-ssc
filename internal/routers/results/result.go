@@ -27,6 +27,7 @@ var resultPool = sync.Pool{New: func() any {
 }}
 
 func Get() (*Result, func()) {
+
 	result := resultPool.Get().(*Result)
 	return result, func() {
 		result.reset()
