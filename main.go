@@ -1,13 +1,19 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	"github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/retail-ai-inc/beanqui/internal/simple_router"
 )
 
+var port string
+
 func main() {
+
+	flag.StringVar(&port, "port", ":9090", "port")
+	flag.Parse()
 
 	rt := simple_router.New()
 
@@ -23,7 +29,7 @@ func main() {
 	rt.Get("/clients", routers.ClientListHandler)
 	rt.Get("/dashboard", routers.DashboardHandler)
 
-	if err := rt.Run(":9090"); err != nil {
+	if err := rt.Run(port); err != nil {
 		log.Fatalln(err)
 	}
 

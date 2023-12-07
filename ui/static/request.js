@@ -1,4 +1,4 @@
-const baseURL = "http://localhost:9090/";
+const baseURL = "";
 
 const request = axios.create({
     baseURL:baseURL,

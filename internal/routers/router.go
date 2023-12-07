@@ -242,6 +242,23 @@ func LogDelHandler(ctx *simple_router.Context) error {
 	return ctx.Json(http.StatusOK, result)
 }
 
+type Msg struct {
+	Id      string `json:"id"`
+	Level   string
+	Info    string
+	Payload any `json:"payload"`
+
+	AddTime     string    `json:"addTime"`
+	ExpireTime  time.Time `json:"expireTime"`
+	RunTime     string    `json:"runTime"`
+	BeginTime   time.Time
+	EndTime     time.Time
+	ExecuteTime time.Time
+	Queue       string `json:"queue"`
+	Group       string `json:"group"`
+	Consumer    string `json:"consumer"`
+}
+
 func LogHandler(ctx *simple_router.Context) error {
 
 	resultRes, cancel := results.Get()
@@ -259,6 +276,7 @@ func LogHandler(ctx *simple_router.Context) error {
 	page = cast.ToInt64(req.FormValue("page"))
 	pageSize = cast.ToInt64(req.FormValue("pageSize"))
 	dataType = req.FormValue("type")
+	gCursor := cast.ToUint64(req.FormValue("cursor"))
 
 	if dataType != "success" && dataType != "error" {
 		resultRes.Code = consts.TypeErrorCode
@@ -280,14 +298,34 @@ func LogHandler(ctx *simple_router.Context) error {
 	if dataType == "error" {
 		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "error"}, ":")
 	}
+	match := strings.Join([]string{matchStr, "*"}, ":")
 
-	data, err := redisx.ZRange(ctx.Context(), client, matchStr, nowPage, nowPageSize)
+	data := make(map[string]any)
+
+	allKeys := client.Keys(ctx.Context(), match).Val()
+	data["total"] = len(allKeys)
+
+	keys, cursor, err := client.Scan(ctx.Context(), gCursor, match, 10).Result()
 	if err != nil {
-		resultRes.Code = "1001"
-		resultRes.Msg = err.Error()
 
-		return ctx.Json(http.StatusInternalServerError, resultRes)
 	}
+
+	msgs := make([]*Msg, 0, 10)
+	for _, key := range keys {
+
+		str, err := client.Get(ctx.Context(), key).Result()
+		if err != nil {
+			continue
+		}
+		m := new(Msg)
+		if err := json.Unmarshal([]byte(str), &m); err != nil {
+			continue
+		}
+		msgs = append(msgs, m)
+	}
+
+	data["data"] = msgs
+	data["cursor"] = cursor
 	resultRes.Data = data
 
 	return ctx.Json(http.StatusOK, resultRes)
