@@ -1,20 +1,19 @@
-#源镜像
+# source image
 FROM golang:latest
 
-LABEL author="Trial <10223062kong_liangliang@cn.tre-inc.com>" describe="BEANQ monitor ui"
+LABEL author="Trial <10223062kong_liangliang@cn.tre-inc.com>" describe="BEANQ Monitor UI"
 LABEL describe="test image"
 
-## 在docker的根目录下创建相应的使用目录
+## create work folder for docker
 RUN mkdir -p /www/webapp
-## 设置工作目录
+## set work folder
 WORKDIR /www/webapp
-## 把当前（宿主机上）目录下的文件都复制到docker上刚创建的目录下
+
 COPY . /www/webapp
 
-#go构建可执行文件
 RUN go build main.go
-#暴露端口
-EXPOSE 8080
+
+EXPOSE 9090
 
 RUN chmod +x main
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["./main","-port",":9090"]

@@ -5,10 +5,10 @@
         <table class="table table-striped" style="table-layout: fixed">
             <thead>
                 <tr>
-                    <th scope="col" style="width:8%">Key</th>
+                    <th scope="col" style="width:8%">Id</th>
                     <th scope="col" style="width:8%">TTL(s)</th>
-                    <th scope="col" style="width:10%">AddTime</th>
-                    <th scope="col" style="width:5%">RunTime</th>
+                    <th scope="col" style="width:10%">Registered At</th>
+                    <th scope="col" style="width:8%">Processing Time</th>
                     <th scope="col" style="width:6%">Group</th>
                     <th scope="col" style="width:10%">Queue</th>
                     <th scope="col" style="width:35%">Payload</th>

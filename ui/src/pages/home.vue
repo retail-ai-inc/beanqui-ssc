@@ -5,11 +5,14 @@
       <div class="row align-items-start" style="margin: 15px 0;color:#fff;">
         <div class="col" style="background: #0d6efd;height:120px;padding:15px;">
           <div>Queue Total</div>
-          <div style="font-weight: bold">{{queue_total}}</div>
+          <div style="font-weight: bold">
+            <router-link to="/admin/queue" class="nav-link text-muted link-color" >{{queue_total}}</router-link></div>
         </div>
         <div class="col" style="background: #198754;height:120px;padding:15px;">
-          <div>Cpu Usage</div>
-          <div style="font-weight: bold">10</div>
+          <div>Cpu Total</div>
+          <div style="font-weight: bold">
+            <router-link to="/admin/redis" class="nav-link text-muted link-color">{{num_cpu}}</router-link>
+          </div>
         </div>
         <div class="col" style="background: #dc3545;height:120px;padding:15px;">
           <div>Queue Past 10 Minutes</div>
@@ -42,7 +45,8 @@ import request  from "request";
 
 let data = reactive({
   "queue_total":0,
-  "db_size":0
+  "db_size":0,
+  "num_cpu":0
 })
 function getTotal(){
   return request.get("dashboard");
@@ -51,7 +55,7 @@ onMounted(async ()=>{
   let total = await getTotal();
   data.queue_total = total.data.queue_total;
   data.db_size = total.data.db_size;
-
+  data.num_cpu = total.data.num_cpu;
 })
 
 const barOption = ref({
@@ -145,10 +149,14 @@ const lineOption = ref({
     }
   ]
 });
-const {queue_total,db_size} = toRefs(data);
+const {queue_total,db_size,num_cpu} = toRefs(data);
 </script>
 <style scoped>
 .chart{
   width:100%;height:80vh;
+}
+.link-color{
+  display: inline-block;
+  color: #fff !important;
 }
 </style>

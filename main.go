@@ -6,10 +6,20 @@ import (
 
 	"github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/retail-ai-inc/beanqui/internal/simple_router"
+	"github.com/spf13/viper"
 )
 
 var port string
 
+func init() {
+
+	viper.AddConfigPath("./")
+	viper.SetConfigName("env")
+	viper.SetConfigType("json")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalln(err)
+	}
+}
 func main() {
 
 	flag.StringVar(&port, "port", ":9090", "port")

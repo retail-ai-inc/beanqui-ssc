@@ -18,8 +18,8 @@ import (
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
 	"github.com/retail-ai-inc/beanqui/internal/simple_router"
-
 	"github.com/spf13/cast"
+	"github.com/spf13/viper"
 )
 
 func IndexHandler(ctx *simple_router.Context) error {
@@ -43,6 +43,8 @@ func DashboardHandler(ctx *simple_router.Context) error {
 	result, cancel := results.Get()
 	defer cancel()
 
+	numCpu := runtime.NumCPU()
+
 	client := redisx.Client()
 	// get queue total
 	keys, err := redisx.Keys(ctx.Context(), client, strings.Join([]string{redisx.BqConfig.Prefix, "*", "stream"}, ":"))
@@ -64,6 +66,7 @@ func DashboardHandler(ctx *simple_router.Context) error {
 	result.Data = map[string]any{
 		"queue_total": keysLen,
 		"db_size":     db_size,
+		"num_cpu":     numCpu,
 	}
 	return ctx.Json(http.StatusOK, result)
 }
@@ -76,7 +79,16 @@ func LoginHandler(ctx *simple_router.Context) error {
 	result, cancel := results.Get()
 	defer cancel()
 
-	if username != "aa" && password != "bb" {
+	m := viper.GetStringMap("ui")
+	user, pwd := "", ""
+	if u, ok := m["username"].(string); ok {
+		user = u
+	}
+	if p, ok := m["password"].(string); ok {
+		pwd = p
+	}
+
+	if username != user && password != pwd {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = "username or password mismatch"
 		return ctx.Json(http.StatusUnauthorized, result)
