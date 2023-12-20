@@ -1,0 +1,13 @@
+steps:
+  - name: 'golang:1.18'
+    entrypoint: "bash"
+    args: ['-c', 'go mod download && go mod tidy && go vet . && go build -ldflags="-s -w" -race -o bin/beanqui main.go && bin/beanqui route list > /workspace/route-list.txt']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/beanqui:$_BRANCH_'
+      - '.'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/beanqui:$_BRANCH_']
