@@ -1,7 +1,7 @@
 steps:
   - name: 'golang:1.19'
     entrypoint: "bash"
-    args: ['-c', 'go mod download && go mod tidy && go vet . && go build -ldflags="-s -w" -race -o bin/beanqui main.go && bin/beanqui route list > /workspace/route-list.txt']
+    args: ['-c', 'go mod download && go mod tidy && go vet . && go build -ldflags="-s -w" -race -o beanqui ./main.go']
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
