@@ -16,3 +16,79 @@ steps:
     id: image-push
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'asia.gcr.io/$PROJECT_ID/beanqui:$_BRANCH_']
+  - id: access the id_github file from secret manager
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud secrets versions access latest --secret=id_github_manju > /root/.ssh/id_github
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+      
+  - id: set up git with key and domain
+    name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        chmod 600 /root/.ssh/id_github
+        cat <<EOF >/root/.ssh/config
+        Hostname github.com
+        IdentityFile /root/.ssh/id_github
+        EOF
+        ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+
+  - id: connect to the repository
+    name: 'gcr.io/cloud-builders/git'
+    args:
+      - clone
+      - git@github.com:retail-ai-inc/manju-helm.git
+      - deploy
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+  - id: switch to feature/beanqui branch
+    name: 'gcr.io/cloud-builders/gcloud'
+    dir: deploy
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        set -x && \
+        git config --global user.email $(git log --format='%an <%ae>' -n 1 HEAD | sed 's/.*\<\([^>]*\)\>.*/\1/g') && \
+        git fetch origin feature/beanqui && git switch feature/beanqui
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+  - id: generate manifest for grpc-gateway
+    name: 'gcr.io/cloud-builders/gcloud'
+    dir: deploy/beanqui
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        set -x && \
+        sed "s/COMMIT_SHA/${SHORT_SHA}/g" values.yaml.tpl > values.yaml
+  - id: push generated manifests to feature/beanqui branch
+    name: 'gcr.io/cloud-builders/gcloud'
+    dir: deploy
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        set -x && \
+        git add beanqui/values.yaml && \
+        git commit \
+        --author="Cloud Build Service Account <$(gcloud auth list --filter=status:ACTIVE --format='value(account)')>" \
+        -m "Deploying images
+        - asia.gcr.io/$PROJECT_ID/beanqui:$SHORT_SHA
+        Built from commit ${COMMIT_SHA} of repository beanqui" && \
+        git push origin feature/beanqui
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
