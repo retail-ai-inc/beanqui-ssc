@@ -27,7 +27,7 @@
                 <router-link to="/admin/log/success" class="dropdown-item nav-link text-muted" :class="route=='/admin/log/success' ? 'active' : ''">Success Jobs</router-link>
               </li>
               <li>
-                <router-link to="/admin/log/error" class="dropdown-item nav-link text-muted" :class="route == '/admin/log/error' ? 'active' : ''">Error Jobs</router-link>
+                <router-link to="/admin/log/error" class="dropdown-item nav-link text-muted" :class="route == '/admin/log/error' ? 'active' : ''">Fail Jobs</router-link>
               </li>
             </ul>
 

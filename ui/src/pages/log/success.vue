@@ -7,8 +7,8 @@
                 <tr>
                     <th scope="col" style="width:8%">Id</th>
                     <th scope="col" style="width:8%">TTL(s)</th>
-                    <th scope="col" style="width:10%">Registered At</th>
-                    <th scope="col" style="width:8%">Processing Time</th>
+                    <th scope="col" style="width:10%">RegisteredAt</th>
+                    <th scope="col" style="width:8%">ProcessingTime</th>
                     <th scope="col" style="width:6%">Group</th>
                     <th scope="col" style="width:10%">Queue</th>
                     <th scope="col" style="width:35%">Payload</th>
@@ -62,16 +62,19 @@ let data = reactive({
   total:1,
   cursor:0
 })
+
 // success logs
 function getLog(page,pageSize,cursor){
   return request.get("log",{"params":{"type":"success","page":page,"pageSize":pageSize,"cursor":cursor}});
 }
+
 onMounted(async ()=>{
   let logs = await getLog(data.page,10,data.cursor);
   data.logs = {...logs.data.data};
   data.total = Math.ceil(logs.data.total/pageSize);
   data.cursor = logs.data.cursor;
 })
+
 // click pagination
 async function changePage(page,cursor){
   let logs = await getLog(page,10,cursor);
@@ -81,6 +84,7 @@ async function changePage(page,cursor){
   data.cursor = logs.data.cursor;
 
 }
+
 async function options(optType,id){
   switch (optType){
     case "delete":
@@ -102,6 +106,7 @@ async function options(optType,id){
 
   }
 }
+
 const {logs,page,total,cursor} = toRefs(data);
 
 </script>

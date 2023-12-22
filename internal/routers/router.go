@@ -308,7 +308,7 @@ func LogHandler(ctx *simple_router.Context) error {
 	}
 
 	if dataType == "error" {
-		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "error"}, ":")
+		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "fail"}, ":")
 	}
 	match := strings.Join([]string{matchStr, "*"}, ":")
 

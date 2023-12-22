@@ -4,23 +4,27 @@
     <div class="container-fluid text-center">
       <div class="row align-items-start" style="margin: 15px 0;color:#fff;">
         <div class="col" style="background: #0d6efd;height:120px;padding:15px;">
-          <div>Queue Total</div>
+          <div>QueueTotal</div>
           <div style="font-weight: bold">
             <router-link to="/admin/queue" class="nav-link text-muted link-color" >{{queue_total}}</router-link></div>
         </div>
         <div class="col" style="background: #198754;height:120px;padding:15px;">
-          <div>Cpu Total</div>
+          <div>CpuTotal</div>
           <div style="font-weight: bold">
             <router-link to="/admin/redis" class="nav-link text-muted link-color">{{num_cpu}}</router-link>
           </div>
         </div>
         <div class="col" style="background: #dc3545;height:120px;padding:15px;">
           <div>Queue Past 10 Minutes</div>
-          <div style="font-weight: bold">10</div>
+          <div style="font-weight: bold">
+            <router-link to="" class="nav-link text-muted link-color">10</router-link>
+          </div>
         </div>
         <div class="col" style="background: #343a40;height:120px;padding:15px;">
-          <div>DbSize</div>
-          <div style="font-weight: bold">{{db_size}}</div>
+          <div>TotalPayload</div>
+          <div style="font-weight: bold">
+            <router-link to="" class="nav-link text-muted link-color">{{db_size}}</router-link>
+          </div>
         </div>
       </div>
     </div>
