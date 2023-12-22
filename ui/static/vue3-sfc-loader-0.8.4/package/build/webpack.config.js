@@ -281,7 +281,7 @@ ${ pkg.name } v${ pkg.version } for vue${ vueTarget }
 
 				'./createSFCModule$': `./createVue${ vueTarget }SFCModule`,
 
-				// dedupe (see DuplicatePackageCheckerPlugin result)
+				// dedupe (see DuplicatePackageCheckerPlugin results)
 				'bn.js$': require.resolve('bn.js'),
 				'safe-buffer$': require.resolve('safe-buffer'),
 				//'es-abstract': require.resolve('es-abstract'),

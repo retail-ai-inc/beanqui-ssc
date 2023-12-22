@@ -6924,7 +6924,7 @@ var Vue = (function (exports) {
             optimized
           );
         } else {
-          if (patchFlag > 0 && patchFlag & 64 && dynamicChildren && // #2715 the previous fragment could've been a BAILed one as a result
+          if (patchFlag > 0 && patchFlag & 64 && dynamicChildren && // #2715 the previous fragment could've been a BAILed one as a results
           // of renderSlot() with no valid children
           n1.dynamicChildren) {
             patchBlockChildren(

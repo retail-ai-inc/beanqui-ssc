@@ -1,12 +1,12 @@
 <template>
     <div>
-      <Pagination :page="page" :total="total" @changePage="changePage"/>
+      <Pagination :page="page" :total="total" :cursor="cursor" @changePage="changePage"/>
 
         <table class="table table-striped" style="table-layout: fixed">
             <thead>
                 <tr>
-                    <th scope="col" style="width:3%">Key</th>
-                    <th scope="col" style="width:5%">TTL(s)</th>
+                    <th scope="col" style="width:8%">Key</th>
+                    <th scope="col" style="width:8%">TTL(s)</th>
                     <th scope="col" style="width:10%">AddTime</th>
                     <th scope="col" style="width:5%">RunTime</th>
                     <th scope="col" style="width:6%">Group</th>
@@ -17,8 +17,8 @@
             </thead>
             <tbody class="table-body">
                 <tr v-for="(item, key) in logs" :key="key">
-                    <th scope="row">{{ item.key}}</th>
-                    <td>{{ item.ttl }}</td>
+                    <th scope="row">{{ item.id}}</th>
+                    <td>{{ item.expireTime }}</td>
                     <td>{{item.addTime}}</td>
                     <td>{{item.runTime}}</td>
                     <td>{{ item.group }}</td>
@@ -43,7 +43,7 @@
         </table>
 
 
-      <Pagination :page="page" :total="total" @changePage="changePage"/>
+      <Pagination :page="page" :total="total" :cursor="cursor" @changePage="changePage"/>
 
     </div>
 </template>
@@ -59,36 +59,39 @@ let pageSize = 10;
 let data = reactive({
   logs:[],
   page:1,
-  total:1
+  total:1,
+  cursor:0
 })
 // success logs
-function getLog(page,pageSize){
-  return request.get("log",{"params":{"type":"success","page":page,"pageSize":pageSize}});
+function getLog(page,pageSize,cursor){
+  return request.get("log",{"params":{"type":"success","page":page,"pageSize":pageSize,"cursor":cursor}});
 }
 onMounted(async ()=>{
-  let logs = await getLog(data.page,10);
+  let logs = await getLog(data.page,10,data.cursor);
   data.logs = {...logs.data.data};
   data.total = Math.ceil(logs.data.total/pageSize);
+  data.cursor = logs.data.cursor;
 })
 // click pagination
-async function changePage(page){
-  let logs = await getLog(page,10);
+async function changePage(page,cursor){
+  let logs = await getLog(page,10,cursor);
   data.logs = {...logs.data.data};
   data.total = Math.ceil(logs.data.total / 10);
   data.page = page;
+  data.cursor = logs.data.cursor;
 
 }
 async function options(optType,id){
   switch (optType){
     case "delete":
       await request.delete("/log/del", {params: {id: id}}).then(res=>{
-        getLog(data.page,10);
+        getLog(data.page,10,data.cursor);
       }).catch(err=>{
         console.error(err)
       })
     case "retry":
       await request.post("/log/retry",{id:id},{headers:{"Content-Type":"multipart/form-data"}} ).then(res=>{
-        getLog(data.page,10);
+        getLog(data.page,10,data.cursor);
       }).catch(err=>{
         console.error(err)
       })
@@ -99,13 +102,16 @@ async function options(optType,id){
 
   }
 }
-const {logs,page,total} = toRefs(data);
+const {logs,page,total,cursor} = toRefs(data);
 
 </script>
   
 <style scoped>
 .table .table-body th,.table .table-body td{
   vertical-align: middle;
+}
+.table-body tr td{
+  overflow: visible !important;
 }
 .table .text-success-emphasis {
     color: var(--bs-green) !important;

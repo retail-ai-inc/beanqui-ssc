@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/redis/go-redis/v9 v9.2.0
-	github.com/retail-ai-inc/beanq v0.0.0-20230913002842-6af5b4637917
+	github.com/retail-ai-inc/beanq v0.0.0-20230927033634-0a8198ba7a6a
 	github.com/spf13/cast v1.5.1
 	github.com/spf13/viper v1.16.0
 )
@@ -41,4 +41,5 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
 //replace github.com/retail-ai-inc/beanq v0.0.0-20230913002842-6af5b4637917 => /home/kll/projects/beanq
