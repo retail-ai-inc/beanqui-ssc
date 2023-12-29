@@ -73,7 +73,8 @@ steps:
       - '-c'
       - |
         set -x && \
-        sed "s/COMMIT_SHA/${SHORT_SHA}/g" values.yaml.tpl > values.yaml
+        sed "s/COMMIT_SHA/${SHORT_SHA}/g" values.yaml.tpl > values.yaml && \
+        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" values.yaml
   - id: push generated manifests to feature/beanqui branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
