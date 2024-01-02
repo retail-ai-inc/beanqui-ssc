@@ -162,6 +162,28 @@ func LogArchiveHandler(ctx *simple_router.Context) error {
 	return ctx.Json(http.StatusOK, result)
 }
 
+func DetailHandler(ctx *simple_router.Context) error {
+	result, cancel := results.Get()
+	defer cancel()
+
+	req := ctx.Request()
+	id := req.FormValue("id")
+	msgType := req.FormValue("msgType")
+
+	client := redisx.Client()
+	res, err := client.Get(ctx.Context(), strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType, id}, ":")).Result()
+	if err != nil {
+
+	}
+	m := make(map[string]any)
+	if err := json.Unmarshal([]byte(res), &m); err != nil {
+
+	}
+	result.Data = m
+
+	return ctx.Json(http.StatusOK, result)
+}
+
 func LogRetryHandler(ctx *simple_router.Context) error {
 
 	result, cancel := results.Get()
@@ -266,8 +288,8 @@ type Msg struct {
 	BeginTime   time.Time
 	EndTime     time.Time
 	ExecuteTime time.Time
-	Queue       string `json:"queue"`
-	Group       string `json:"group"`
+	Topic       string `json:"topic"`
+	Channel     string `json:"channel"`
 	Consumer    string `json:"consumer"`
 }
 

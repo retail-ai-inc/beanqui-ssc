@@ -9,20 +9,22 @@
                     <th scope="col" style="width:8%">TTL(s)</th>
                     <th scope="col" style="width:10%">RegisteredAt</th>
                     <th scope="col" style="width:8%">ProcessingTime</th>
-                    <th scope="col" style="width:6%">Group</th>
-                    <th scope="col" style="width:10%">Queue</th>
+                    <th scope="col" style="width:6%">Channel</th>
+                    <th scope="col" style="width:10%">Topic</th>
                     <th scope="col" style="width:35%">Payload</th>
                     <th scope="col" style="width:6%">Action</th>
                 </tr>
             </thead>
             <tbody class="table-body">
                 <tr v-for="(item, key) in logs" :key="key">
-                    <th scope="row">{{ item.id}}</th>
+                    <th scope="row">
+                      <router-link to="" class="nav-link text-muted" v-on:click="detailSuccess(item)">{{item.id}}</router-link>
+                    </th>
                     <td>{{ item.expireTime }}</td>
                     <td>{{item.addTime}}</td>
                     <td>{{item.runTime}}</td>
-                    <td>{{ item.group }}</td>
-                    <td>{{item.queue}}</td>
+                    <td>{{ item.channel }}</td>
+                    <td>{{item.topic}}</td>
                     <td>{{item.payload}}</td>
                     <td>
                       <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
@@ -52,6 +54,8 @@
 <script setup>
 
 import { reactive,toRefs,onMounted,onUnmounted } from "vue";
+import { useRouter } from 'vueRouter';
+
 import request  from "request";
 import Pagination from "../components/pagination.vue";
 
@@ -105,6 +109,11 @@ async function options(optType,id){
 
 
   }
+}
+
+const uRouter = useRouter();
+function detailSuccess(item){
+  uRouter.push("detail/"+item.id+"/success");
 }
 
 const {logs,page,total,cursor} = toRefs(data);

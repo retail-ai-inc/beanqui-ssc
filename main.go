@@ -36,6 +36,7 @@ func main() {
 	rt.Delete("/log/del", routers.Auth(routers.LogDelHandler))
 	rt.Post("/log/retry", routers.Auth(routers.LogRetryHandler))
 	rt.Post("/log/archive", routers.Auth(routers.LogArchiveHandler))
+	rt.Get("/detail", routers.DetailHandler)
 	rt.Get("/clients", routers.ClientListHandler)
 	rt.Get("/dashboard", routers.DashboardHandler)
 

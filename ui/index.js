@@ -42,8 +42,9 @@
           //{ path: 'server', component: () => loadModule('./src/pages/server.vue', options) },
           { path: 'schedule', component: () => loadModule("./src/pages/schedule.vue", options) },
           { path: 'queue', component: () => loadModule("./src/pages/queue.vue", options) },
-          {path:'log/success',component:()=>loadModule("./src/pages/log/success.vue",options)},
-          {path:'log/error',component:()=>loadModule("./src/pages/log/error.vue",options)},
+          { path: 'log/success',component:()=>loadModule("./src/pages/log/success.vue",options)},
+          { path: 'log/error',component:()=>loadModule("./src/pages/log/error.vue",options)},
+          { path: 'log/detail/:id/:msgType',component:()=>loadModule("./src/pages/log/detail.vue",options)},
           { path: 'redis', component: () => loadModule("./src/pages/redis.vue", options) },
         ]
   };
