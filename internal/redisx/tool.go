@@ -2,9 +2,13 @@ package redisx
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/retail-ai-inc/beanq/helper/json"
+	"github.com/retail-ai-inc/beanq/helper/stringx"
 	"github.com/spf13/cast"
 )
 
@@ -73,6 +77,84 @@ func Info(ctx context.Context, client *redis.Client) (map[string]string, error) 
 	}
 	return info, nil
 
+}
+
+func ClientList(ctx context.Context, client *redis.Client) ([]map[string]any, error) {
+
+	cmd := client.ClientList(ctx)
+	if err := cmd.Err(); err != nil {
+		return nil, err
+	}
+	data, err := cmd.Result()
+	if err != nil {
+		return nil, err
+	}
+
+	arr := strings.Split(data, "\n")
+	ldata := make(map[string]any, 0)
+	rdata := make([]map[string]any, 0, 10)
+	for _, v := range arr {
+		nv := strings.Split(v, " ")
+		for _, nvv := range nv {
+			vals := strings.Split(nvv, "=")
+			if vals[0] == "age" {
+				if vals[1] == "0" {
+					continue
+				}
+			}
+			if len(vals) < 2 {
+				continue
+			}
+			ldata[vals[0]] = vals[1]
+			rdata = append(rdata, ldata)
+		}
+	}
+	return rdata, nil
+}
+func ZRange(ctx context.Context, client *redis.Client, match string, page, pageSize int64) (map[string]any, error) {
+
+	cmd := client.ZRange(ctx, match, page, pageSize)
+	if cmd.Err() != nil {
+		return nil, cmd.Err()
+	}
+
+	result, err := cmd.Result()
+	if err != nil {
+		return nil, err
+	}
+
+	njson := json.Json
+
+	length, err := client.ZLexCount(ctx, match, "-", "+").Result()
+	if err != nil {
+		return nil, err
+	}
+	d := make([]map[string]any, 0, pageSize)
+	for _, v := range result {
+
+		cmd := client.ZRank(ctx, match, v)
+		key, err := cmd.Result()
+		if err != nil {
+			continue
+		}
+		payloadByte := stringx.StringToByte(v)
+		npayload := njson.Get(payloadByte, "Payload")
+		addTime := njson.Get(payloadByte, "AddTime")
+		runTime := njson.Get(payloadByte, "RunTime")
+		group := njson.Get(payloadByte, "Group")
+
+		queuestr := njson.Get(payloadByte, "Queue").ToString()
+		queues := strings.Split(queuestr, ":")
+		queue := queuestr
+		if len(queues) >= 4 {
+			queue = queues[2]
+		}
+
+		ttl := cast.ToTime(njson.Get(payloadByte, "ExpireTime").ToString()).Sub(time.Now()).Seconds()
+		d = append(d, map[string]any{"key": key, "ttl": fmt.Sprintf("%.3f", ttl), "addTime": addTime, "runTime": runTime, "group": group, "queue": queue, "payload": npayload})
+
+	}
+	return map[string]any{"data": d, "total": length}, nil
 }
 func ScheduleQueueKey(prefix string) string {
 	return strings.Join([]string{prefix, "*", "zset"}, ":")

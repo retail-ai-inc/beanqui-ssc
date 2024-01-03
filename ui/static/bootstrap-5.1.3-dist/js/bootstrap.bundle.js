@@ -2160,7 +2160,7 @@
 
           next = next.parentNode || next.host;
         } while (next);
-      } // Give up, the result is false
+      } // Give up, the results is false
 
 
     return false;

@@ -1,18 +1,67 @@
 <template>
 
-    <div class="d-flex justify-content-between">
-        <div style="width:50%">
-          <v-chart class="chart" :option="barOption" />
+  <div>
+    <div class="container-fluid text-center">
+      <div class="row align-items-start" style="margin: 15px 0;color:#fff;">
+        <div class="col" style="background: #0d6efd;height:120px;padding:15px;">
+          <div>QueueTotal</div>
+          <div style="font-weight: bold">
+            <router-link to="/admin/queue" class="nav-link text-muted link-color" >{{queue_total}}</router-link></div>
         </div>
-        <div style="width:50%">
-          <v-chart class="chart" :option="lineOption"/>
+        <div class="col" style="background: #198754;height:120px;padding:15px;">
+          <div>CpuTotal</div>
+          <div style="font-weight: bold">
+            <router-link to="/admin/redis" class="nav-link text-muted link-color">{{num_cpu}}</router-link>
+          </div>
         </div>
+        <div class="col" style="background: #dc3545;height:120px;padding:15px;">
+          <div>Queue Past 10 Minutes</div>
+          <div style="font-weight: bold">
+            <router-link to="" class="nav-link text-muted link-color">10</router-link>
+          </div>
+        </div>
+        <div class="col" style="background: #343a40;height:120px;padding:15px;">
+          <div>TotalPayload</div>
+          <div style="font-weight: bold">
+            <router-link to="" class="nav-link text-muted link-color">{{db_size}}</router-link>
+          </div>
+        </div>
+      </div>
     </div>
+    <div class="d-flex justify-content-between">
+      <div></div>
+      <div style="width:50%">
+        <v-chart class="chart" :option="barOption" />
+      </div>
+      <div style="width:50%">
+        <v-chart class="chart" :option="lineOption"/>
+      </div>
+    </div>
+
+  </div>
+
 
 </template>
 
 <script setup>
-import {ref} from "vue";
+import {ref,reactive,onMounted,toRefs,} from "vue";
+import request  from "request";
+
+let data = reactive({
+  "queue_total":0,
+  "db_size":0,
+  "num_cpu":0
+})
+function getTotal(){
+  return request.get("dashboard");
+}
+onMounted(async ()=>{
+  let total = await getTotal();
+  data.queue_total = total.data.queue_total;
+  data.db_size = total.data.db_size;
+  data.num_cpu = total.data.num_cpu;
+})
+
 const barOption = ref({
   title: {
     text: 'Queue Size',
@@ -103,10 +152,15 @@ const lineOption = ref({
       data:[120, 132, 101, 134, 90, 230, 210]
     }
   ]
-})
+});
+const {queue_total,db_size,num_cpu} = toRefs(data);
 </script>
 <style scoped>
 .chart{
   width:100%;height:80vh;
+}
+.link-color{
+  display: inline-block;
+  color: #fff !important;
 }
 </style>

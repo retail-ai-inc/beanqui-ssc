@@ -8,9 +8,9 @@
           <li class="nav-item">
             <router-link to="/admin/home" class="nav-link text-muted" :class="route == '/admin/home' ? 'active' : ''">Home</router-link>
           </li>
-          <li class="nav-item">
-            <router-link to="/admin/server" class="nav-link text-muted" :class="route == '/admin/server' ? 'active' : ''">Server</router-link>
-          </li>
+<!--          <li class="nav-item">-->
+<!--            <router-link to="/admin/server" class="nav-link text-muted" :class="route == '/admin/server' ? 'active' : ''">Server</router-link>-->
+<!--          </li>-->
           <li class="nav-item">
             <router-link to="/admin/schedule" class="nav-link text-muted" :class="route == '/admin/schedule' ? 'active' : ''">Schedule</router-link>
           </li>
@@ -24,10 +24,10 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-dark" >
               <li>
-                <router-link to="/admin/log/success" class="dropdown-item nav-link text-muted" :class="route=='/admin/log/success' ? 'active' : ''">Success Log</router-link>
+                <router-link to="/admin/log/success" class="dropdown-item nav-link text-muted" :class="route=='/admin/log/success' ? 'active' : ''">Success Jobs</router-link>
               </li>
               <li>
-                <router-link to="/admin/log/error" class="dropdown-item nav-link text-muted" :class="route == '/admin/log/error' ? 'active' : ''">Error Log</router-link>
+                <router-link to="/admin/log/error" class="dropdown-item nav-link text-muted" :class="route == '/admin/log/error' ? 'active' : ''">Fail Jobs</router-link>
               </li>
             </ul>
 

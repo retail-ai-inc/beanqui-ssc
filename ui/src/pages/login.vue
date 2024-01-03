@@ -38,6 +38,7 @@ function onSubmit(){
     return;
   }
   request.post("/login", {username:data.user.username,password:data.user.password},{headers:{"Content-Type":"multipart/form-data"}} ).then(res=>{
+
     sessionStorage.setItem("token",res.data.token);
     useRe.push("/admin/home");
   }).catch(err=>{
