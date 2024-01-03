@@ -1,7 +1,7 @@
 # source image
 FROM golang:latest
 
-LABEL author="Trial <10223062kong_liangliang@cn.tre-inc.com>" describe="BEANQ Monitor UI"
+LABEL author="Trial <10223062kong_liangliang@cn.tre-inc.com>" describe="BeanQ Monitoring UI"
 LABEL describe="test image"
 
 ## create work folder for docker
