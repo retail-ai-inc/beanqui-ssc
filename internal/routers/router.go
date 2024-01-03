@@ -2,6 +2,7 @@ package routers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"path"
@@ -301,14 +302,11 @@ func LogHandler(ctx *simple_router.Context) error {
 	client := redisx.Client()
 
 	var (
-		page, pageSize int64
-		dataType       string = "success"
-		matchStr       string = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "success"}, ":")
+		dataType string = "success"
+		matchStr string = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "success"}, ":")
 	)
 
 	req := ctx.Request()
-	page = cast.ToInt64(req.FormValue("page"))
-	pageSize = cast.ToInt64(req.FormValue("pageSize"))
 	dataType = req.FormValue("type")
 	gCursor := cast.ToUint64(req.FormValue("cursor"))
 
@@ -320,18 +318,10 @@ func LogHandler(ctx *simple_router.Context) error {
 
 	}
 
-	nowPage := (page - 1) * pageSize
-	if nowPage <= 0 {
-		nowPage = 0
-	}
-	nowPageSize := page * pageSize
-	if nowPageSize <= 0 {
-		nowPageSize = 9
-	}
-
 	if dataType == "error" {
 		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "fail"}, ":")
 	}
+
 	match := strings.Join([]string{matchStr, "*"}, ":")
 
 	data := make(map[string]any)
@@ -341,7 +331,9 @@ func LogHandler(ctx *simple_router.Context) error {
 
 	keys, cursor, err := client.Scan(ctx.Context(), gCursor, match, 10).Result()
 	if err != nil {
-
+		resultRes.Code = "1005"
+		resultRes.Msg = err.Error()
+		return ctx.Json(http.StatusInternalServerError, resultRes)
 	}
 
 	msgs := make([]*Msg, 0, 10)
@@ -372,14 +364,34 @@ func RedisHandler(ctx *simple_router.Context) error {
 
 	client := redisx.Client()
 
-	d, err := redisx.Info(ctx.Context(), client)
-	if err != nil {
-		result.Code = "1001"
-		result.Msg = err.Error()
-		return ctx.Json(http.StatusInternalServerError, result)
-	}
+	rw := ctx.Response()
+	// rq := ctx.Request()
+	flusher, ok := rw.(http.Flusher)
+	if !ok {
 
-	result.Data = d
+	}
+	rw.Header().Set("Content-Type", "text/event-stream")
+	rw.Header().Set("Cache-Control", "no-cache")
+	rw.Header().Set("Connection", "keep-alive")
+
+	for {
+		d, err := redisx.Info(ctx.Context(), client)
+		if err != nil {
+			result.Code = "1001"
+			result.Msg = err.Error()
+			return ctx.Json(http.StatusInternalServerError, result)
+		}
+
+		result.Data = d
+		b, err := json.Marshal(result)
+
+		_, err = rw.Write([]byte(fmt.Sprintf("id:%d\n", time.Now().Unix())))
+		_, err = rw.Write([]byte("event:redis_info\n"))
+		_, err = rw.Write([]byte(fmt.Sprintf("data:%s\n\n", string(b))))
+
+		flusher.Flush()
+		time.Sleep(10 * time.Second)
+	}
 
 	return ctx.Json(http.StatusOK, result)
 }
