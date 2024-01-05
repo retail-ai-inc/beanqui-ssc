@@ -160,6 +160,9 @@ onMounted(async ()=>{
   }
   sse.addEventListener("redis_info",function (res) {
     let body = JSON.parse(res.data);
+    if (body.code != "0000"){
+      return
+    }
     Object.assign(info,body.data);
   })
   sse.onerror = (err)=>{

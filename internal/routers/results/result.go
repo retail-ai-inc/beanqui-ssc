@@ -1,8 +1,10 @@
 package results
 
 import (
+	"net/http"
 	"sync"
 
+	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 )
 
@@ -16,6 +18,20 @@ func (t *Result) reset() {
 	t.Data = nil
 	t.Msg = consts.SuccessMsg
 	t.Code = consts.SuccessCode
+}
+
+func (t *Result) Json(w http.ResponseWriter, httpCode int) error {
+	w.WriteHeader(httpCode)
+	w.Header().Set("Content-Type", "application/json")
+
+	b, err := json.Marshal(t)
+	if err != nil {
+		return err
+	}
+	if _, err := w.Write(b); err != nil {
+		return err
+	}
+	return nil
 }
 
 var resultPool = sync.Pool{New: func() any {

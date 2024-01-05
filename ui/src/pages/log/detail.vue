@@ -21,7 +21,7 @@ import { useRoute,useRouter } from 'vueRouter';
 import request  from "request";
 
 function getDetail(id,msgType){
-  return request.get("/detail",{"params":{"id":id,"msgType":msgType}})
+  return request.get("/log",{"params":{"id":id,"msgType":msgType}})
 }
 
 let data = reactive({

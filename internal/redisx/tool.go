@@ -3,6 +3,7 @@ package redisx
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -155,6 +156,53 @@ func ZRange(ctx context.Context, client *redis.Client, match string, page, pageS
 
 	}
 	return map[string]any{"data": d, "total": length}, nil
+}
+
+type Msg struct {
+	Id      string `json:"id"`
+	Level   string
+	Info    string
+	Payload any `json:"payload"`
+
+	AddTime     string    `json:"addTime"`
+	ExpireTime  time.Time `json:"expireTime"`
+	RunTime     string    `json:"runTime"`
+	BeginTime   time.Time
+	EndTime     time.Time
+	ExecuteTime time.Time
+	Topic       string `json:"topic"`
+	Channel     string `json:"channel"`
+	Consumer    string `json:"consumer"`
+}
+
+func QueueInfo(ctx context.Context, client *redis.Client, queueKey string) (any, error) {
+
+	// get queues
+	queues, err := Keys(ctx, client, queueKey)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make(map[string][]map[string]any)
+
+	for _, queue := range queues {
+
+		queueArr := strings.Split(queue, ":")
+		if len(queueArr) < 4 {
+			continue
+		}
+		objStr := Object(ctx, client, queue)
+		// get memory
+		r, err := client.MemoryUsage(ctx, queue).Result()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		data[queueArr[1]] = append(data[queueArr[1]], map[string]any{"group": queueArr[1], "queue": queueArr[2], "state": "Run", "size": objStr.SerizlizedLength, "memory": r, "process": objStr.LruSecondsIdle, "fail": 0})
+
+	}
+
+	return data, nil
 }
 func ScheduleQueueKey(prefix string) string {
 	return strings.Join([]string{prefix, "*", "zset"}, ":")

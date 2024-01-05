@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"log"
+	"net/http"
 
-	"github.com/retail-ai-inc/beanqui/internal/routers"
-	"github.com/retail-ai-inc/beanqui/internal/simple_router"
+	. "github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/spf13/viper"
 )
 
@@ -25,22 +25,24 @@ func main() {
 	flag.StringVar(&port, "port", ":9090", "port")
 	flag.Parse()
 
-	rt := simple_router.New()
+	mux := http.NewServeMux()
+	mux.Handle("/", &Index{})
+	mux.Handle("/schedule", &Schedule{})
+	mux.Handle("/queue", &Queue{})
+	mux.Handle("/logs", &Logs{})
+	// restful: detail,delete,retry,archive
+	mux.Handle("/log", &Log{})
+	mux.Handle("/redis", &RedisInfo{})
+	mux.Handle("/login", &Login{})
+	mux.Handle("/clients", &Client{})
+	mux.Handle("/dashboard", Auth(&Dashboard{}))
 
-	rt.Get("/", routers.IndexHandler)
-	rt.Get("/schedule", routers.ScheduleHandler)
-	rt.Get("/queue", routers.QueueHandler)
-	rt.Get("/log", routers.Auth(routers.LogHandler))
-	rt.Get("/redis", routers.RedisHandler)
-	rt.Post("/login", routers.LoginHandler)
-	rt.Delete("/log/del", routers.Auth(routers.LogDelHandler))
-	rt.Post("/log/retry", routers.Auth(routers.LogRetryHandler))
-	rt.Post("/log/archive", routers.Auth(routers.LogArchiveHandler))
-	rt.Get("/detail", routers.DetailHandler)
-	rt.Get("/clients", routers.ClientListHandler)
-	rt.Get("/dashboard", routers.DashboardHandler)
-
-	if err := rt.Run(port); err != nil {
+	srv := http.Server{
+		Addr:    port,
+		Handler: mux,
+	}
+	log.Println("server start.....")
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}
 
