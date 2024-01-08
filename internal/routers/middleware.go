@@ -31,7 +31,7 @@ func Auth(next http.Handler) http.HandlerFunc {
 				return
 			}
 
-			token, err = jwtx.ParseRsaToken(strs[1])
+			token, err = jwtx.ParseHsToken(strs[1])
 
 			if err != nil {
 				result.Code = consts.InternalServerErrorCode
@@ -42,7 +42,7 @@ func Auth(next http.Handler) http.HandlerFunc {
 		}
 		if auth == "" {
 			auth = request.FormValue("token")
-			token, err = jwtx.ParseRsaToken(auth)
+			token, err = jwtx.ParseHsToken(auth)
 
 			if err != nil {
 				result.Code = consts.InternalServerErrorMsg

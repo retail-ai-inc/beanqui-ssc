@@ -41,17 +41,17 @@ func (t *Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	claim := jwtx.Claim{
 		UserName: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    viper.GetString("Issuer"),
-			Subject:   viper.GetString("Subject"),
+			Issuer:    viper.GetString("issuer"),
+			Subject:   viper.GetString("subject"),
 			Audience:  nil,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration("ExpiresAt"))),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration("expiresAt"))),
 			NotBefore: nil,
 			IssuedAt:  nil,
 			ID:        "",
 		},
 	}
 
-	token, err := jwtx.MakeRsaToken(claim)
+	token, err := jwtx.MakeHsToken(claim)
 	if err != nil {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = err.Error()
