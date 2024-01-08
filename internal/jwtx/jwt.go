@@ -1,70 +1,39 @@
 package jwtx
 
 import (
-	"os"
-	"path"
-	"path/filepath"
-	"runtime"
+	"errors"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type Claim struct {
 	UserName string
-	jwt.Claims
+	jwt.RegisteredClaims
 }
+
+var signKey = []byte("sfds234@#$@4242")
 
 func MakeRsaToken(claims Claim) (string, error) {
 
-	_, p, _, ok := runtime.Caller(0)
-	if ok {
-		p = filepath.Dir(p)
-		p = path.Join(p, "cert", "private.pem")
-	} else {
-		p = "./private.pem"
-	}
-
-	b, err := os.ReadFile(p)
-	if err != nil {
-		return "", err
-	}
-
-	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(b)
-	if err != nil {
-		return "", err
-	}
-
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("RS256"), claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	str, err := token.SignedString(signKey)
 	if err != nil {
 		return "", err
 	}
 	return str, nil
 }
-func ParseRsaToken(tokenStr string) (*jwt.Token, error) {
+func ParseRsaToken(tokenStr string) (*Claim, error) {
 
-	_, p, _, ok := runtime.Caller(0)
-	if ok {
-		p = filepath.Dir(p)
-		p = path.Join(p, "cert", "public.pem")
-	} else {
-		p = "./public.pem"
-	}
-
-	b, err := os.ReadFile(p)
-	if err != nil {
-		return nil, err
-	}
-	verifyKey, err := jwt.ParseRSAPublicKeyFromPEM(b)
-	if err != nil {
-		return nil, err
-	}
-
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		return verifyKey, nil
+	token, err := jwt.ParseWithClaims(tokenStr, &Claim{}, func(token *jwt.Token) (i interface{}, err error) {
+		return signKey, nil
 	})
+
 	if err != nil {
 		return nil, err
 	}
-	return token, nil
+
+	if claim, ok := token.Claims.(*Claim); ok && token.Valid {
+		return claim, nil
+	}
+	return nil, errors.New("invalid token")
 }

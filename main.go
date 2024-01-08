@@ -27,14 +27,14 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/", &Index{})
-	mux.Handle("/schedule", &Schedule{})
-	mux.Handle("/queue", &Queue{})
-	mux.Handle("/logs", &Logs{})
+	mux.Handle("/schedule", Auth(&Schedule{}))
+	mux.Handle("/queue", Auth(&Queue{}))
+	mux.Handle("/logs", Auth(&Logs{}))
 	// restful: detail,delete,retry,archive
-	mux.Handle("/log", &Log{})
-	mux.Handle("/redis", &RedisInfo{})
+	mux.Handle("/log", Auth(&Log{}))
+	mux.Handle("/redis", Auth(&RedisInfo{}))
 	mux.Handle("/login", &Login{})
-	mux.Handle("/clients", &Client{})
+	mux.Handle("/clients", Auth(&Client{}))
 	mux.Handle("/dashboard", Auth(&Dashboard{}))
 
 	srv := http.Server{

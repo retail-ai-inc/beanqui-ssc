@@ -15,26 +15,45 @@ func Auth(next http.Handler) http.HandlerFunc {
 		result, cancel := results.Get()
 		defer cancel()
 
+		var (
+			err   error
+			token *jwtx.Claim
+		)
+
 		auth := request.Header.Get("Beanq-Authorization")
+		if auth != "" {
+			strs := strings.Split(auth, " ")
+			if len(strs) < 2 {
+				// return data format err
+				result.Code = consts.InternalServerErrorCode
+				result.Msg = "missing parameter"
+				_ = result.Json(writer, http.StatusInternalServerError)
+				return
+			}
 
-		strs := strings.Split(auth, " ")
-		if len(strs) < 2 {
-			// return data format err
-			result.Code = consts.InternalServerErrorCode
-			result.Msg = "missing parameter"
-			_ = result.Json(writer, http.StatusInternalServerError)
-			return
+			token, err = jwtx.ParseRsaToken(strs[1])
+
+			if err != nil {
+				result.Code = consts.InternalServerErrorCode
+				result.Msg = err.Error()
+				_ = result.Json(writer, http.StatusUnauthorized)
+				return
+			}
+		}
+		if auth == "" {
+			auth = request.FormValue("token")
+			token, err = jwtx.ParseRsaToken(auth)
+
+			if err != nil {
+				result.Code = consts.InternalServerErrorMsg
+				result.Msg = err.Error()
+				_ = result.Json(writer, http.StatusUnauthorized)
+				return
+			}
 		}
 
-		token, err := jwtx.ParseRsaToken(strs[1])
-		if err != nil {
-			result.Code = consts.InternalServerErrorCode
-			result.Msg = err.Error()
-			_ = result.Json(writer, http.StatusUnauthorized)
-			return
-		}
 		//
-		_, err = token.Claims.GetExpirationTime()
+		_, err = token.GetExpirationTime()
 		if err != nil {
 			result.Code = consts.InternalServerErrorCode
 			result.Msg = err.Error()

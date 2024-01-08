@@ -151,8 +151,8 @@ import { reactive,onMounted,onUnmounted } from "vue";
 import request  from "request";
 
 let info = reactive({});
-
-const sse = new EventSource("/redis");
+let sseUrl = "/redis?token="+sessionStorage.getItem("token")
+const sse = new EventSource(sseUrl);
 
 onMounted(async ()=>{
   sse.onopen = ()=>{

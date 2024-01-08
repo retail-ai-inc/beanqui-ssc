@@ -74,7 +74,7 @@
             <tbody>
                 <tr v-for="(item, key) in queues" :key="key">
 
-                    <th scope="row" rowspan="2">{{key}}</th>
+                    <th scope="row">{{key}}</th>
                     <th scope="row">{{ item.queue }}</th>
                     <td :class="item.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'">{{ item.state }}</td>
                     <td>{{ item.size }}</td>
@@ -94,7 +94,7 @@
                       </div>
                     </td>
                 </tr>
- 
+
             </tbody>
         </table>
       <Pagination :page="page" :total="total" @changePage="changePage"/>

@@ -40,11 +40,11 @@ func (t *Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	claim := jwtx.Claim{
 		UserName: username,
-		Claims: jwt.RegisteredClaims{
-			Issuer:    "Trial China",
-			Subject:   "beanq monitor ui",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    viper.GetString("Issuer"),
+			Subject:   viper.GetString("Subject"),
 			Audience:  nil,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7200 * time.Second)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration("ExpiresAt"))),
 			NotBefore: nil,
 			IssuedAt:  nil,
 			ID:        "",
