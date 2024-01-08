@@ -1,45 +1,57 @@
 <template>
     <div>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                  <th scope="col">Group</th>
-                    <th scope="col">Queue</th>
-                    <th scope="col">State</th>
-                    <th scope="col">Size</th>
-                    <th scope="col">Memory usage</th>
-                    <th scope="col">Processed</th>
-                    <th scope="col">Failed</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(item,key) in schedule" :key="key">
-                  <th scope="row">{{item.group}}</th>
-                    <th scope="row">{{ item.queue }}</th>
-                    <td :class="item.state == 'Run' ? 'text-success-emphasis': 'text-danger-emphasis'">{{ item.state }}</td>
-                    <td>{{ item.size }}</td>
-                    <td>{{ item.memory }}</td>
-                    <td>{{ item.process }}</td>
-                    <td>{{ item.fail }}</td>
-                    <td>
-                      <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                        <div class="btn-group" role="group">
-                          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            Actions
-                          </button>
-                          <ul class="dropdown-menu">
-                            <li><a class="dropdown-item">Delete</a></li>
-                            <li><a class="dropdown-item">Retry</a></li>
-                            <li><a class="dropdown-item">Archive</a></li>
-                          </ul>
-                        </div>
-                      </div>
-                    </td>
-                </tr>
-            </tbody>
 
-        </table>
+      <div class="accordion" id="schedule-ui-accordion">
+        <div class="accordion-item" v-for="(item, key) in schedule" :key="key" style="margin-bottom: 15px">
+          <h2 class="accordion-header">
+            <button style="font-weight: bold" class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="setScheduleId(key)" aria-expanded="true" :aria-controls="key">
+              Channel:&nbsp;&nbsp;{{key}}
+            </button>
+          </h2>
+          <div :id="key" class="accordion-collapse collapse show" data-bs-parent="#schedule-ui-accordion">
+            <div class="accordion-body" style="padding: 0.5rem">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th scope="col">Topic</th>
+                  <th scope="col">State</th>
+                  <th scope="col">Size</th>
+                  <th scope="col">Memory usage</th>
+                  <th scope="col">Processed</th>
+                  <!--                    <th scope="col">Failed</th>-->
+                  <!--                    <th scope="col">Error rate</th>-->
+                  <th scope="col">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(d, k) in item" :key="k">
+                  <th scope="row">{{ d.queue }}</th>
+                  <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'">{{ d.state }}</td>
+                  <td>{{ d.size }}</td>
+                  <td>{{ d.memory }}</td>
+                  <td>{{ d.process }}</td>
+                  <!--                    <td>{{ item.fail }}</td>-->
+                  <!--                    <td>{{ item.errRate }}</td>-->
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                      <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                          Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="#">Delete</a></li>
+                          <li><a class="dropdown-item" href="#">Pause</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
       <Pagination :page="page" :total="total" @changePage="changePage"/>
     </div>
 </template>
@@ -70,6 +82,9 @@ onMounted(async ()=>{
   data.schedule = {...schedule.data};
   data.total = Math.ceil(schedule.data.total / 10);
 })
+function setScheduleId(id){
+  return "#"+id;
+}
 const {page,total,schedule} = toRefs(data);
 </script>
   

@@ -21,13 +21,15 @@ func (t *Result) reset() {
 }
 
 func (t *Result) Json(w http.ResponseWriter, httpCode int) error {
-	w.WriteHeader(httpCode)
+
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpCode)
 
 	b, err := json.Marshal(t)
 	if err != nil {
 		return err
 	}
+
 	if _, err := w.Write(b); err != nil {
 		return err
 	}

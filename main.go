@@ -41,7 +41,7 @@ func main() {
 		Addr:    port,
 		Handler: mux,
 	}
-	log.Println("server start.....")
+	log.Printf("server start on port %s \n", port)
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}

@@ -14,9 +14,8 @@ type Queue struct {
 func (t *Queue) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	result, cancel := results.Get()
 	defer cancel()
-	nctx := r.Context()
 
-	bt, err := redisx.QueueInfo(nctx, redisx.Client(), redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
+	bt, err := redisx.QueueInfo(r.Context(), redisx.Client(), redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
 	if err != nil {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = err.Error()
@@ -25,7 +24,6 @@ func (t *Queue) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result.Data = bt
-
 	_ = result.Json(w, http.StatusOK)
 	return
 }
