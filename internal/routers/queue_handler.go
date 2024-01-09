@@ -74,23 +74,27 @@ func queueDetail(w http.ResponseWriter, r *http.Request, client *redis.Client) {
 	id = strings.Join([]string{prefix, id, "stream"}, ":")
 
 	for {
+
 		ctx := context.TODO()
 		ctx, _ = context.WithTimeout(ctx, 10*time.Second)
 
 		cmd, err := client.XInfoStreamFull(ctx, id, 10).Result()
 		if err != nil {
-			fmt.Println(err)
+			result.Code = "1004"
+			result.Msg = err.Error()
 		}
+
 		if err == nil {
 			result.Data = cmd.Entries
-			b, err = json.Marshal(result)
-
-			_, err = w.Write([]byte(fmt.Sprintf("id:%d\n", time.Now().Unix())))
-			_, err = w.Write([]byte("event:queue_detail\n"))
-			_, err = w.Write([]byte(fmt.Sprintf("data:%s\n\n", string(b))))
-
 		}
+
+		b, err = json.Marshal(result)
+
+		_, err = w.Write([]byte(fmt.Sprintf("id:%d\n", time.Now().Unix())))
+		_, err = w.Write([]byte("event:queue_detail\n"))
+		_, err = w.Write([]byte(fmt.Sprintf("data:%s\n\n", string(b))))
 		flusher.Flush()
+
 		time.Sleep(10 * time.Second)
 	}
 }
