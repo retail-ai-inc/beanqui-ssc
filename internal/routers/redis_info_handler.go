@@ -21,7 +21,6 @@ func (t *RedisInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	client := redisx.Client()
 
-	// rq := ctx.Request()
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 

@@ -19,20 +19,18 @@
                   <th scope="col">Size</th>
                   <th scope="col">Memory usage</th>
                   <th scope="col">Processed</th>
-                  <!--                    <th scope="col">Failed</th>-->
-                  <!--                    <th scope="col">Error rate</th>-->
                   <th scope="col">Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="(d, k) in item" :key="k">
-                  <th scope="row">{{ d.queue }}</th>
+                  <th scope="row">
+                    <router-link to="" class="nav-link text-muted" v-on:click="detailQueue(d)">{{ d.queue }}</router-link>
+                  </th>
                   <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'">{{ d.state }}</td>
                   <td>{{ d.size }}</td>
                   <td>{{ d.memory }}</td>
                   <td>{{ d.process }}</td>
-                  <!--                    <td>{{ item.fail }}</td>-->
-                  <!--                    <td>{{ item.errRate }}</td>-->
                   <td>
                     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                       <div class="btn-group" role="group">
@@ -61,8 +59,9 @@
 <script setup>
 
 import { reactive,onMounted,toRefs,onUnmounted } from "vue";
+import { useRouter } from 'vueRouter';
 import request  from "request";
-import Pagination from "./components/pagination.vue";
+import Pagination from "../components/pagination.vue";
 
 let pageSize = 10;
 let data = reactive({
@@ -72,21 +71,30 @@ let data = reactive({
 })
 
 function getQueue(page,pageSize){
-  return request.get("queue",{"params":{"page":page,"pageSize":pageSize}});
+  return request.get("queue?list",{"params":{"page":page,"pageSize":pageSize}});
 }
+
 onMounted(async ()=>{
   let queue = await getQueue(data.page,10);
   data.queues = {...queue.data};
 })
+
 async function changePage(page){
   let queue = await getQueue(page,10);
   data.queues = {...queue.data.data};
   data.total = Math.ceil(queue.data.total / 10);
   data.page = page;
 }
+
 function setId(id){
   return "#"+id;
 }
+
+const uRouter = useRouter();
+function detailQueue(item){
+  uRouter.push("queue/detail/"+item.group + ":" + item.queue);
+}
+
 const {queues,page,total} = toRefs(data);
 </script>
   

@@ -18,8 +18,6 @@
                   <th scope="col">Size</th>
                   <th scope="col">Memory usage</th>
                   <th scope="col">Processed</th>
-                  <!--                    <th scope="col">Failed</th>-->
-                  <!--                    <th scope="col">Error rate</th>-->
                   <th scope="col">Action</th>
                 </tr>
                 </thead>
@@ -30,8 +28,6 @@
                   <td>{{ d.size }}</td>
                   <td>{{ d.memory }}</td>
                   <td>{{ d.process }}</td>
-                  <!--                    <td>{{ item.fail }}</td>-->
-                  <!--                    <td>{{ item.errRate }}</td>-->
                   <td>
                     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                       <div class="btn-group" role="group">
