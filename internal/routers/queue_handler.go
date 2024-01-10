@@ -2,13 +2,11 @@ package routers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
@@ -67,7 +65,6 @@ func queueDetail(w http.ResponseWriter, r *http.Request, client *redis.Client) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-	var b []byte
 
 	id := r.FormValue("id")
 	prefix := viper.GetString("redis.prefix")
@@ -87,12 +84,7 @@ func queueDetail(w http.ResponseWriter, r *http.Request, client *redis.Client) {
 		if err == nil {
 			result.Data = cmd.Entries
 		}
-
-		b, err = json.Marshal(result)
-
-		_, err = w.Write([]byte(fmt.Sprintf("id:%d\n", time.Now().Unix())))
-		_, err = w.Write([]byte("event:queue_detail\n"))
-		_, err = w.Write([]byte(fmt.Sprintf("data:%s\n\n", string(b))))
+		_ = result.EventMsg(w, "queue_detail")
 		flusher.Flush()
 
 		time.Sleep(10 * time.Second)

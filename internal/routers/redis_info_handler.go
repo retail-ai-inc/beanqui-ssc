@@ -1,11 +1,9 @@
 package routers
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
 )
@@ -28,8 +26,6 @@ func (t *RedisInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	var b []byte
-
 	for {
 		d, err := redisx.Info(r.Context(), client)
 
@@ -41,12 +37,7 @@ func (t *RedisInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			result.Data = d
 		}
-
-		b, err = json.Marshal(result)
-
-		_, err = w.Write([]byte(fmt.Sprintf("id:%d\n", time.Now().Unix())))
-		_, err = w.Write([]byte("event:redis_info\n"))
-		_, err = w.Write([]byte(fmt.Sprintf("data:%s\n\n", string(b))))
+		_ = result.EventMsg(w, "redis_info")
 		flusher.Flush()
 
 		time.Sleep(10 * time.Second)

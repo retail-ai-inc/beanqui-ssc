@@ -2,10 +2,13 @@ package results
 
 import (
 	"net/http"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/spf13/cast"
 )
 
 type Result struct {
@@ -33,6 +36,31 @@ func (t *Result) Json(w http.ResponseWriter, httpCode int) error {
 	if _, err := w.Write(b); err != nil {
 		return err
 	}
+	return nil
+}
+func (t *Result) EventMsg(w http.ResponseWriter, eventName string) error {
+
+	b, err := json.Marshal(t)
+	if err != nil {
+		return err
+	}
+	var builder strings.Builder
+	builder.Grow(9)
+
+	builder.WriteString("id:")
+	builder.WriteString(cast.ToString(time.Now().Unix()))
+	builder.WriteString("\n")
+
+	builder.WriteString("event:")
+	builder.WriteString(eventName)
+	builder.WriteString("\n")
+
+	builder.WriteString("data:")
+	builder.Write(b)
+	builder.WriteString("\n\n")
+
+	_, err = w.Write([]byte(builder.String()))
+
 	return nil
 }
 
