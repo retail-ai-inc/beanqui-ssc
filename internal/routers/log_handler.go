@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanq"
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
@@ -16,6 +17,11 @@ import (
 )
 
 type Log struct {
+	client *redis.Client
+}
+
+func NewLog(client *redis.Client) *Log {
+	return &Log{client: client}
 }
 
 // del ,retry,archive,detail
@@ -37,7 +43,7 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			_ = result.Json(w, http.StatusBadRequest)
 			return
 		}
-		data, err := detailHandler(r.Context(), id, msgType)
+		data, err := detailHandler(r.Context(), t.client, id, msgType)
 		if err != nil {
 			result.Code = "1003"
 			result.Msg = err.Error()
@@ -58,7 +64,7 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			_ = result.Json(w, http.StatusInternalServerError)
 			return
 		}
-		if err := retryHandler(r.Context(), id); err != nil {
+		if err := retryHandler(r.Context(), t.client, id); err != nil {
 			result.Code = consts.InternalServerErrorCode
 			result.Msg = err.Error()
 			_ = result.Json(w, http.StatusInternalServerError)
@@ -76,7 +82,7 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := deleteHandler(r.Context(), id, msgType); err != nil {
+		if err := deleteHandler(r.Context(), t.client, id, msgType); err != nil {
 			// error
 			return
 		}
@@ -89,9 +95,7 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // log detail
-func detailHandler(ctx context.Context, id, msgType string) (map[string]any, error) {
-
-	client := redisx.Client()
+func detailHandler(ctx context.Context, client *redis.Client, id, msgType string) (map[string]any, error) {
 
 	res, err := client.Get(ctx, strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType, id}, ":")).Result()
 	if err != nil {
@@ -104,9 +108,7 @@ func detailHandler(ctx context.Context, id, msgType string) (map[string]any, err
 	return m, nil
 }
 
-func deleteHandler(ctx context.Context, id, msgType string) (err error) {
-
-	client := redisx.Client()
+func deleteHandler(ctx context.Context, client *redis.Client, id, msgType string) (err error) {
 
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType, id}, ":")
 	cmd := client.Del(ctx, key)
@@ -118,9 +120,7 @@ func deleteHandler(ctx context.Context, id, msgType string) (err error) {
 	return nil
 }
 
-func retryHandler(ctx context.Context, id string) error {
-
-	client := redisx.Client()
+func retryHandler(ctx context.Context, client *redis.Client, id string) error {
 
 	nid := cast.ToInt64(id)
 

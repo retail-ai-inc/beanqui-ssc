@@ -14,6 +14,10 @@ import (
 type Login struct {
 }
 
+func NewLogin() *Login {
+	return &Login{}
+}
+
 func (t *Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	username := r.PostFormValue("username")

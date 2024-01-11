@@ -60,7 +60,9 @@ func (t *Result) EventMsg(w http.ResponseWriter, eventName string) error {
 	builder.WriteString("\n\n")
 
 	_, err = w.Write([]byte(builder.String()))
-
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

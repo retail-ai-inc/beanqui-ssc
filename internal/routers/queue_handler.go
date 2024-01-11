@@ -14,6 +14,11 @@ import (
 )
 
 type Queue struct {
+	client *redis.Client
+}
+
+func NewQueue(client *redis.Client) *Queue {
+	return &Queue{client: client}
 }
 
 func (t *Queue) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -29,12 +34,12 @@ func (t *Queue) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		_ = result.Json(w, http.StatusNotFound)
 		return
 	}
-	client := redisx.Client()
+
 	action := querys[0]
 	if r.Method == http.MethodGet {
 		// queue list
 		if action == "list" {
-			bt, err := redisx.QueueInfo(r.Context(), client, redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
+			bt, err := redisx.QueueInfo(r.Context(), t.client, redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
 			if err != nil {
 				result.Code = consts.InternalServerErrorCode
 				result.Msg = err.Error()
@@ -48,7 +53,7 @@ func (t *Queue) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		// queue detail
 		if action == "detail" {
-			queueDetail(w, r, client)
+			queueDetail(w, r, t.client)
 		}
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	. "github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/spf13/viper"
 )
@@ -25,17 +26,22 @@ func main() {
 	flag.StringVar(&port, "port", ":9090", "port")
 	flag.Parse()
 
+	// init redis
+	client := redisx.Client()
+
+	// init http server
 	mux := http.NewServeMux()
-	mux.Handle("/", &Index{})
-	mux.Handle("/schedule", Auth(&Schedule{}))
-	mux.Handle("/queue", Auth(&Queue{}))
-	mux.Handle("/logs", Auth(&Logs{}))
+	mux.Handle("/", NewIndex())
+	mux.Handle("/schedule", Auth(NewSchedule(client)))
+	// queue:list, detail
+	mux.Handle("/queue", Auth(NewQueue(client)))
+	mux.Handle("/logs", Auth(NewLogs(client)))
 	// restful: detail,delete,retry,archive
-	mux.Handle("/log", Auth(&Log{}))
-	mux.Handle("/redis", Auth(&RedisInfo{}))
-	mux.Handle("/login", &Login{})
-	mux.Handle("/clients", Auth(&Client{}))
-	mux.Handle("/dashboard", Auth(&Dashboard{}))
+	mux.Handle("/log", Auth(NewLog(client)))
+	mux.Handle("/redis", Auth(NewRedisInfo(client)))
+	mux.Handle("/login", NewLogin())
+	mux.Handle("/clients", Auth(NewClient(client)))
+	mux.Handle("/dashboard", Auth(NewDashboard(client)))
 
 	srv := http.Server{
 		Addr:    port,

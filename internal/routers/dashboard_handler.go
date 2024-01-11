@@ -5,12 +5,18 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
 )
 
 type Dashboard struct {
+	client *redis.Client
+}
+
+func NewDashboard(client *redis.Client) *Dashboard {
+	return &Dashboard{client: client}
 }
 
 func (t *Dashboard) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -20,9 +26,8 @@ func (t *Dashboard) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	numCpu := runtime.NumCPU()
 
-	client := redisx.Client()
 	// get queue total
-	keys, err := redisx.Keys(r.Context(), client, strings.Join([]string{redisx.BqConfig.Prefix, "*", "stream"}, ":"))
+	keys, err := redisx.Keys(r.Context(), t.client, strings.Join([]string{redisx.BqConfig.Prefix, "*", "stream"}, ":"))
 	if err != nil {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = err.Error()
@@ -32,7 +37,7 @@ func (t *Dashboard) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	keysLen := len(keys)
 
 	// db size
-	db_size, err := client.DBSize(r.Context()).Result()
+	db_size, err := t.client.DBSize(r.Context()).Result()
 	if err != nil {
 
 		result.Code = consts.InternalServerErrorCode

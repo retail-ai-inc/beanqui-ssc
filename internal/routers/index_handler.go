@@ -11,6 +11,9 @@ import (
 type Index struct {
 }
 
+func NewIndex() *Index {
+	return &Index{}
+}
 func (t *Index) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	url := r.RequestURI
 	if strings.HasSuffix(url, ".vue") {

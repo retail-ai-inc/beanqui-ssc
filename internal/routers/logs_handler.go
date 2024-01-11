@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
@@ -12,14 +13,17 @@ import (
 )
 
 type Logs struct {
+	client *redis.Client
+}
+
+func NewLogs(client *redis.Client) *Logs {
+	return &Logs{client: client}
 }
 
 func (t *Logs) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	resultRes, cancel := results.Get()
 	defer cancel()
-
-	client := redisx.Client()
 
 	var (
 		dataType string = "success"
@@ -46,10 +50,10 @@ func (t *Logs) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	data := make(map[string]any)
 
-	allKeys := client.Keys(r.Context(), match).Val()
+	allKeys := t.client.Keys(r.Context(), match).Val()
 	data["total"] = len(allKeys)
 
-	keys, cursor, err := client.Scan(r.Context(), gCursor, match, 10).Result()
+	keys, cursor, err := t.client.Scan(r.Context(), gCursor, match, 10).Result()
 	if err != nil {
 		resultRes.Code = "1005"
 		resultRes.Msg = err.Error()
@@ -60,7 +64,7 @@ func (t *Logs) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	msgs := make([]*redisx.Msg, 0, 10)
 	for _, key := range keys {
 
-		str, err := client.Get(r.Context(), key).Result()
+		str, err := t.client.Get(r.Context(), key).Result()
 		if err != nil {
 			continue
 		}
