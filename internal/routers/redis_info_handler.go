@@ -29,20 +29,29 @@ func (t *RedisInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
+	ctx := r.Context()
+	ticker := time.NewTicker(300 * time.Millisecond)
+	defer ticker.Stop()
+
 	for {
-		d, err := redisx.Info(r.Context(), t.client)
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			d, err := redisx.Info(ctx, t.client)
 
-		if err != nil {
-			result.Code = "1001"
-			result.Msg = err.Error()
+			if err != nil {
+				result.Code = "1001"
+				result.Msg = err.Error()
+			}
+
+			if err == nil {
+				result.Data = d
+			}
+			_ = result.EventMsg(w, "redis_info")
+			flusher.Flush()
+			ticker.Reset(10 * time.Second)
+
 		}
-
-		if err == nil {
-			result.Data = d
-		}
-		_ = result.EventMsg(w, "redis_info")
-		flusher.Flush()
-
-		time.Sleep(10 * time.Second)
 	}
 }

@@ -1,7 +1,6 @@
 package routers
 
 import (
-	"context"
 	"net/http"
 	"strings"
 	"time"
@@ -75,23 +74,28 @@ func queueDetail(w http.ResponseWriter, r *http.Request, client *redis.Client) {
 	prefix := viper.GetString("redis.prefix")
 	id = strings.Join([]string{prefix, id, "stream"}, ":")
 
+	ctx := r.Context()
+	ticker := time.NewTicker(300 * time.Millisecond)
+	defer ticker.Stop()
+
 	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
 
-		ctx := context.TODO()
-		ctx, _ = context.WithTimeout(ctx, 10*time.Second)
+			cmd, err := client.XInfoStreamFull(ctx, id, 10).Result()
+			if err != nil {
+				result.Code = "1004"
+				result.Msg = err.Error()
+			}
 
-		cmd, err := client.XInfoStreamFull(ctx, id, 10).Result()
-		if err != nil {
-			result.Code = "1004"
-			result.Msg = err.Error()
+			if err == nil {
+				result.Data = cmd.Entries
+			}
+			_ = result.EventMsg(w, "queue_detail")
+			flusher.Flush()
+			ticker.Reset(10 * time.Second)
 		}
-
-		if err == nil {
-			result.Data = cmd.Entries
-		}
-		_ = result.EventMsg(w, "queue_detail")
-		flusher.Flush()
-
-		time.Sleep(10 * time.Second)
 	}
 }
