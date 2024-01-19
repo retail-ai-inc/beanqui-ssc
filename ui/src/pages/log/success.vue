@@ -69,7 +69,7 @@ let data = reactive({
 
 // success logs
 function getLog(page,pageSize,cursor){
-  return request.get("log",{"params":{"type":"success","page":page,"pageSize":pageSize,"cursor":cursor}});
+  return request.get("logs",{"params":{"type":"success","page":page,"pageSize":pageSize,"cursor":cursor}});
 }
 
 onMounted(async ()=>{

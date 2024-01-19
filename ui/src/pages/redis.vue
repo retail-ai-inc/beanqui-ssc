@@ -151,23 +151,28 @@ import { reactive,onMounted,onUnmounted } from "vue";
 import request  from "request";
 
 let info = reactive({});
+let sseUrl = "/redis?token="+sessionStorage.getItem("token")
+const sse = new EventSource(sseUrl);
 
- function getData(){
-  return request.get("redis");
-}
 onMounted(async ()=>{
-    let data = await getData();
-    Object.assign(info,data.data);
+  sse.onopen = ()=>{
+    console.log("success")
+  }
+  sse.addEventListener("redis_info",function (res) {
+    let body = JSON.parse(res.data);
+    if (body.code != "0000"){
+      return
+    }
+    Object.assign(info,body.data);
+  })
+  sse.onerror = (err)=>{
+    console.log(err)
+  }
 
 })
 
-let loopData = setInterval(  async function (){
-  let data = await getData();
-  Object.assign(info,data.data);
-},10000);
-
 onUnmounted(()=>{
-  clearInterval(loopData);
+  sse.close();
 })
 
 </script>

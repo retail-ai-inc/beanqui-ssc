@@ -7,41 +7,60 @@ import (
 	"github.com/retail-ai-inc/beanqui/internal/jwtx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
-	"github.com/retail-ai-inc/beanqui/internal/simple_router"
 )
 
-func Auth(next simple_router.HandlerFunc) simple_router.HandlerFunc {
-
-	return func(ctx *simple_router.Context) error {
+func Auth(next http.Handler) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
 
 		result, cancel := results.Get()
 		defer cancel()
-		req := ctx.Request()
 
-		auth := req.Header.Get("Beanq-Authorization")
+		var (
+			err   error
+			token *jwtx.Claim
+		)
 
-		strs := strings.Split(auth, " ")
-		if len(strs) < 2 {
-			// return data format err
-			result.Code = consts.InternalServerErrorCode
-			result.Msg = "missing parameter"
-			return ctx.Json(http.StatusInternalServerError, result)
+		auth := request.Header.Get("Beanq-Authorization")
+		if auth != "" {
+			strs := strings.Split(auth, " ")
+			if len(strs) < 2 {
+				// return data format err
+				result.Code = consts.InternalServerErrorCode
+				result.Msg = "missing parameter"
+				_ = result.Json(writer, http.StatusInternalServerError)
+				return
+			}
+
+			token, err = jwtx.ParseHsToken(strs[1])
+
+			if err != nil {
+				result.Code = consts.InternalServerErrorCode
+				result.Msg = err.Error()
+				_ = result.Json(writer, http.StatusUnauthorized)
+				return
+			}
+		}
+		if auth == "" {
+			auth = request.FormValue("token")
+			token, err = jwtx.ParseHsToken(auth)
+
+			if err != nil {
+				result.Code = consts.InternalServerErrorMsg
+				result.Msg = err.Error()
+				_ = result.Json(writer, http.StatusUnauthorized)
+				return
+			}
 		}
 
-		token, err := jwtx.ParseRsaToken(strs[1])
-		if err != nil {
-			result.Code = consts.InternalServerErrorCode
-			result.Msg = err.Error()
-			return ctx.Json(http.StatusUnauthorized, result)
-		}
 		//
-		_, err = token.Claims.GetExpirationTime()
+		_, err = token.GetExpirationTime()
 		if err != nil {
 			result.Code = consts.InternalServerErrorCode
 			result.Msg = err.Error()
-			return ctx.Json(http.StatusUnauthorized, result)
+			_ = result.Json(writer, http.StatusUnauthorized)
+			return
 		}
 
-		return next(ctx)
+		next.ServeHTTP(writer, request)
 	}
 }

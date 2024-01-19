@@ -32,9 +32,9 @@
                       Actions
                     </button>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" @click="options('delete',item.key)">Delete</a></li>
-                      <li><a class="dropdown-item" @click="options('retry',item.key)">Retry</a></li>
-                      <li><a class="dropdown-item" @click="options('archive',item.key)">Archive</a></li>
+                      <li><a class="dropdown-item" @click="options('delete',item.id)">Delete</a></li>
+                      <li><a class="dropdown-item" @click="options('retry',item.id)">Retry</a></li>
+                      <li><a class="dropdown-item" @click="options('archive',item.id)">Archive</a></li>
                     </ul>
                   </div>
                 </div>
@@ -63,7 +63,7 @@ let data = reactive({
 })
 
 function getErrLog(page,pageSize,cursor){
-  return request.get("log",{"params":{"type":"error","page":page,"pageSize":pageSize,"cursor":cursor}});
+  return request.get("logs",{"params":{"type":"error","page":page,"pageSize":pageSize,"cursor":cursor}});
 }
 
 const uRouter = useRouter();
@@ -83,6 +83,7 @@ onMounted(async ()=>{
 // click pagination
 async function changePage(page,cursor){
   let logs = await getErrLog(page,10,cursor);
+
   data.logs = {...logs.data.data};
   data.total = Math.ceil(logs.data.total / 10);
   data.page = page;
@@ -91,19 +92,29 @@ async function changePage(page,cursor){
 }
 
 async function options(optType,id){
+
   switch (optType){
     case "delete":
-      await request.delete("/log/del", {params: {id: id}}).then(res=>{
-        getErrLog(data.page,10,data.cursor);
+      await request.delete("/log",  {"params":{id: id,msgType:"fail"}}).then(res=>{
+
+        let logs = getErrLog(data.page,10,0);
+
+        data.logs = {...logs.data.data};
+        data.total = Math.ceil(logs.data.total / 10);
+        data.page = page;
+        data.cursor = logs.data.cursor;
+
       }).catch(err=>{
         console.error(err)
       })
+          break;
     case "retry":
       await request.post("/log/retry",{id:id},{headers:{"Content-Type":"multipart/form-data"}} ).then(res=>{
         getErrLog(data.page,10,data.cursor);
       }).catch(err=>{
         console.error(err)
       })
+          break;
     case "archive":
 
     default:
