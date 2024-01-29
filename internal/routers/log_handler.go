@@ -97,12 +97,22 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // log detail
 func detailHandler(ctx context.Context, client *redis.Client, id, msgType string) (map[string]any, error) {
 
-	res, err := client.Get(ctx, strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType, id}, ":")).Result()
-	if err != nil {
-		return nil, err
+	client.ZRange(ctx, strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":"), 0, 1)
+	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
+
+	var build strings.Builder
+	build.Grow(3)
+	build.WriteString("*")
+	build.WriteString(id)
+	build.WriteString("*")
+
+	vals, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
+	if len(vals) <= 0 {
+		return nil, errors.New("data is empty")
 	}
+
 	m := make(map[string]any)
-	if err := json.Unmarshal([]byte(res), &m); err != nil {
+	if err := json.Unmarshal([]byte(vals[0]), &m); err != nil {
 		return nil, err
 	}
 	return m, nil
