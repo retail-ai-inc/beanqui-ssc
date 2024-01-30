@@ -13,7 +13,6 @@ import (
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
-	"github.com/spf13/cast"
 )
 
 type Log struct {
@@ -58,13 +57,17 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 
 		id := r.PostFormValue("id")
+		msgType := r.PostFormValue("msgType")
+		if msgType == "" {
+			msgType = "success"
+		}
 		if id == "" {
 			result.Code = consts.MissParameterCode
 			result.Msg = consts.MissParameterMsg
 			_ = result.Json(w, http.StatusInternalServerError)
 			return
 		}
-		if err := retryHandler(r.Context(), t.client, id); err != nil {
+		if err := retryHandler(r.Context(), t.client, id, msgType); err != nil {
 			result.Code = consts.InternalServerErrorCode
 			result.Msg = err.Error()
 			_ = result.Json(w, http.StatusInternalServerError)
@@ -75,19 +78,20 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// delete job
 	if r.Method == http.MethodDelete {
 
-		id := r.FormValue("id")
 		msgType := r.FormValue("msgType")
-		if id == "" || msgType == "" {
-			// error
-			return
-		}
+		score := r.FormValue("score")
 
-		if err := deleteHandler(r.Context(), t.client, id, msgType); err != nil {
-			// error
+		key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
+		cmd := t.client.ZRemRangeByScore(r.Context(), key, score, score)
+		if cmd.Err() != nil {
+			result.Code = consts.InternalServerErrorCode
+			result.Msg = cmd.Err().Error()
+			_ = result.Json(w, http.StatusInternalServerError)
 			return
 		}
 		_ = result.Json(w, http.StatusOK)
 		return
+
 	}
 	if r.Method == http.MethodPut {
 
@@ -97,7 +101,6 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // log detail
 func detailHandler(ctx context.Context, client *redis.Client, id, msgType string) (map[string]any, error) {
 
-	client.ZRange(ctx, strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":"), 0, 1)
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 
 	var build strings.Builder
@@ -108,7 +111,7 @@ func detailHandler(ctx context.Context, client *redis.Client, id, msgType string
 
 	vals, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
 	if len(vals) <= 0 {
-		return nil, errors.New("data is empty")
+		return nil, errors.New("record is empty")
 	}
 
 	m := make(map[string]any)
@@ -118,41 +121,28 @@ func detailHandler(ctx context.Context, client *redis.Client, id, msgType string
 	return m, nil
 }
 
-func deleteHandler(ctx context.Context, client *redis.Client, id, msgType string) (err error) {
+func retryHandler(ctx context.Context, client *redis.Client, id, msgType string) error {
 
-	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType, id}, ":")
-	cmd := client.Del(ctx, key)
+	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 
-	if cmd.Err() != nil {
-		return err
-	}
+	var build strings.Builder
+	build.Grow(3)
+	build.WriteString("*")
+	build.WriteString(id)
+	build.WriteString("*")
 
-	return nil
-}
-
-func retryHandler(ctx context.Context, client *redis.Client, id string) error {
-
-	nid := cast.ToInt64(id)
-
-	cmd := client.ZRange(ctx, strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "success"}, ":"), nid, nid)
-	if err := cmd.Err(); err != nil {
-		return err
-	}
-	vals := cmd.Val()
-	if len(vals) < 1 {
+	keys, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
+	if len(keys) <= 0 {
 		return errors.New("record is empty")
 	}
-	valByte := []byte(vals[0])
+
+	valByte := []byte(keys[0])
 
 	newJson := json.Json
 	payload := newJson.Get(valByte, "Payload").ToString()
 	executeTime := newJson.Get(valByte, "ExecuteTime").ToString()
-	groupName := newJson.Get(valByte, "Group").ToString()
-	queue := newJson.Get(valByte, "Queue").ToString()
-	queues := strings.Split(queue, ":")
-	if len(queues) < 4 {
-		return errors.New("data error")
-	}
+	groupName := newJson.Get(valByte, "Channel").ToString()
+	queue := newJson.Get(valByte, "Topic").ToString()
 
 	dup, err := time.ParseInLocation(time.RFC3339, executeTime, time.Local)
 	if err != nil {
@@ -161,7 +151,7 @@ func retryHandler(ctx context.Context, client *redis.Client, id string) error {
 
 	publish := beanq.NewPublisher(redisx.BqConfig)
 	task := beanq.NewMessage([]byte(payload))
-	if err := publish.PublishWithContext(ctx, task, beanq.ExecuteTime(dup), beanq.Channel(groupName), beanq.Topic(queues[2])); err != nil {
+	if err := publish.PublishWithContext(ctx, task, beanq.ExecuteTime(dup), beanq.Channel(groupName), beanq.Topic(queue)); err != nil {
 		return err
 	}
 
