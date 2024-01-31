@@ -31,6 +31,9 @@ func main() {
 
 	// init http server
 	mux := http.NewServeMux()
+	mux.HandleFunc("/ping", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Write([]byte("pong"))
+	})
 	mux.Handle("/", NewIndex())
 	mux.Handle("/schedule", Auth(NewSchedule(client)))
 	// queue:list, detail
