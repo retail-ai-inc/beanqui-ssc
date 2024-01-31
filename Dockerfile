@@ -13,7 +13,7 @@ COPY . /www/webapp
 
 RUN go build main.go
 
-EXPOSE 9090
+EXPOSE 80
 
 RUN chmod +x main
-ENTRYPOINT ["./main","-port",":9090"]
+ENTRYPOINT ["./main","-port",":80"]
