@@ -40,6 +40,7 @@
 
 import {reactive,toRefs,onMounted,onUnmounted} from "vue";
 import { useRoute,useRouter } from 'vueRouter';
+import cfg  from "config";
 
 let data = reactive({
   queueDetail:[]
@@ -48,7 +49,7 @@ let data = reactive({
 const uRoute = useRoute();
 let id = uRoute.params.id;
 
-let sseUrl = "/queue?detail&id=" + id + "&token=" + sessionStorage.getItem("token");
+let sseUrl = cfg.sseUrl + "/queue?detail&id=" + id + "&token=" + sessionStorage.getItem("token");
 const sse = new EventSource(sseUrl);
 
 onMounted( async ()=>{

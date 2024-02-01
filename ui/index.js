@@ -10,6 +10,7 @@
       vue: Vue,
       vueRouter: VueRouter,
       request:request,
+      config:config
     },
 
     async getFile(url) {

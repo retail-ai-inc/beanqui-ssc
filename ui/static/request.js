@@ -1,4 +1,4 @@
-const baseURL = "";
+const baseURL = "./";
 
 const request = axios.create({
     baseURL:baseURL,
