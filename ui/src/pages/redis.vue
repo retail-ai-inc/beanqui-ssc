@@ -148,10 +148,10 @@
 <script setup>
 
 import { reactive,onMounted,onUnmounted } from "vue";
-import request  from "request";
+import cfg  from "config";
 
 let info = reactive({});
-let sseUrl = "/redis?token="+sessionStorage.getItem("token")
+let sseUrl = cfg.sseUrl + "/redis?token="+sessionStorage.getItem("token")
 const sse = new EventSource(sseUrl);
 
 onMounted(async ()=>{
