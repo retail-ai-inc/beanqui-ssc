@@ -53,7 +53,11 @@ func (t *Logs) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	allKeys := t.client.Keys(r.Context(), match).Val()
 	data["total"] = len(allKeys)
 
-	keys, cursor, err := t.client.Scan(r.Context(), gCursor, match, 10).Result()
+	cmd := t.client.ZScan(r.Context(), matchStr, gCursor, "", 10)
+
+	keys, cursor, err := cmd.Result()
+	// fmt.Println(keys)
+	// keys, cursor, err := t.client.Scan(r.Context(), gCursor, match, 10).Result()
 	if err != nil {
 		resultRes.Code = "1005"
 		resultRes.Msg = err.Error()
@@ -62,17 +66,16 @@ func (t *Logs) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msgs := make([]*redisx.Msg, 0, 10)
+	m := new(redisx.Msg)
+
 	for _, key := range keys {
 
-		str, err := t.client.Get(r.Context(), key).Result()
-		if err != nil {
-			continue
+		if err := json.Unmarshal([]byte(key), &m); err != nil {
+			m.Score = key
+			msgs = append(msgs, m)
+			m = nil
 		}
-		m := new(redisx.Msg)
-		if err := json.Unmarshal([]byte(str), &m); err != nil {
-			continue
-		}
-		msgs = append(msgs, m)
+
 	}
 
 	data["data"] = msgs
