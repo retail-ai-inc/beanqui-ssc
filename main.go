@@ -31,9 +31,7 @@ func main() {
 
 	// init http server
 	mux := http.NewServeMux()
-	mux.HandleFunc("/ping", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Write([]byte("pong"))
-	})
+	mux.HandleFunc("/ping", ping)
 	mux.Handle("/", NewIndex())
 	mux.Handle("/schedule", Auth(NewSchedule(client)))
 	// queue:list, detail
@@ -54,5 +52,25 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}
+
+}
+
+func ping(w http.ResponseWriter, r *http.Request) {
+
+	clientId := r.Header.Get("Client-Id")
+	clientSecret := r.Header.Get("Client-Secret")
+
+	if clientId == "" || clientSecret == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if clientId != viper.GetString("auth.clientId") || clientSecret != viper.GetString("auth.clientSecret") {
+		w.WriteHeader(http.StatusUnauthorized)
+		_, _ = w.Write([]byte("No permission"))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte("pong"))
+	return
 
 }

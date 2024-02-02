@@ -3,10 +3,13 @@
       <Pagination :page="page" :total="total" @changePage="changePage"/>
 
       <div class="accordion" id="ui-accordion">
-        <div class="accordion-item" v-for="(item, key) in queues" :key="key" style="margin-bottom: 15px">
+        <div class="accordion-item" v-if="queues.length === 0">
+          Hurrah! We processed all messages.
+        </div>
+        <div class="accordion-item" v-else v-for="(item, key) in queues" :key="key" style="margin-bottom: 15px">
           <h2 class="accordion-header">
             <button style="font-weight: bold" class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="setId(key)" aria-expanded="true" :aria-controls="key">
-              Channel:&nbsp;&nbsp;{{key}}
+              {{key}}
             </button>
           </h2>
           <div :id="key" class="accordion-collapse collapse show" data-bs-parent="#ui-accordion">
