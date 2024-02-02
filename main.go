@@ -57,18 +57,18 @@ func main() {
 
 func ping(w http.ResponseWriter, r *http.Request) {
 
-	clientId := r.Header.Get("Client-Id")
-	clientSecret := r.Header.Get("Client-Secret")
-
-	if clientId == "" || clientSecret == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	if clientId != viper.GetString("auth.clientId") || clientSecret != viper.GetString("auth.clientSecret") {
-		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte("No permission"))
-		return
-	}
+	// clientId := r.Header.Get("Client-Id")
+	// clientSecret := r.Header.Get("Client-Secret")
+	//
+	// if clientId == "" || clientSecret == "" {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	return
+	// }
+	// if clientId != viper.GetString("auth.clientId") || clientSecret != viper.GetString("auth.clientSecret") {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	_, _ = w.Write([]byte("No permission"))
+	// 	return
+	// }
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte("pong"))
 	return
