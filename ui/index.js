@@ -62,10 +62,12 @@
       loginRoute
     ],
   });
-  router.beforeEach((to, from) => {
+  router.beforeEach((to, from,next) => {
     let token = sessionStorage.getItem("token");
     if (token == null && to.path !== "/login"){
       return {path:"/login"};
+    }else{
+      next();
     }
   })
 
