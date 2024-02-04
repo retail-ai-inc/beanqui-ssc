@@ -2,7 +2,7 @@
     <div>
 
       <div class="accordion" id="schedule-ui-accordion">
-        <div class="accordion-item" v-if="schedule.length === 0">
+        <div class="accordion-item" v-if="JSON.stringify(schedule) == '{}'" style="border: none;text-align: center;padding: 15px 0">
           Hurrah! We processed all messages.
         </div>
         <div class="accordion-item" v-else v-for="(item, key) in schedule" :key="key" style="margin-bottom: 15px">

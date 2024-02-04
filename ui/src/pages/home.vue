@@ -15,9 +15,15 @@
           </div>
         </div>
         <div class="col" style="background: #dc3545;height:120px;padding:15px;">
-          <div>Queue Past 10 Minutes</div>
+          <div>Fail Total</div>
           <div style="font-weight: bold">
-            <router-link to="" class="nav-link text-muted link-color">10</router-link>
+            <router-link to="" class="nav-link text-muted link-color">{{fail_count}}</router-link>
+          </div>
+        </div>
+        <div class="col" style="background: #20c997;height:120px;padding:15px;">
+          <div>Success Total</div>
+          <div style="font-weight: bold">
+            <router-link to="" class="nav-link text-muted link-color">{{success_count}}</router-link>
           </div>
         </div>
         <div class="col" style="background: #343a40;height:120px;padding:15px;">
@@ -50,16 +56,23 @@ import request  from "request";
 let data = reactive({
   "queue_total":0,
   "db_size":0,
-  "num_cpu":0
+  "num_cpu":0,
+  "fail_count":0,
+  "success_count":0
 })
 function getTotal(){
   return request.get("dashboard");
 }
 onMounted(async ()=>{
+  
   let total = await getTotal();
+
   data.queue_total = total.data.queue_total;
   data.db_size = total.data.db_size;
   data.num_cpu = total.data.num_cpu;
+  data.fail_count = total.data.fail_count;
+  data.success_count = total.data.success_count;
+
 })
 
 const barOption = ref({
@@ -153,7 +166,7 @@ const lineOption = ref({
     }
   ]
 });
-const {queue_total,db_size,num_cpu} = toRefs(data);
+const {queue_total,db_size,num_cpu,fail_count,success_count} = toRefs(data);
 </script>
 <style scoped>
 .chart{

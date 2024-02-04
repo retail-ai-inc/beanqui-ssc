@@ -45,13 +45,10 @@ func (t *Logs) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if dataType == "error" {
 		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "fail"}, ":")
 	}
-
-	match := strings.Join([]string{matchStr, "*"}, ":")
-
 	data := make(map[string]any)
 
-	allKeys := t.client.Keys(r.Context(), match).Val()
-	data["total"] = len(allKeys)
+	count := t.client.ZCard(r.Context(), matchStr).Val()
+	data["total"] = count
 
 	zscan := t.client.ZScan(r.Context(), matchStr, gCursor, "*", 10)
 	keys, cursor, err := zscan.Result()
