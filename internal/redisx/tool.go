@@ -172,6 +172,7 @@ type Msg struct {
 	Topic       string `json:"topic"`
 	Channel     string `json:"channel"`
 	Consumer    string `json:"consumer"`
+	Score       string
 }
 
 func QueueInfo(ctx context.Context, client *redis.Client, queueKey string) (any, error) {
