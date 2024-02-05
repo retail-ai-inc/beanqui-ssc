@@ -64,14 +64,9 @@ function getTotal(){
   return request.get("dashboard");
 }
 onMounted(async ()=>{
-  
-  let total = await getTotal();
 
-  data.queue_total = total.data.queue_total;
-  data.db_size = total.data.db_size;
-  data.num_cpu = total.data.num_cpu;
-  data.fail_count = total.data.fail_count;
-  data.success_count = total.data.success_count;
+  let total = await getTotal();
+  Object.assign(data,total.data);
 
 })
 
