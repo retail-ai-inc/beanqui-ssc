@@ -84,14 +84,16 @@ func queueDetail(w http.ResponseWriter, r *http.Request, client *redis.Client) {
 			return
 		case <-ticker.C:
 
-			cmd, err := client.XInfoStreamFull(ctx, id, 10).Result()
+			cmd := client.XRangeN(ctx, id, "-", "+", 50)
+			stream, err := cmd.Result()
+
 			if err != nil {
 				result.Code = "1004"
 				result.Msg = err.Error()
 			}
 
 			if err == nil {
-				result.Data = cmd.Entries
+				result.Data = stream
 			}
 			_ = result.EventMsg(w, "queue_detail")
 			flusher.Flush()
