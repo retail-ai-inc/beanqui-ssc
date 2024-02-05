@@ -19,9 +19,8 @@
                 <tr>
                   <th scope="col">Topic</th>
                   <th scope="col">State</th>
-                  <th scope="col">Size</th>
                   <th scope="col">Memory usage</th>
-                  <th scope="col">Processed</th>
+                  <th scope="col">Idle</th>
                   <th scope="col">Action</th>
                 </tr>
                 </thead>
@@ -32,8 +31,7 @@
                   </th>
                   <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'">{{ d.state }}</td>
                   <td>{{ d.size }}</td>
-                  <td>{{ d.memory }}</td>
-                  <td>{{ d.process }}</td>
+                  <td>{{ d.idle }}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                       <div class="btn-group" role="group">

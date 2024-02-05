@@ -24,7 +24,11 @@
               <td>{{item.runTime}}</td>
               <td>{{ item.channel }}</td>
               <td>{{item.topic}}</td>
-              <td>{{item.payload}}</td>
+              <td>
+                <div style="height: 3rem;overflow: hidden;white-space: nowrap;width: 36rem;text-overflow: ellipsis;">
+                {{item.payload}}
+                </div>
+              </td>
               <td>
                 <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                   <div class="btn-group" role="group">

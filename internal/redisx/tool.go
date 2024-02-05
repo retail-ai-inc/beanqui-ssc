@@ -3,7 +3,6 @@ package redisx
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -192,13 +191,13 @@ func QueueInfo(ctx context.Context, client *redis.Client, queueKey string) (any,
 			continue
 		}
 		objStr := Object(ctx, client, queue)
-		// get memory
-		r, err := client.MemoryUsage(ctx, queue).Result()
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		data[queueArr[1]] = append(data[queueArr[1]], map[string]any{"group": queueArr[1], "queue": queueArr[2], "state": "Run", "size": objStr.SerizlizedLength, "memory": r, "process": objStr.LruSecondsIdle, "fail": 0})
+
+		data[queueArr[1]] = append(data[queueArr[1]], map[string]any{
+			"group": queueArr[1],
+			"queue": queueArr[2],
+			"state": "Run",
+			"size":  objStr.SerizlizedLength,
+			"idle":  objStr.LruSecondsIdle})
 
 	}
 

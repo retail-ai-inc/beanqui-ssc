@@ -34,15 +34,15 @@
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-between">
-      <div></div>
-      <div style="width:50%">
-        <v-chart class="chart" :option="barOption" />
-      </div>
-      <div style="width:50%">
-        <v-chart class="chart" :option="lineOption"/>
-      </div>
-    </div>
+<!--    <div class="d-flex justify-content-between">-->
+<!--      <div></div>-->
+<!--      <div style="width:50%">-->
+<!--        <v-chart class="chart" :option="barOption" />-->
+<!--      </div>-->
+<!--      <div style="width:50%">-->
+<!--        <v-chart class="chart" :option="lineOption"/>-->
+<!--      </div>-->
+<!--    </div>-->
 
   </div>
 
