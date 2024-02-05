@@ -16,7 +16,7 @@
         <tbody class="table-body">
         <tr v-if="queueDetail.length === 0">
           <th scope="row" colspan="7" style="text-align: center">
-            No data
+            Hurrah! We processed all messages.
           </th>
         </tr>
         <tr v-else v-for="(item, key) in queueDetail" :key="key">
@@ -65,6 +65,7 @@ onMounted( async ()=>{
     data.queueDetail = body.data;
   })
   sse.onerror = (err)=>{
+    useRe.push("/login");
     console.log(err)
   }
 })

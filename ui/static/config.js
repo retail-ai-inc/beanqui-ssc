@@ -1,4 +1,5 @@
 
 const config = {
-    sseUrl:"./"
+    sseUrl:"./",
+    title:"Welcome To BeanQ Monitor"
 }

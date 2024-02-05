@@ -9,6 +9,7 @@ import (
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/spf13/viper"
 )
 
 type Dashboard struct {
@@ -47,10 +48,20 @@ func (t *Dashboard) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Queue Past 10 Minutes
+	prefix := viper.GetString("redis.prefix")
+	failKey := strings.Join([]string{prefix, "logs", "fail"}, ":")
+	failCount := t.client.ZCard(r.Context(), failKey).Val()
+
+	successKey := strings.Join([]string{prefix, "logs", "success"}, ":")
+	successCount := t.client.ZCard(r.Context(), successKey).Val()
+
 	result.Data = map[string]any{
-		"queue_total": keysLen,
-		"db_size":     db_size,
-		"num_cpu":     numCpu,
+		"queue_total":   keysLen,
+		"db_size":       db_size,
+		"num_cpu":       numCpu,
+		"fail_count":    failCount,
+		"success_count": successCount,
 	}
 	_ = result.Json(w, http.StatusOK)
 	return

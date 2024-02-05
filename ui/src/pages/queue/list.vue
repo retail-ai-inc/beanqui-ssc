@@ -3,10 +3,13 @@
       <Pagination :page="page" :total="total" @changePage="changePage"/>
 
       <div class="accordion" id="ui-accordion">
-        <div class="accordion-item" v-for="(item, key) in queues" :key="key" style="margin-bottom: 15px">
+        <div class="accordion-item" v-if="queues.length === 0">
+          Hurrah! We processed all messages.
+        </div>
+        <div class="accordion-item" v-else v-for="(item, key) in queues" :key="key" style="margin-bottom: 15px">
           <h2 class="accordion-header">
             <button style="font-weight: bold" class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="setId(key)" aria-expanded="true" :aria-controls="key">
-              Channel:&nbsp;&nbsp;{{key}}
+              {{key}}
             </button>
           </h2>
           <div :id="key" class="accordion-collapse collapse show" data-bs-parent="#ui-accordion">
@@ -16,9 +19,8 @@
                 <tr>
                   <th scope="col">Topic</th>
                   <th scope="col">State</th>
-                  <th scope="col">Size</th>
                   <th scope="col">Memory usage</th>
-                  <th scope="col">Processed</th>
+                  <th scope="col">Idle</th>
                   <th scope="col">Action</th>
                 </tr>
                 </thead>
@@ -29,8 +31,7 @@
                   </th>
                   <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'">{{ d.state }}</td>
                   <td>{{ d.size }}</td>
-                  <td>{{ d.memory }}</td>
-                  <td>{{ d.process }}</td>
+                  <td>{{ d.idle }}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                       <div class="btn-group" role="group">
