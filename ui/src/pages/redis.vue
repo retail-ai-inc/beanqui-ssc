@@ -7,23 +7,24 @@
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_cpu_sys</label>
+            <label class="col-sm-2 col-form-label">used_cpu_sys:
+            </label>
             <div class="col-sm-10">
-              <input type="text" readonly class="form-control-plaintext" :value="info.used_cpu_sys">
+              <div class="form-control-plaintext" >{{info.used_cpu_sys}}</div>
             </div>
           </div>
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_cpu_sys_children</label>
+            <label class="col-sm-2 col-form-label">used_cpu_sys_children:</label>
             <div class="col-sm-10">
-              <input type="text" readonly class="form-control-plaintext" :value="info.used_cpu_sys_children">
+              <div class="form-control-plaintext">{{info.used_cpu_sys_children}}</div>
             </div>
           </div>
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_cpu_user</label>
+            <label class="col-sm-2 col-form-label">used_cpu_user:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_cpu_user">
             </div>
@@ -31,7 +32,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_cpu_user_children</label>
+            <label class="col-sm-2 col-form-label">used_cpu_user_children:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_cpu_user_children">
             </div>
@@ -46,7 +47,7 @@
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">mem_fragmentation_ratio</label>
+            <label class="col-sm-2 col-form-label">mem_fragmentation_ratio(<b>%</b>):</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.mem_fragmentation_ratio">
             </div>
@@ -54,7 +55,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_memory</label>
+            <label class="col-sm-2 col-form-label">used_memory(<b>Byte</b>):</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_memory">
             </div>
@@ -62,7 +63,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_memory_dataset_perc</label>
+            <label class="col-sm-2 col-form-label">used_memory_dataset_perc:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_memory_dataset_perc">
             </div>
@@ -70,7 +71,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_memory_human</label>
+            <label class="col-sm-2 col-form-label">used_memory_human:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_memory_human">
             </div>
@@ -78,7 +79,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_memory_peak</label>
+            <label class="col-sm-2 col-form-label">used_memory_peak(<b>Byte</b>):</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_memory_peak">
             </div>
@@ -86,7 +87,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_memory_peak_human</label>
+            <label class="col-sm-2 col-form-label">used_memory_peak_human:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_memory_peak_human">
             </div>
@@ -94,7 +95,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_memory_peak_perc</label>
+            <label class="col-sm-2 col-form-label">used_memory_peak_perc:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_memory_peak_perc">
             </div>
@@ -102,7 +103,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_memory_rss</label>
+            <label class="col-sm-2 col-form-label">used_memory_rss(<b>Byte</b>):</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_memory_rss">
             </div>
@@ -110,7 +111,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">used_memory_rss_human</label>
+            <label class="col-sm-2 col-form-label">used_memory_rss_human:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.used_memory_rss_human">
             </div>
@@ -125,7 +126,7 @@
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">redis_build_id</label>
+            <label class="col-sm-2 col-form-label">redis_build_id:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.redis_build_id">
             </div>
@@ -133,7 +134,7 @@
         </li>
         <li class="list-group-item">
           <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">redis_version</label>
+            <label class="col-sm-2 col-form-label">redis_version:</label>
             <div class="col-sm-10">
               <input type="text" readonly class="form-control-plaintext" :value="info.redis_version">
             </div>
@@ -148,13 +149,22 @@
 <script setup>
 
 import { reactive,onMounted,onUnmounted } from "vue";
+import { useRouter } from 'vueRouter';
 import cfg  from "config";
 
 let info = reactive({});
 let sseUrl = cfg.sseUrl + "/redis?token="+sessionStorage.getItem("token")
 const sse = new EventSource(sseUrl);
 
+const useRe = useRouter();
+
 onMounted(async ()=>{
+
+  // bootstrap tooltips
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+  const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+
   sse.onopen = ()=>{
     console.log("success")
   }
@@ -166,6 +176,7 @@ onMounted(async ()=>{
     Object.assign(info,body.data);
   })
   sse.onerror = (err)=>{
+    useRe.push("/login");
     console.log(err)
   }
 
@@ -189,6 +200,9 @@ onUnmounted(()=>{
 }
 .mb-3{
   margin-bottom: 0 !important;
+}
+.list-group .col-form-label{
+  text-align: right;
 }
 </style>
   

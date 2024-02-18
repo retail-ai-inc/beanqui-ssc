@@ -65,6 +65,7 @@ onMounted( async ()=>{
     data.queueDetail = body.data;
   })
   sse.onerror = (err)=>{
+    useRe.push("/login");
     console.log(err)
   }
 })

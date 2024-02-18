@@ -24,7 +24,11 @@
               <td>{{item.runTime}}</td>
               <td>{{ item.channel }}</td>
               <td>{{item.topic}}</td>
-              <td>{{item.payload}}</td>
+              <td>
+                <div style="height: 3rem;overflow: hidden;white-space: nowrap;width: 36rem;text-overflow: ellipsis;">
+                {{item.payload}}
+                </div>
+              </td>
               <td>
                 <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                   <div class="btn-group" role="group">
@@ -32,8 +36,8 @@
                       Actions
                     </button>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" @click="options('delete',item.id)">Delete</a></li>
-                      <li><a class="dropdown-item" @click="options('retry',item.id)">Retry</a></li>
+                      <li><a class="dropdown-item" @click="options('delete',item)">Delete</a></li>
+                      <li><a class="dropdown-item" @click="options('retry',item)">Retry</a></li>
                       <li><a class="dropdown-item" @click="options('archive',item.id)">Archive</a></li>
                     </ul>
                   </div>
@@ -91,11 +95,11 @@ async function changePage(page,cursor){
 
 }
 
-async function options(optType,id){
+async function options(optType,param){
 
   switch (optType){
     case "delete":
-      await request.delete("/log",  {"params":{id: id,msgType:"fail"}}).then(res=>{
+      await request.delete("/log",  {"params":{score: param.Score,msgType:"fail"}}).then(res=>{
 
         let logs = getErrLog(data.page,10,0);
 
@@ -109,7 +113,7 @@ async function options(optType,id){
       })
           break;
     case "retry":
-      await request.post("/log/retry",{id:id},{headers:{"Content-Type":"multipart/form-data"}} ).then(res=>{
+      await request.post("/log",{id:param.id,msgType:"fail"},{headers:{"Content-Type":"multipart/form-data"}} ).then(res=>{
         getErrLog(data.page,10,data.cursor);
       }).catch(err=>{
         console.error(err)
