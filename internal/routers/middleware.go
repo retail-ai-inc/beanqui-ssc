@@ -55,7 +55,7 @@ func Auth(next http.Handler) http.HandlerFunc {
 		//
 		_, err = token.GetExpirationTime()
 		if err != nil {
-			result.Code = consts.InternalServerErrorCode
+			result.Code = consts.AuthExpireCode
 			result.Msg = err.Error()
 			_ = result.Json(writer, http.StatusUnauthorized)
 			return
