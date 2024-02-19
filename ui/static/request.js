@@ -1,4 +1,4 @@
-const baseURL = "mq/";
+const baseURL = "./";
 
 const request = axios.create({
     baseURL:baseURL,
