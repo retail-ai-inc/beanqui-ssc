@@ -73,7 +73,8 @@ steps:
       - '-c'
       - |
         set -x && \
-        sed "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" staging-values.yaml.tpl > staging-values.yaml && \
+        tag=$(jq -r '.tag' staging-value.yaml)
+        sed "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g -e "s/COMMIT_SHA/${tag}/g" staging-values.yaml.tpl > staging-values.yaml && \
         sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" staging-values.yaml
   - id: push generated manifests to feature/yakiimo-beanqui branch
     name: 'gcr.io/cloud-builders/gcloud'
