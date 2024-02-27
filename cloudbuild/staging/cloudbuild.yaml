@@ -74,7 +74,8 @@ steps:
       - |
         set -x && \
         tag=$(sed -n 's/^ *tag: *\([^ ]*\) *$/\1/p' staging-values.yaml) && \
-        sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/"COMMIT_SHA"/${tag}/g" staging-values.yaml.tpl > staging-values.yaml && \
+        image_tag=$(echo "$tag" | sed 's/"//g') && \
+        sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${image_tag}/g" staging-values.yaml.tpl > staging-values.yaml && \
         sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" staging-values.yaml
   - id: push generated manifests to feature/yakiimo-beanqui branch
     name: 'gcr.io/cloud-builders/gcloud'
