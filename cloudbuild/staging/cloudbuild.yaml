@@ -52,7 +52,7 @@ steps:
     volumes:
       - name: 'ssh'
         path: /root/.ssh
-  - id: switch to feature/beanqui branch
+  - id: switch to feature/yakiimo-beanqui branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
     entrypoint: /bin/sh
@@ -61,21 +61,21 @@ steps:
       - |
         set -x && \
         git config --global user.email $(git log --format='%an <%ae>' -n 1 HEAD | sed 's/.*\<\([^>]*\)\>.*/\1/g') && \
-        git fetch origin feature/beanqui && git switch feature/beanqui
+        git fetch origin feature/yakiimo-beanqui && git switch feature/yakiimo-beanqui
     volumes:
       - name: 'ssh'
         path: /root/.ssh
   - id: generate manifest for grpc-gateway
     name: 'gcr.io/cloud-builders/gcloud'
-    dir: deploy/beanqui
+    dir: deploy/yakiimo
     entrypoint: /bin/sh
     args:
       - '-c'
       - |
         set -x && \
-        sed "s/COMMIT_SHA/${SHORT_SHA}/g" values.yaml.tpl > values.yaml && \
-        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" values.yaml
-  - id: push generated manifests to feature/beanqui branch
+        sed "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" staging-values.yaml.tpl > staging-values.yaml && \
+        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" staging-values.yaml
+  - id: push generated manifests to feature/yakiimo-beanqui branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
     entrypoint: /bin/sh
@@ -83,17 +83,17 @@ steps:
       - '-c'
       - |
         set -x && \
-        git add beanqui/values.yaml && \
+        git add yakiimo/staging-values.yaml && \
         git commit \
         --author="Cloud Build Service Account <$(gcloud auth list --filter=status:ACTIVE --format='value(account)')>" \
         -m "Deploying images
         - asia.gcr.io/$PROJECT_ID/beanqui:$SHORT_SHA
-        Built from commit ${COMMIT_SHA} of repository beanqui" && \
-        git push origin feature/beanqui
+        Built from commit ${BEANQUI_COMMIT_SHA} of repository beanqui" && \
+        git push origin feature/yakiimo-beanqui
     volumes:
       - name: 'ssh'
         path: /root/.ssh
   - name: 'golang:1.18'
     entrypoint: "bash"
-    args: ['cloudbuild/cloudbuild.sh', '-w', '$_SLACK_WEBHOOK_URL', '-c', '$_SLACK_CHANNEL', '-u', '$_SLACK_USER_NAME', '-m', '$_SLACK_TEXT', '-a', '$_SLACK_ALERT_TYPE', '-t', '<https://console.cloud.google.com/cloud-build/builds;region=$LOCATION/$BUILD_ID?project=$PROJECT_ID|$TRIGGER_NAME>', '-U', '<https://github.com/retail-ai-inc/beanqui/commit/$COMMIT_SHA|$SHORT_SHA>', '-b', '$BRANCH_NAME', '-s', ' ']
+    args: ['cloudbuild/cloudbuild.sh', '-w', '$_SLACK_WEBHOOK_URL', '-c', '$_SLACK_CHANNEL', '-u', '$_SLACK_USER_NAME', '-m', '$_SLACK_TEXT', '-a', '$_SLACK_ALERT_TYPE', '-t', '<https://console.cloud.google.com/cloud-build/builds;region=$LOCATION/$BUILD_ID?project=$PROJECT_ID|$TRIGGER_NAME>', '-U', '<https://github.com/retail-ai-inc/beanqui/commit/$BEANQUI_COMMIT_SHA|$SHORT_SHA>', '-b', '$BRANCH_NAME', '-s', ' ']
     allowFailure: true
