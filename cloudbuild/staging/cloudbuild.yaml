@@ -73,8 +73,7 @@ steps:
       - '-c'
       - |
         set -x && \
-        pip install pyyaml && \
-        tag=$(python -c "import yaml; print(yaml.load(open('staging-value.yaml'))['tag'])") && \
+        tag=$(sed -n 's/^ *tag: *\([^ ]*\) *$/\1/p' staging-values.yaml) && \
         sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${tag}/g" staging-values.yaml.tpl > staging-values.yaml && \
         sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" staging-values.yaml
   - id: push generated manifests to feature/yakiimo-beanqui branch
