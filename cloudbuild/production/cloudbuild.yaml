@@ -2,7 +2,15 @@ steps:
   - name: 'golang:1.19'
     entrypoint: "bash"
     args: ['-c', 'go mod download && go mod tidy && go vet . && go build -ldflags="-s -w" -race -o beanqui ./main.go']
-
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=kms/$_ENVIRONMENT/$_ENVIRONMENT-env.bin
+      - --plaintext-file=env.json
+      - --location=asia-northeast1
+      - --keyring=beanqui-$_ENVIRONMENT-config
+      - --key=$_ENVIRONMENT-json
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -52,7 +60,7 @@ steps:
     volumes:
       - name: 'ssh'
         path: /root/.ssh
-  - id: switch to develop branch
+  - id: switch to master branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
     entrypoint: /bin/sh
@@ -61,7 +69,7 @@ steps:
       - |
         set -x && \
         git config --global user.email $(git log --format='%an <%ae>' -n 1 HEAD | sed 's/.*\<\([^>]*\)\>.*/\1/g') && \
-        git fetch origin develop && git switch develop
+        git fetch origin master && git switch master
     volumes:
       - name: 'ssh'
         path: /root/.ssh
@@ -77,7 +85,7 @@ steps:
         image_tag=$(echo "$tag" | sed 's/"//g') && \
         sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${image_tag}/g" production-values.yaml.tpl > production-values.yaml && \
         sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" production-values.yaml
-  - id: push generated manifests to develop branch
+  - id: push generated manifests to master branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
     entrypoint: /bin/sh
@@ -91,7 +99,7 @@ steps:
         -m "Deploying images
         - asia.gcr.io/$PROJECT_ID/beanqui:$SHORT_SHA
         Built from commit ${COMMIT_SHA} of repository beanqui" && \
-        git push origin develop
+        git push origin master
     volumes:
       - name: 'ssh'
         path: /root/.ssh
