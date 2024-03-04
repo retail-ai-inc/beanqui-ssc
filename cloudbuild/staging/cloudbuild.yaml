@@ -2,7 +2,15 @@ steps:
   - name: 'golang:1.19'
     entrypoint: "bash"
     args: ['-c', 'go mod download && go mod tidy && go vet . && go build -ldflags="-s -w" -race -o beanqui ./main.go']
-
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=kms/$_ENVIRONMENT/$_ENVIRONMENT-env.bin
+      - --plaintext-file=env.json
+      - --location=asia-northeast1
+      - --keyring=beanqui-$_ENVIRONMENT-config
+      - --key=$_ENVIRONMENT-json
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
