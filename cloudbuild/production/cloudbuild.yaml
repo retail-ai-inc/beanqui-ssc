@@ -1,0 +1,101 @@
+steps:
+  - name: 'golang:1.19'
+    entrypoint: "bash"
+    args: ['-c', 'go mod download && go mod tidy && go vet . && go build -ldflags="-s -w" -race -o beanqui ./main.go']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'asia.gcr.io/$PROJECT_ID/beanqui:$_BRANCH_'
+      - '-t'
+      - 'asia.gcr.io/$PROJECT_ID/beanqui:$SHORT_SHA'
+      - '.'
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia.gcr.io/$PROJECT_ID/beanqui:$SHORT_SHA']
+    id: image-push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'asia.gcr.io/$PROJECT_ID/beanqui:$_BRANCH_']
+  - id: access the id_github file from secret manager
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud secrets versions access latest --secret=id_github_manju > /root/.ssh/id_github
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+      
+  - id: set up git with key and domain
+    name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        chmod 600 /root/.ssh/id_github
+        cat <<EOF >/root/.ssh/config
+        Hostname github.com
+        IdentityFile /root/.ssh/id_github
+        EOF
+        ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+
+  - id: connect to the repository
+    name: 'gcr.io/cloud-builders/git'
+    args:
+      - clone
+      - git@github.com:retail-ai-inc/manju-helm.git
+      - deploy
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+  - id: switch to develop branch
+    name: 'gcr.io/cloud-builders/gcloud'
+    dir: deploy
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        set -x && \
+        git config --global user.email $(git log --format='%an <%ae>' -n 1 HEAD | sed 's/.*\<\([^>]*\)\>.*/\1/g') && \
+        git fetch origin develop && git switch develop
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+  - id: generate manifest for grpc-gateway
+    name: 'gcr.io/cloud-builders/gcloud'
+    dir: deploy/yakiimo
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        set -x && \
+        tag=$(sed -n 's/^ *tag: *\([^ ]*\) *$/\1/p' production-values.yaml) && \
+        image_tag=$(echo "$tag" | sed 's/"//g') && \
+        sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${image_tag}/g" production-values.yaml.tpl > production-values.yaml && \
+        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" production-values.yaml
+  - id: push generated manifests to develop branch
+    name: 'gcr.io/cloud-builders/gcloud'
+    dir: deploy
+    entrypoint: /bin/sh
+    args:
+      - '-c'
+      - |
+        set -x && \
+        git add yakiimo/production-values.yaml && \
+        git commit \
+        --author="Cloud Build Service Account <$(gcloud auth list --filter=status:ACTIVE --format='value(account)')>" \
+        -m "Deploying images
+        - asia.gcr.io/$PROJECT_ID/beanqui:$SHORT_SHA
+        Built from commit ${COMMIT_SHA} of repository beanqui" && \
+        git push origin develop
+    volumes:
+      - name: 'ssh'
+        path: /root/.ssh
+  - name: 'golang:1.18'
+    entrypoint: "bash"
+    args: ['cloudbuild/cloudbuild.sh', '-w', '$_SLACK_WEBHOOK_URL', '-c', '$_SLACK_CHANNEL', '-u', '$_SLACK_USER_NAME', '-m', '$_SLACK_TEXT', '-a', '$_SLACK_ALERT_TYPE', '-t', '<https://console.cloud.google.com/cloud-build/builds;region=$LOCATION/$BUILD_ID?project=$PROJECT_ID|$TRIGGER_NAME>', '-U', '<https://github.com/retail-ai-inc/beanqui/commit/$COMMIT_SHA|$SHORT_SHA>', '-b', '$BRANCH_NAME', '-s', ' ']
+    allowFailure: true
