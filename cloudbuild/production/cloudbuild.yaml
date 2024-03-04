@@ -81,10 +81,10 @@ steps:
       - '-c'
       - |
         set -x && \
-        tag=$(sed -n 's/^ *tag: *\([^ ]*\) *$/\1/p' production-values.yaml) && \
+        tag=$(sed -n 's/^ *tag: *\([^ ]*\) *$/\1/p' $_ENVIRONMENT-values.yaml) && \
         image_tag=$(echo "$tag" | sed 's/"//g') && \
-        sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${image_tag}/g" production-values.yaml.tpl > production-values.yaml && \
-        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" production-values.yaml
+        sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${image_tag}/g" $_ENVIRONMENT-values.yaml.tpl > $_ENVIRONMENT-values.yaml && \
+        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" $_ENVIRONMENT-values.yaml
   - id: push generated manifests to master branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
@@ -93,7 +93,7 @@ steps:
       - '-c'
       - |
         set -x && \
-        git add yakiimo/production-values.yaml && \
+        git add yakiimo/$_ENVIRONMENT-values.yaml && \
         git commit \
         --author="Cloud Build Service Account <$(gcloud auth list --filter=status:ACTIVE --format='value(account)')>" \
         -m "Deploying images

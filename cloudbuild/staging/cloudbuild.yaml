@@ -60,7 +60,7 @@ steps:
     volumes:
       - name: 'ssh'
         path: /root/.ssh
-  - id: switch to feature/yakiimo-beanqui branch
+  - id: switch to develop branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
     entrypoint: /bin/sh
@@ -69,7 +69,7 @@ steps:
       - |
         set -x && \
         git config --global user.email $(git log --format='%an <%ae>' -n 1 HEAD | sed 's/.*\<\([^>]*\)\>.*/\1/g') && \
-        git fetch origin feature/yakiimo-beanqui && git switch feature/yakiimo-beanqui
+        git fetch origin develop && git switch develop
     volumes:
       - name: 'ssh'
         path: /root/.ssh
@@ -81,11 +81,11 @@ steps:
       - '-c'
       - |
         set -x && \
-        tag=$(sed -n 's/^ *tag: *\([^ ]*\) *$/\1/p' staging-values.yaml) && \
+        tag=$(sed -n 's/^ *tag: *\([^ ]*\) *$/\1/p' $_ENVIRONMENT-values.yaml) && \
         image_tag=$(echo "$tag" | sed 's/"//g') && \
-        sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${image_tag}/g" staging-values.yaml.tpl > staging-values.yaml && \
-        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" staging-values.yaml
-  - id: push generated manifests to feature/yakiimo-beanqui branch
+        sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${image_tag}/g" $_ENVIRONMENT-values.yaml.tpl > $_ENVIRONMENT-values.yaml && \
+        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" $_ENVIRONMENT-values.yaml
+  - id: push generated manifests to develop branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
     entrypoint: /bin/sh
@@ -93,13 +93,13 @@ steps:
       - '-c'
       - |
         set -x && \
-        git add yakiimo/staging-values.yaml && \
+        git add yakiimo/$_ENVIRONMENT-values.yaml && \
         git commit \
         --author="Cloud Build Service Account <$(gcloud auth list --filter=status:ACTIVE --format='value(account)')>" \
         -m "Deploying images
         - asia.gcr.io/$PROJECT_ID/beanqui:$SHORT_SHA
         Built from commit ${COMMIT_SHA} of repository beanqui" && \
-        git push origin feature/yakiimo-beanqui
+        git push origin develop
     volumes:
       - name: 'ssh'
         path: /root/.ssh
