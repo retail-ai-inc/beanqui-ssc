@@ -35,7 +35,7 @@ func (t *Login) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		pwd = p
 	}
 
-	if username != user && password != pwd {
+	if username != user || password != pwd {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = "username or password mismatch"
 		_ = result.Json(w, http.StatusUnauthorized)
