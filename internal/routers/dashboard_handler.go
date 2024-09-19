@@ -13,10 +13,10 @@ import (
 )
 
 type Dashboard struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
-func NewDashboard(client *redis.Client) *Dashboard {
+func NewDashboard(client redis.UniversalClient) *Dashboard {
 	return &Dashboard{client: client}
 }
 

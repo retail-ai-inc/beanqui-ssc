@@ -10,10 +10,10 @@ import (
 )
 
 type RedisInfo struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
-func NewRedisInfo(client *redis.Client) *RedisInfo {
+func NewRedisInfo(client redis.UniversalClient) *RedisInfo {
 	return &RedisInfo{client: client}
 }
 func (t *RedisInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {

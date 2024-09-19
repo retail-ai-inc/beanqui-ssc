@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="channel">
       <Pagination :page="page" :total="total" @changePage="changePage"/>
 
       <div class="accordion" id="ui-accordion">
@@ -29,9 +29,9 @@
                   <th scope="row">
                     <router-link to="" class="nav-link text-muted" v-on:click="detailQueue(d)">{{ d.queue }}</router-link>
                   </th>
-                  <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'">{{ d.state }}</td>
-                  <td>{{ d.size }}</td>
-                  <td>{{ d.idle }}</td>
+                  <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'" class="align-middle">{{ d.state }}</td>
+                  <td class="align-middle">{{ d.size }}</td>
+                  <td class="align-middle">{{ d.idle }}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                       <div class="btn-group" role="group">
@@ -108,6 +108,10 @@ const {queues,page,total} = toRefs(data);
 }
 .table .text-danger-emphasis {
     color: var(--bs-danger) !important;
+}
+.channel {
+  transition: opacity 0.5s ease;
+  opacity: 1;
 }
 </style>
   

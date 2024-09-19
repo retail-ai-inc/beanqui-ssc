@@ -16,10 +16,10 @@ import (
 )
 
 type Log struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
-func NewLog(client *redis.Client) *Log {
+func NewLog(client redis.UniversalClient) *Log {
 	return &Log{client: client}
 }
 
@@ -99,7 +99,7 @@ func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // log detail
-func detailHandler(ctx context.Context, client *redis.Client, id, msgType string) (map[string]any, error) {
+func detailHandler(ctx context.Context, client redis.UniversalClient, id, msgType string) (map[string]any, error) {
 
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 
@@ -121,7 +121,7 @@ func detailHandler(ctx context.Context, client *redis.Client, id, msgType string
 	return m, nil
 }
 
-func retryHandler(ctx context.Context, client *redis.Client, id, msgType string) error {
+func retryHandler(ctx context.Context, client redis.UniversalClient, id, msgType string) error {
 
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 

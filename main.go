@@ -21,6 +21,7 @@ func init() {
 		log.Fatalln(err)
 	}
 }
+
 func main() {
 
 	flag.StringVar(&port, "port", ":9090", "port")

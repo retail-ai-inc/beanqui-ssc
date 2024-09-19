@@ -13,10 +13,10 @@ import (
 )
 
 type Logs struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
-func NewLogs(client *redis.Client) *Logs {
+func NewLogs(client redis.UniversalClient) *Logs {
 	return &Logs{client: client}
 }
 

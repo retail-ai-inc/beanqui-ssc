@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="schedule">
 
       <div class="accordion" id="schedule-ui-accordion">
         <div class="accordion-item" v-if="JSON.stringify(schedule) == '{}'" style="border: none;text-align: center;padding: 15px 0">
@@ -93,6 +93,10 @@ const {page,total,schedule} = toRefs(data);
 }
 .table .text-danger-emphasis{
     color:var(--bs-danger) !important;
+}
+.schedule{
+  transition: opacity 0.5s ease;
+  opacity: 1;
 }
 </style>
   

@@ -23,16 +23,16 @@ request.interceptors.request.use(
 request.interceptors.response.use(
     res=>{
         let data = res.data;
-        if (data.code == "0000"){
+        if (data.code === "0000"){
             return Promise.resolve(data);
         }
         return Promise.reject(new Error(data.msg));
     },
     err=>{
 
-        if (err.response.status == 401){
-
+        if (err.response.status === 401){
             sessionStorage.clear();
+            window.location.href = "/";
         }
         return Promise.reject(err);
     }

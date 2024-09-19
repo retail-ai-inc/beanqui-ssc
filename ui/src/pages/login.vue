@@ -33,7 +33,8 @@ const data = reactive({
 })
 const useRe = useRouter();
 
-function onSubmit(){
+function onSubmit(event){
+
   if (data.user.username == "" || data.user.password == ""){
     console.log("can not empty");
     return;
@@ -43,7 +44,7 @@ function onSubmit(){
     sessionStorage.setItem("token",res.data.token);
     useRe.push("/admin/home");
   }).catch(err=>{
-    if (err.response.status == 401){
+    if (err.response.status === 401){
       data.msg = err.response.data.msg;
     }
   })

@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="home">
     <div class="container-fluid text-center">
       <div class="row align-items-start" style="margin: 15px 0;color:#fff;">
         <div class="col" style="background: #0d6efd;height:120px;padding:15px;">
@@ -164,6 +164,10 @@ const lineOption = ref({
 const {queue_total,db_size,num_cpu,fail_count,success_count} = toRefs(data);
 </script>
 <style scoped>
+.home{
+  transition: opacity 0.5s ease;
+  opacity: 1;
+}
 .chart{
   width:100%;height:80vh;
 }

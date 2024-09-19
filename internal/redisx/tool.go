@@ -21,7 +21,7 @@ type ObjectStruct struct {
 	LruSecondsIdle   int
 }
 
-func Object(ctx context.Context, client *redis.Client, queueName string) (objstr ObjectStruct) {
+func Object(ctx context.Context, client redis.UniversalClient, queueName string) (objstr ObjectStruct) {
 	obj := client.DebugObject(ctx, queueName)
 
 	str, _ := obj.Result()
@@ -54,7 +54,7 @@ func Object(ctx context.Context, client *redis.Client, queueName string) (objstr
 	}
 	return
 }
-func Keys(ctx context.Context, client *redis.Client, key string) ([]string, error) {
+func Keys(ctx context.Context, client redis.UniversalClient, key string) ([]string, error) {
 	cmd := client.Keys(ctx, key)
 	queues, err := cmd.Result()
 	if err != nil {
@@ -62,7 +62,7 @@ func Keys(ctx context.Context, client *redis.Client, key string) ([]string, erro
 	}
 	return queues, nil
 }
-func Info(ctx context.Context, client *redis.Client) (map[string]string, error) {
+func Info(ctx context.Context, client redis.UniversalClient) (map[string]string, error) {
 	infoStr, err := client.Info(ctx).Result()
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func Info(ctx context.Context, client *redis.Client) (map[string]string, error) 
 
 }
 
-func ClientList(ctx context.Context, client *redis.Client) ([]map[string]any, error) {
+func ClientList(ctx context.Context, client redis.UniversalClient) ([]map[string]any, error) {
 
 	cmd := client.ClientList(ctx)
 	if err := cmd.Err(); err != nil {
@@ -175,7 +175,7 @@ type Msg struct {
 	Score       string
 }
 
-func QueueInfo(ctx context.Context, client *redis.Client, queueKey string) (any, error) {
+func QueueInfo(ctx context.Context, client redis.UniversalClient, queueKey string) (any, error) {
 
 	// get queues
 	queues, err := Keys(ctx, client, queueKey)

@@ -9,10 +9,10 @@ import (
 )
 
 type Client struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
-func NewClient(client *redis.Client) *Client {
+func NewClient(client redis.UniversalClient) *Client {
 	return &Client{client: client}
 }
 

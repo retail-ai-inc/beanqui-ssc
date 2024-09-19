@@ -9,9 +9,13 @@
                     <li class="breadcrumb-item active" aria-current="page">{{ route }}</li>
                 </ol>
             </nav>
+
             <router-view v-slot="{Component}">
+              <transition name="fade" mode="out-in">
                 <component :is="Component" />
+              </transition>
             </router-view>
+
         </div>
     </div>
 </template>
@@ -54,5 +58,12 @@ watch(() => useR.fullPath, (newVal, oldVal) => {
     border-radius: 5px;
     padding: 15px;
     background-color: #f8f9fa;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>

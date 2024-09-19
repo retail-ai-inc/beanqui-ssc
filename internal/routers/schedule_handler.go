@@ -10,10 +10,10 @@ import (
 )
 
 type Schedule struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
-func NewSchedule(client *redis.Client) *Schedule {
+func NewSchedule(client redis.UniversalClient) *Schedule {
 	return &Schedule{client: client}
 }
 

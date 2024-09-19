@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/redis/go-redis/v9 v9.4.0
-	github.com/retail-ai-inc/beanq v0.0.0-20240201073000-0b7111d40b81
+	github.com/retail-ai-inc/beanq v1.0.0
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/viper v1.18.1
 )

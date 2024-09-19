@@ -13,10 +13,10 @@ import (
 )
 
 type Queue struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
-func NewQueue(client *redis.Client) *Queue {
+func NewQueue(client redis.UniversalClient) *Queue {
 	return &Queue{client: client}
 }
 
@@ -57,7 +57,7 @@ func (t *Queue) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func queueDetail(w http.ResponseWriter, r *http.Request, client *redis.Client) {
+func queueDetail(w http.ResponseWriter, r *http.Request, client redis.UniversalClient) {
 
 	result, cancel := results.Get()
 	defer cancel()
