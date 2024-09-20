@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"log"
 	"net/http"
 	"strings"
 )
@@ -62,19 +63,20 @@ func (t *Router) Delete(pattern string, handleFunc HandleFunc) {
 
 func (t *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	lastLen := len(r.URL.Path) - 4
-	if lastLen < 0 {
-		lastLen = 0
-	}
-	last := r.URL.Path[lastLen:]
+	defer func() {
+		if re := recover(); re != nil {
+			log.Printf("panic error: %+v \n", re)
+		}
+	}()
+
 	pattern := r.URL.Path
 	method := r.Method
 
-	if strings.Contains(last, ".css") ||
-		strings.Contains(last, ".js") ||
-		strings.Contains(last, ".map") ||
-		strings.Contains(last, ".ico") ||
-		strings.Contains(last, ".vue") {
+	if strings.HasSuffix(pattern, ".css") ||
+		strings.HasSuffix(pattern, ".js") ||
+		strings.HasSuffix(pattern, ".map") ||
+		strings.HasSuffix(pattern, ".ico") ||
+		strings.HasSuffix(pattern, ".vue") {
 		pattern = "/"
 		method = FILE
 	}
