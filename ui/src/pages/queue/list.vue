@@ -72,7 +72,7 @@ let data = reactive({
 })
 
 function getQueue(page,pageSize){
-  return request.get("queue?list",{"params":{"page":page,"pageSize":pageSize}});
+  return request.get("queue/list",{"params":{"page":page,"pageSize":pageSize}});
 }
 
 onMounted(async ()=>{

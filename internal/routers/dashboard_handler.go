@@ -20,7 +20,7 @@ func NewDashboard(client redis.UniversalClient) *Dashboard {
 	return &Dashboard{client: client}
 }
 
-func (t *Dashboard) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 
 	result, cancel := results.Get()
 	defer cancel()

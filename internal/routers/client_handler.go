@@ -16,7 +16,7 @@ func NewClient(client redis.UniversalClient) *Client {
 	return &Client{client: client}
 }
 
-func (t *Client) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *Client) List(w http.ResponseWriter, r *http.Request) {
 
 	result, cancel := results.Get()
 	defer cancel()

@@ -17,7 +17,7 @@ func NewSchedule(client redis.UniversalClient) *Schedule {
 	return &Schedule{client: client}
 }
 
-func (t *Schedule) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *Schedule) List(w http.ResponseWriter, r *http.Request) {
 	result, cancel := results.Get()
 	defer cancel()
 

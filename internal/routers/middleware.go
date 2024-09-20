@@ -9,7 +9,7 @@ import (
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
 )
 
-func Auth(next http.Handler) http.HandlerFunc {
+func Auth(next HandleFunc) HandleFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
 		result, cancel := results.Get()
@@ -61,6 +61,6 @@ func Auth(next http.Handler) http.HandlerFunc {
 			return
 		}
 
-		next.ServeHTTP(writer, request)
+		next(writer, request)
 	}
 }

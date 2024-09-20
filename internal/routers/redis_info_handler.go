@@ -16,7 +16,7 @@ type RedisInfo struct {
 func NewRedisInfo(client redis.UniversalClient) *RedisInfo {
 	return &RedisInfo{client: client}
 }
-func (t *RedisInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *RedisInfo) Info(w http.ResponseWriter, r *http.Request) {
 
 	result, cancel := results.Get()
 	defer cancel()

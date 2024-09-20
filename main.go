@@ -2,12 +2,11 @@ package main
 
 import (
 	"flag"
-	"log"
-	"net/http"
-
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	. "github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/spf13/viper"
+	"log"
+	"net/http"
 )
 
 var port string
@@ -31,26 +30,22 @@ func main() {
 	client := redisx.Client()
 
 	// init http server
-	mux := http.NewServeMux()
-	mux.HandleFunc("/ping", ping)
-	mux.Handle("/", NewIndex())
-	mux.Handle("/schedule", Auth(NewSchedule(client)))
-	// queue:list, detail
-	mux.Handle("/queue", Auth(NewQueue(client)))
-	mux.Handle("/logs", Auth(NewLogs(client)))
-	// restful: detail,delete,retry,archive
-	mux.Handle("/log", Auth(NewLog(client)))
-	mux.Handle("/redis", Auth(NewRedisInfo(client)))
-	mux.Handle("/login", NewLogin())
-	mux.Handle("/clients", Auth(NewClient(client)))
-	mux.Handle("/dashboard", Auth(NewDashboard(client)))
+	router := NewRouter()
+	router.File("/", NewIndex().File)
 
-	srv := http.Server{
-		Addr:    port,
-		Handler: mux,
-	}
-	log.Printf("server start on port %s \n", port)
-	if err := srv.ListenAndServe(); err != nil {
+	router.Get("/ping", ping)
+	router.Get("/schedule", Auth(NewSchedule(client).List))
+	router.Get("/queue/list", Auth(NewQueue(client).List))
+	router.Get("/queue/detail", Auth(NewQueue(client).Detail))
+	router.Get("/logs", Auth(NewLogs(client).List))
+	router.Get("/log", Auth(NewLog(client).List))
+	router.Get("/redis", Auth(NewRedisInfo(client).Info))
+	router.Post("/login", NewLogin().Login)
+	router.Get("/clients", Auth(NewClient(client).List))
+	router.Get("/dashboard", Auth(NewDashboard(client).Info))
+
+	log.Printf("server start on port %+v", port)
+	if err := http.ListenAndServe(port, router); err != nil {
 		log.Fatalln(err)
 	}
 

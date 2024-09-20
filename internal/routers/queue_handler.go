@@ -20,7 +20,7 @@ func NewQueue(client redis.UniversalClient) *Queue {
 	return &Queue{client: client}
 }
 
-func (t *Queue) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *Queue) List(w http.ResponseWriter, r *http.Request) {
 	result, cancel := results.Get()
 	defer cancel()
 
@@ -34,27 +34,22 @@ func (t *Queue) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	action := querys[0]
-	if r.Method == http.MethodGet {
-		// queue list
-		if action == "list" {
-			bt, err := redisx.QueueInfo(r.Context(), t.client, redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
-			if err != nil {
-				result.Code = consts.InternalServerErrorCode
-				result.Msg = err.Error()
-				_ = result.Json(w, http.StatusInternalServerError)
-				return
-			}
-
-			result.Data = bt
-			_ = result.Json(w, http.StatusOK)
-			return
-		}
-		// queue detail
-		if action == "detail" {
-			queueDetail(w, r, t.client)
-		}
+	bt, err := redisx.QueueInfo(r.Context(), t.client, redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
+	if err != nil {
+		result.Code = consts.InternalServerErrorCode
+		result.Msg = err.Error()
+		_ = result.Json(w, http.StatusInternalServerError)
+		return
 	}
+
+	result.Data = bt
+	_ = result.Json(w, http.StatusOK)
+	return
+
+}
+func (t *Queue) Detail(w http.ResponseWriter, r *http.Request) {
+	queueDetail(w, r, t.client)
+	return
 }
 
 func queueDetail(w http.ResponseWriter, r *http.Request, client redis.UniversalClient) {

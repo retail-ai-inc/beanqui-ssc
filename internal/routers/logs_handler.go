@@ -20,7 +20,7 @@ func NewLogs(client redis.UniversalClient) *Logs {
 	return &Logs{client: client}
 }
 
-func (t *Logs) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
 
 	resultRes, cancel := results.Get()
 	defer cancel()

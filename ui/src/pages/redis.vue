@@ -153,7 +153,7 @@ import { useRouter } from 'vueRouter';
 import cfg  from "config";
 
 let info = reactive({});
-let sseUrl = cfg.sseUrl + "/redis?token="+sessionStorage.getItem("token")
+let sseUrl = cfg.sseUrl + "redis?token="+sessionStorage.getItem("token")
 const sse = new EventSource(sseUrl);
 
 const useRe = useRouter();

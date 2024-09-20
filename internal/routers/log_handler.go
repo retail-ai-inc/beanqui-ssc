@@ -24,75 +24,78 @@ func NewLog(client redis.UniversalClient) *Log {
 }
 
 // del ,retry,archive,detail
-func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *Log) List(w http.ResponseWriter, r *http.Request) {
 
 	result, cancel := results.Get()
 	defer cancel()
 
-	// job detail
-	if r.Method == http.MethodGet {
+	id := r.FormValue("id")
+	msgType := r.FormValue("msgType")
 
-		id := r.FormValue("id")
-		msgType := r.FormValue("msgType")
-
-		if id == "" || msgType == "" {
-			// error
-			result.Code = consts.MissParameterCode
-			result.Msg = consts.MissParameterMsg
-			_ = result.Json(w, http.StatusBadRequest)
-			return
-		}
-		data, err := detailHandler(r.Context(), t.client, id, msgType)
-		if err != nil {
-			result.Code = "1003"
-			result.Msg = err.Error()
-			_ = result.Json(w, http.StatusInternalServerError)
-			return
-		}
-		result.Data = data
-		_ = result.Json(w, http.StatusOK)
+	if id == "" || msgType == "" {
+		// error
+		result.Code = consts.MissParameterCode
+		result.Msg = consts.MissParameterMsg
+		_ = result.Json(w, http.StatusBadRequest)
 		return
 	}
-	// retry
-	if r.Method == http.MethodPost {
-
-		id := r.PostFormValue("id")
-		msgType := r.PostFormValue("msgType")
-		if msgType == "" {
-			msgType = "success"
-		}
-		if id == "" {
-			result.Code = consts.MissParameterCode
-			result.Msg = consts.MissParameterMsg
-			_ = result.Json(w, http.StatusInternalServerError)
-			return
-		}
-		if err := retryHandler(r.Context(), t.client, id, msgType); err != nil {
-			result.Code = consts.InternalServerErrorCode
-			result.Msg = err.Error()
-			_ = result.Json(w, http.StatusInternalServerError)
-			return
-		}
+	data, err := detailHandler(r.Context(), t.client, id, msgType)
+	if err != nil {
+		result.Code = "1003"
+		result.Msg = err.Error()
+		_ = result.Json(w, http.StatusInternalServerError)
 		return
 	}
-	// delete job
-	if r.Method == http.MethodDelete {
+	result.Data = data
+	_ = result.Json(w, http.StatusOK)
+	return
 
-		msgType := r.FormValue("msgType")
-		score := r.FormValue("score")
+}
 
-		key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
-		cmd := t.client.ZRemRangeByScore(r.Context(), key, score, score)
-		if cmd.Err() != nil {
-			result.Code = consts.InternalServerErrorCode
-			result.Msg = cmd.Err().Error()
-			_ = result.Json(w, http.StatusInternalServerError)
-			return
-		}
-		_ = result.Json(w, http.StatusOK)
-		return
+func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
 
+	result, cancel := results.Get()
+	defer cancel()
+
+	id := r.PostFormValue("id")
+	msgType := r.PostFormValue("msgType")
+	if msgType == "" {
+		msgType = "success"
 	}
+	if id == "" {
+		result.Code = consts.MissParameterCode
+		result.Msg = consts.MissParameterMsg
+		_ = result.Json(w, http.StatusInternalServerError)
+		return
+	}
+	if err := retryHandler(r.Context(), t.client, id, msgType); err != nil {
+		result.Code = consts.InternalServerErrorCode
+		result.Msg = err.Error()
+		_ = result.Json(w, http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
+func (t *Log) Delete(w http.ResponseWriter, r *http.Request) {
+	result, cancel := results.Get()
+	defer cancel()
+
+	msgType := r.FormValue("msgType")
+	score := r.FormValue("score")
+
+	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
+	cmd := t.client.ZRemRangeByScore(r.Context(), key, score, score)
+	if cmd.Err() != nil {
+		result.Code = consts.InternalServerErrorCode
+		result.Msg = cmd.Err().Error()
+		_ = result.Json(w, http.StatusInternalServerError)
+		return
+	}
+	_ = result.Json(w, http.StatusOK)
+	return
+}
+func (t *Log) Add(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut {
 
 	}
