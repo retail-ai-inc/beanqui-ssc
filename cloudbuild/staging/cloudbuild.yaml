@@ -73,18 +73,24 @@ steps:
     volumes:
       - name: 'ssh'
         path: /root/.ssh
-  - id: generate manifest for grpc-gateway
-    name: 'gcr.io/cloud-builders/gcloud'
+  - id: 'install-yq'
+    name: 'alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        apk add --no-cache yq
+        cp $(which yq) /workspace/yq
+        echo "yq installed successfully."
+  - id: generate manifest for helm
+    name: 'alpine'
     dir: deploy/yakiimo
     entrypoint: /bin/sh
     args:
       - '-c'
       - |
-        set -x && \
-        tag=$(sed -n 's/^ *tag: *\([^ ]*\) *$/\1/p' $_ENVIRONMENT-values.yaml) && \
-        image_tag=$(echo "$tag" | sed 's/"//g') && \
-        sed -e "s/BEANQUI_COMMIT_SHA/${SHORT_SHA}/g" -e "s/COMMIT_SHA/${image_tag}/g" $_ENVIRONMENT-values.yaml.tpl > $_ENVIRONMENT-values.yaml && \
-        sed -i "s#NOTIFICATION_ARANCH#$BRANCH_NAME#g" $_ENVIRONMENT-values.yaml
+        set -x
+        /workspace/yq eval '.notification.branch = "$BRANCH_NAME" | .beanqui.imageTag = "$SHORT_SHA"' -i ${_ENVIRONMENT}-values.yaml
   - id: push generated manifests to develop branch
     name: 'gcr.io/cloud-builders/gcloud'
     dir: deploy
