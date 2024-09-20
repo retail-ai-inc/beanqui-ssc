@@ -28,14 +28,10 @@ func (t *Result) Json(w http.ResponseWriter, httpCode int) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpCode)
 
-	b, err := json.Marshal(t)
-	if err != nil {
+	if err := json.NewEncoder(w).Encode(t); err != nil {
 		return err
 	}
 
-	if _, err := w.Write(b); err != nil {
-		return err
-	}
 	return nil
 }
 func (t *Result) EventMsg(w http.ResponseWriter, eventName string) error {
