@@ -5,7 +5,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
@@ -13,11 +12,10 @@ import (
 )
 
 type Dashboard struct {
-	client redis.UniversalClient
 }
 
-func NewDashboard(client redis.UniversalClient) *Dashboard {
-	return &Dashboard{client: client}
+func NewDashboard() *Dashboard {
+	return &Dashboard{}
 }
 
 func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +26,7 @@ func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 	numCpu := runtime.NumCPU()
 
 	// get queue total
-	keys, err := redisx.Keys(r.Context(), t.client, strings.Join([]string{redisx.BqConfig.Prefix, "*", "stream"}, ":"))
+	keys, err := redisx.Keys(r.Context(), strings.Join([]string{redisx.BqConfig.Redis.Prefix, "*", "stream"}, ":"))
 	if err != nil {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = err.Error()
@@ -36,9 +34,9 @@ func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	keysLen := len(keys)
-
+	client := redisx.Client()
 	// db size
-	db_size, err := t.client.DBSize(r.Context()).Result()
+	db_size, err := client.DBSize(r.Context()).Result()
 	if err != nil {
 
 		result.Code = consts.InternalServerErrorCode
@@ -51,10 +49,10 @@ func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 	// Queue Past 10 Minutes
 	prefix := viper.GetString("redis.prefix")
 	failKey := strings.Join([]string{prefix, "logs", "fail"}, ":")
-	failCount := t.client.ZCard(r.Context(), failKey).Val()
+	failCount := client.ZCard(r.Context(), failKey).Val()
 
 	successKey := strings.Join([]string{prefix, "logs", "success"}, ":")
-	successCount := t.client.ZCard(r.Context(), successKey).Val()
+	successCount := client.ZCard(r.Context(), successKey).Val()
 
 	result.Data = map[string]any{
 		"queue_total":   keysLen,

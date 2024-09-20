@@ -1,15 +1,15 @@
 package main
 
 import (
-	"flag"
-	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	. "github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/spf13/viper"
 	"log"
 	"net/http"
 )
 
-var port string
+var (
+	port string = ":9090"
+)
 
 func init() {
 
@@ -23,26 +23,24 @@ func init() {
 
 func main() {
 
-	flag.StringVar(&port, "port", ":9090", "port")
-	flag.Parse()
-
-	// init redis
-	client := redisx.Client()
+	//flag.StringVar(&port, "port", ":9090", "port")
+	//flag.Parse()
 
 	// init http server
 	router := NewRouter()
 	router.File("/", NewIndex().File)
 
 	router.Get("/ping", ping)
-	router.Get("/schedule", Auth(NewSchedule(client).List))
-	router.Get("/queue/list", Auth(NewQueue(client).List))
-	router.Get("/queue/detail", Auth(NewQueue(client).Detail))
-	router.Get("/logs", Auth(NewLogs(client).List))
-	router.Get("/log", Auth(NewLog(client).List))
-	router.Get("/redis", Auth(NewRedisInfo(client).Info))
+	router.Get("/schedule", Auth(NewSchedule().List))
+	router.Get("/queue/list", Auth(NewQueue().List))
+	router.Get("/queue/detail", Auth(NewQueue().Detail))
+	router.Get("/logs", Auth(NewLogs().List))
+	router.Get("/log", Auth(NewLog().List))
+	router.Get("/redis", Auth(NewRedisInfo().Info))
 	router.Post("/login", NewLogin().Login)
-	router.Get("/clients", Auth(NewClient(client).List))
-	router.Get("/dashboard", Auth(NewDashboard(client).Info))
+	router.Get("/clients", Auth(NewClient().List))
+	router.Get("/dashboard", Auth(NewDashboard().Info))
+	router.Get("/event_log/list", Auth(NewEventLog().List))
 
 	log.Printf("server start on port %+v", port)
 	if err := http.ListenAndServe(port, router); err != nil {

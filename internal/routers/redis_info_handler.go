@@ -4,17 +4,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
 )
 
 type RedisInfo struct {
-	client redis.UniversalClient
 }
 
-func NewRedisInfo(client redis.UniversalClient) *RedisInfo {
-	return &RedisInfo{client: client}
+func NewRedisInfo() *RedisInfo {
+	return &RedisInfo{}
 }
 func (t *RedisInfo) Info(w http.ResponseWriter, r *http.Request) {
 
@@ -38,7 +36,7 @@ func (t *RedisInfo) Info(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			d, err := redisx.Info(ctx, t.client)
+			d, err := redisx.Info(ctx)
 
 			if err != nil {
 				result.Code = "1001"

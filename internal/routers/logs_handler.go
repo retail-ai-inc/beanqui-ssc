@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
@@ -13,11 +12,10 @@ import (
 )
 
 type Logs struct {
-	client redis.UniversalClient
 }
 
-func NewLogs(client redis.UniversalClient) *Logs {
-	return &Logs{client: client}
+func NewLogs() *Logs {
+	return &Logs{}
 }
 
 func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
@@ -46,11 +44,11 @@ func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
 		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "fail"}, ":")
 	}
 	data := make(map[string]any)
-
-	count := t.client.ZCard(r.Context(), matchStr).Val()
+	client := redisx.Client()
+	count := client.ZCard(r.Context(), matchStr).Val()
 	data["total"] = count
 
-	cmd := t.client.ZScan(r.Context(), matchStr, gCursor, "", 10)
+	cmd := client.ZScan(r.Context(), matchStr, gCursor, "", 10)
 
 	keys, cursor, err := cmd.Result()
 

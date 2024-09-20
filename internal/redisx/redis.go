@@ -1,13 +1,13 @@
 package redisx
 
 import (
+	"github.com/retail-ai-inc/beanq"
+	"github.com/spf13/viper"
 	"log"
 	"strings"
 	"sync"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/retail-ai-inc/beanq"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -16,24 +16,13 @@ var (
 	BqConfig  beanq.BeanqConfig
 )
 
-func initCfg() {
-
-	vp := viper.New()
-	vp.AddConfigPath("./")
-	vp.SetConfigName("env")
-	vp.SetConfigType("json")
-	if err := vp.ReadInConfig(); err != nil {
-		log.Fatalln(err)
-	}
-	if err := vp.Unmarshal(&BqConfig); err != nil {
-		log.Fatalln(err)
-	}
-}
-
 func Client() redis.UniversalClient {
 
 	redisOnce.Do(func() {
-		initCfg()
+
+		if err := viper.Unmarshal(&BqConfig); err != nil {
+			log.Fatalf("viper unmarshal err:%+v \n", err)
+		}
 		hosts := strings.Split(BqConfig.Redis.Host, ",")
 		for i, h := range hosts {
 			hs := strings.Split(h, ":")
@@ -49,7 +38,7 @@ func Client() redis.UniversalClient {
 			DialTimeout:  BqConfig.Redis.DialTimeout,
 			ReadTimeout:  BqConfig.Redis.ReadTimeout,
 			WriteTimeout: BqConfig.Redis.WriteTimeout,
-			PoolSize:     BqConfig.PoolSize,
+			PoolSize:     BqConfig.Redis.PoolSize,
 			MinIdleConns: BqConfig.Redis.MinIdleConnections,
 			PoolTimeout:  BqConfig.Redis.PoolTimeout,
 			PoolFIFO:     false,

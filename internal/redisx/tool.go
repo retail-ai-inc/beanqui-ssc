@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanq/helper/stringx"
 	"github.com/spf13/cast"
@@ -21,7 +20,8 @@ type ObjectStruct struct {
 	LruSecondsIdle   int
 }
 
-func Object(ctx context.Context, client redis.UniversalClient, queueName string) (objstr ObjectStruct) {
+func Object(ctx context.Context, queueName string) (objstr ObjectStruct) {
+	client = Client()
 	obj := client.DebugObject(ctx, queueName)
 
 	str, _ := obj.Result()
@@ -54,7 +54,8 @@ func Object(ctx context.Context, client redis.UniversalClient, queueName string)
 	}
 	return
 }
-func Keys(ctx context.Context, client redis.UniversalClient, key string) ([]string, error) {
+func Keys(ctx context.Context, key string) ([]string, error) {
+	client = Client()
 	cmd := client.Keys(ctx, key)
 	queues, err := cmd.Result()
 	if err != nil {
@@ -62,7 +63,8 @@ func Keys(ctx context.Context, client redis.UniversalClient, key string) ([]stri
 	}
 	return queues, nil
 }
-func Info(ctx context.Context, client redis.UniversalClient) (map[string]string, error) {
+func Info(ctx context.Context) (map[string]string, error) {
+	client = Client()
 	infoStr, err := client.Info(ctx).Result()
 	if err != nil {
 		return nil, err
@@ -79,8 +81,8 @@ func Info(ctx context.Context, client redis.UniversalClient) (map[string]string,
 
 }
 
-func ClientList(ctx context.Context, client redis.UniversalClient) ([]map[string]any, error) {
-
+func ClientList(ctx context.Context) ([]map[string]any, error) {
+	client = Client()
 	cmd := client.ClientList(ctx)
 	if err := cmd.Err(); err != nil {
 		return nil, err
@@ -111,8 +113,8 @@ func ClientList(ctx context.Context, client redis.UniversalClient) ([]map[string
 	}
 	return rdata, nil
 }
-func ZRange(ctx context.Context, client *redis.Client, match string, page, pageSize int64) (map[string]any, error) {
-
+func ZRange(ctx context.Context, match string, page, pageSize int64) (map[string]any, error) {
+	client = Client()
 	cmd := client.ZRange(ctx, match, page, pageSize)
 	if cmd.Err() != nil {
 		return nil, cmd.Err()
@@ -175,10 +177,10 @@ type Msg struct {
 	Score       string
 }
 
-func QueueInfo(ctx context.Context, client redis.UniversalClient, queueKey string) (any, error) {
+func QueueInfo(ctx context.Context, queueKey string) (any, error) {
 
 	// get queues
-	queues, err := Keys(ctx, client, queueKey)
+	queues, err := Keys(ctx, queueKey)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +193,7 @@ func QueueInfo(ctx context.Context, client redis.UniversalClient, queueKey strin
 		if len(queueArr) < 4 {
 			continue
 		}
-		objStr := Object(ctx, client, queue)
+		objStr := Object(ctx, queue)
 
 		data[queueArr[1]] = append(data[queueArr[1]], map[string]any{
 			"group": queueArr[1],

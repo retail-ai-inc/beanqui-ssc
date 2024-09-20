@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
@@ -13,11 +12,10 @@ import (
 )
 
 type Queue struct {
-	client redis.UniversalClient
 }
 
-func NewQueue(client redis.UniversalClient) *Queue {
-	return &Queue{client: client}
+func NewQueue() *Queue {
+	return &Queue{}
 }
 
 func (t *Queue) List(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +32,7 @@ func (t *Queue) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bt, err := redisx.QueueInfo(r.Context(), t.client, redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
+	bt, err := redisx.QueueInfo(r.Context(), redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
 	if err != nil {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = err.Error()
@@ -48,11 +46,11 @@ func (t *Queue) List(w http.ResponseWriter, r *http.Request) {
 
 }
 func (t *Queue) Detail(w http.ResponseWriter, r *http.Request) {
-	queueDetail(w, r, t.client)
+	queueDetail(w, r)
 	return
 }
 
-func queueDetail(w http.ResponseWriter, r *http.Request, client redis.UniversalClient) {
+func queueDetail(w http.ResponseWriter, r *http.Request) {
 
 	result, cancel := results.Get()
 	defer cancel()
@@ -72,6 +70,7 @@ func queueDetail(w http.ResponseWriter, r *http.Request, client redis.UniversalC
 	ctx := r.Context()
 	ticker := time.NewTicker(300 * time.Millisecond)
 	defer ticker.Stop()
+	client := redisx.Client()
 
 	for {
 		select {

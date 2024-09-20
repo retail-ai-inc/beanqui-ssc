@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanq"
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
@@ -16,11 +15,10 @@ import (
 )
 
 type Log struct {
-	client redis.UniversalClient
 }
 
-func NewLog(client redis.UniversalClient) *Log {
-	return &Log{client: client}
+func NewLog() *Log {
+	return &Log{}
 }
 
 // del ,retry,archive,detail
@@ -39,7 +37,7 @@ func (t *Log) List(w http.ResponseWriter, r *http.Request) {
 		_ = result.Json(w, http.StatusBadRequest)
 		return
 	}
-	data, err := detailHandler(r.Context(), t.client, id, msgType)
+	data, err := detailHandler(r.Context(), id, msgType)
 	if err != nil {
 		result.Code = "1003"
 		result.Msg = err.Error()
@@ -68,7 +66,7 @@ func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
 		_ = result.Json(w, http.StatusInternalServerError)
 		return
 	}
-	if err := retryHandler(r.Context(), t.client, id, msgType); err != nil {
+	if err := retryHandler(r.Context(), id, msgType); err != nil {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = err.Error()
 		_ = result.Json(w, http.StatusInternalServerError)
@@ -83,9 +81,9 @@ func (t *Log) Delete(w http.ResponseWriter, r *http.Request) {
 
 	msgType := r.FormValue("msgType")
 	score := r.FormValue("score")
-
+	client := redisx.Client()
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
-	cmd := t.client.ZRemRangeByScore(r.Context(), key, score, score)
+	cmd := client.ZRemRangeByScore(r.Context(), key, score, score)
 	if cmd.Err() != nil {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = cmd.Err().Error()
@@ -102,7 +100,7 @@ func (t *Log) Add(w http.ResponseWriter, r *http.Request) {
 }
 
 // log detail
-func detailHandler(ctx context.Context, client redis.UniversalClient, id, msgType string) (map[string]any, error) {
+func detailHandler(ctx context.Context, id, msgType string) (map[string]any, error) {
 
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 
@@ -111,7 +109,7 @@ func detailHandler(ctx context.Context, client redis.UniversalClient, id, msgTyp
 	build.WriteString("*")
 	build.WriteString(id)
 	build.WriteString("*")
-
+	client := redisx.Client()
 	vals, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
 	if len(vals) <= 0 {
 		return nil, errors.New("record is empty")
@@ -124,7 +122,7 @@ func detailHandler(ctx context.Context, client redis.UniversalClient, id, msgTyp
 	return m, nil
 }
 
-func retryHandler(ctx context.Context, client redis.UniversalClient, id, msgType string) error {
+func retryHandler(ctx context.Context, id, msgType string) error {
 
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 
@@ -133,6 +131,7 @@ func retryHandler(ctx context.Context, client redis.UniversalClient, id, msgType
 	build.WriteString("*")
 	build.WriteString(id)
 	build.WriteString("*")
+	client := redisx.Client()
 
 	keys, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
 	if len(keys) <= 0 {
@@ -152,9 +151,8 @@ func retryHandler(ctx context.Context, client redis.UniversalClient, id, msgType
 		return err
 	}
 
-	publish := beanq.NewPublisher(redisx.BqConfig)
-	task := beanq.NewMessage([]byte(payload))
-	if err := publish.PublishWithContext(ctx, task, beanq.ExecuteTime(dup), beanq.Channel(groupName), beanq.Topic(queue)); err != nil {
+	bq := beanq.New(&redisx.BqConfig)
+	if err := bq.BQ().PublishAtTime(groupName, queue, []byte(payload), dup); err != nil {
 		return err
 	}
 

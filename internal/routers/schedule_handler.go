@@ -3,25 +3,23 @@ package routers
 import (
 	"net/http"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
 )
 
 type Schedule struct {
-	client redis.UniversalClient
 }
 
-func NewSchedule(client redis.UniversalClient) *Schedule {
-	return &Schedule{client: client}
+func NewSchedule() *Schedule {
+	return &Schedule{}
 }
 
 func (t *Schedule) List(w http.ResponseWriter, r *http.Request) {
 	result, cancel := results.Get()
 	defer cancel()
 
-	bt, err := redisx.QueueInfo(r.Context(), t.client, redisx.ScheduleQueueKey(redisx.BqConfig.Redis.Prefix))
+	bt, err := redisx.QueueInfo(r.Context(), redisx.ScheduleQueueKey(redisx.BqConfig.Redis.Prefix))
 
 	if err != nil {
 		result.Code = consts.InternalServerErrorCode

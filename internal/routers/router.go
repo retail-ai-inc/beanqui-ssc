@@ -80,7 +80,7 @@ func (t *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		pattern = "/"
 		method = FILE
 	}
-
+	log.Printf("Method:%+v,UserAgent:%+v,URI:%+v \n", r.Method, r.UserAgent(), r.RequestURI)
 	handle, b := t.match(pattern, method)
 	if b {
 		handle(w, r)
