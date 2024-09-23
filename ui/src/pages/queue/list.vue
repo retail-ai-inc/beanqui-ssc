@@ -6,7 +6,7 @@
         <div class="accordion-item" v-if="queues.length === 0">
           Hurrah! We processed all messages.
         </div>
-        <div class="accordion-item" v-else v-for="(item, key) in queues" :key="key" style="margin-bottom: 15px">
+        <div class="accordion-item" v-else v-for="(item, key) in queues" :key="key" style="margin-bottom: 0.9375rem">
           <h2 class="accordion-header">
             <button style="font-weight: bold" class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="setId(key)" aria-expanded="true" :aria-controls="key">
               {{key}}

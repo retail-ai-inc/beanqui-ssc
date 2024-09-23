@@ -2,7 +2,7 @@
   <div>
 
     <div class="container-fluid" style="background: #212529;color:#fff;padding: 1.5rem">
-      <div class="row" v-for="(item,key) in detail" style="min-height: 40px">
+      <div class="row" v-for="(item,key) in detail" style="min-height: 2.5rem">
         <div class="col-1" style="font-weight: bold">
           {{key}}
         </div>

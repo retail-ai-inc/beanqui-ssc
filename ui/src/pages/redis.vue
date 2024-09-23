@@ -198,7 +198,7 @@ onUnmounted(()=>{
   opacity: 1;
 }
 .card{
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
 }
 .card .card-header{
   font-weight: bold;

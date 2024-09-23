@@ -8,11 +8,11 @@
         <div class="bq-box">
           <div style="width: 100%">
             <input class="form-control" type="text" placeholder="Username" aria-label="default input example" v-model="user.username">
-            <input class="form-control" type="password" placeholder="Password" aria-label="default input example" style="margin-top: 15px" v-model="user.password">
+            <input class="form-control" type="password" placeholder="Password" aria-label="default input example" style="margin-top: 0.9375rem" v-model="user.password">
           </div>
 
-          <button type="button" class="btn btn-primary" style="margin-top: 10px" @click="onSubmit">Login</button>
-          <div id="errorMsg" style="color: red;margin-top:10px;">{{msg}}</div>
+          <button type="button" class="btn btn-primary" style="margin-top: 0.625rem" @click="onSubmit">Login</button>
+          <div id="errorMsg" style="color: red;margin-top:0.625rem;">{{msg}}</div>
         </div>
 
 
@@ -39,7 +39,8 @@ function onSubmit(event){
     console.log("can not empty");
     return;
   }
-  request.post("login", {username:data.user.username,password:data.user.password},{headers:{"Content-Type":"multipart/form-data"}} ).then(res=>{
+  //,{headers:{"Content-Type":"multipart/form-data"}}
+  request.post("login", {username:data.user.username,password:data.user.password} ).then(res=>{
 
     sessionStorage.setItem("token",res.data.token);
     useRe.push("/admin/home");
@@ -53,7 +54,7 @@ const {user,msg} = toRefs(data);
 </script>
 <style scoped>
 .left-col{
-  background: #7364dd;height: 100%;display: flex;justify-content: center;align-items: center;font-size: 24px;font-weight: bold;color: #fff;
+  background: #7364dd;height: 100%;display: flex;justify-content: center;align-items: center;font-size: 1.5rem;font-weight: bold;color: #fff;
 }
 .right-col{
   display: flex;
@@ -64,13 +65,13 @@ const {user,msg} = toRefs(data);
 .bq-box{
   display: flex;width: 70%;
   background: #fff;
-  padding: 25px;
-  border:1px solid #ced4da;
-  border-radius: 5px;
-  box-shadow:4px 4px 5px -6px;
+  padding: 1.56rem;
+  border:0.0625rem solid #ced4da;
+  border-radius: 0.3125rem;
+  box-shadow:0.25rem 0.25rem 0.3125rem 0.375rem;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  margin-left: 30px;
+  margin-left: 1.875rem;
 }
 </style>

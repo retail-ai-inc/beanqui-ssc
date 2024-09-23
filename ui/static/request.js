@@ -1,7 +1,8 @@
-const baseURL = "./";
+
+axios.defaults.baseURL = "./"
+axios.defaults.headers.post["Content-Type"] = "multipart/form-data";
 
 const request = axios.create({
-    baseURL:baseURL,
     timeout:5000,
     //responseType: 'json',
     responseEncoding: 'utf8',

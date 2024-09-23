@@ -50,7 +50,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, key) in eventLogs" :key="key">
+          <tr v-for="(item, key) in eventLogs" :key="key" style="height: 3rem;line-height:3rem">
             <th scope="row">{{parseInt(key)+1}}</th>
             <td>{{item.id}}</td>
             <td>{{item.channel}}</td>

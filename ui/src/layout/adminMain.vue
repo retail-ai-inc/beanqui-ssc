@@ -53,10 +53,10 @@ watch(() => useR.fullPath, (newVal, oldVal) => {
 
 .my-container {
     height: 100%;
-    margin: 20px;
-    border: 1px solid #f8f9fa;
-    border-radius: 5px;
-    padding: 15px;
+    margin: 1.25rem;
+    border: 0.0625rem solid #f8f9fa;
+    border-radius: 0.3125rem;
+    padding: 0.9375rem;
     background-color: #f8f9fa;
 }
 .fade-enter-active, .fade-leave-active {
