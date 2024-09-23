@@ -14,7 +14,7 @@ type HandleFunc func(w http.ResponseWriter, r *http.Request)
 type Route struct {
 	method  string
 	pattern string
-	Handle  HandleFunc
+	handle  HandleFunc
 }
 
 type Router struct {
@@ -29,17 +29,17 @@ func (t *Router) addRoute(pattern string, method string, handleFunc HandleFunc) 
 	t.routes = append(t.routes, Route{
 		method:  method,
 		pattern: pattern,
-		Handle:  handleFunc,
+		handle:  handleFunc,
 	})
 }
 
 func (t *Router) match(pattern string, method string) (HandleFunc, bool) {
 	for _, route := range t.routes {
 		if route.pattern == pattern && route.method == FILE {
-			return route.Handle, true
+			return route.handle, true
 		}
 		if route.method == method && route.pattern == pattern {
-			return route.Handle, true
+			return route.handle, true
 		}
 	}
 	return nil, false

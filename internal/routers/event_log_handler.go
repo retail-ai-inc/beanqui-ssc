@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/retail-ai-inc/beanqui/internal/mongox"
 	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/spf13/cast"
+	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 	"time"
 )
@@ -24,9 +26,22 @@ func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
 		cancel()
 		cancelR()
 	}()
+	query := r.URL.Query()
+	page := query.Get("page")
+	pageSize := query.Get("pageSize")
+	id := query.Get("id")
+	status := query.Get("status")
+
+	filter := bson.M{}
+	if id != "" {
+		filter["id"] = id
+	}
+	if status != "" {
+		filter["status"] = status
+	}
 
 	mog := mongox.NewMongo()
-	data, err := mog.EventLogs(ctx, nil, 0, 10)
+	data, err := mog.EventLogs(ctx, filter, cast.ToInt64(page), cast.ToInt64(pageSize))
 	if err != nil {
 		return
 	}

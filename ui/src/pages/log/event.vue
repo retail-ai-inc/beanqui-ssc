@@ -8,7 +8,7 @@
             <div class="row">
             <label class="col-sm-2 col-form-label">Id:</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="staticEmail" value="">
+              <input type="text" class="form-control" id="staticEmail"  v-model="form.id">
             </div>
             </div>
           </div>
@@ -17,11 +17,11 @@
             <div class="row">
             <label class="col-sm-2 col-form-label">Status:</label>
             <div class="col-sm-10">
-              <select class="form-select" aria-label="Default select" style="cursor: pointer">
-                <option selected>Open this select</option>
-                <option value="1">Published</option>
-                <option value="2">Success</option>
-                <option value="3">Failed</option>
+              <select class="form-select" aria-label="Default select" style="cursor: pointer" v-model="form.status">
+                <option selected value="">Open this select</option>
+                <option value="published">Published</option>
+                <option value="success">Success</option>
+                <option value="failed">Failed</option>
               </select>
             </div>
             </div>
@@ -29,7 +29,7 @@
 
           <div class="col-2">
             <div class="col-auto">
-              <button type="submit" class="btn btn-primary mb-3">Search</button>
+              <button type="submit" class="btn btn-primary mb-3" @click="search">Search</button>
             </div>
           </div>
 
@@ -52,7 +52,7 @@
         <tbody>
           <tr v-for="(item, key) in eventLogs" :key="key">
             <th scope="row">{{parseInt(key)+1}}</th>
-            <td>{{item._id}}</td>
+            <td>{{item.id}}</td>
             <td>{{item.channel}}</td>
             <td>{{item.topic}}</td>
             <td>{{item.moodType}}</td>
@@ -82,23 +82,39 @@
 import { reactive,onMounted,toRefs,onUnmounted } from "vue";
 import request  from "request";
 
-let pageSize = 10;
 let data = reactive({
   eventLogs:[],
   page:1,
-  total:1
+  pageSize:10,
+  total:1,
+  form:{
+    id:"",
+    status:""
+  }
 })
 
-function getEventLog(page,pageSize){
-  return request.get("event_log/list",{"params":{"page":page,"pageSize":pageSize}});
+async function search(){
+  let logs = await getEventLog(data.page,data.pageSize,data.form.id,data.form.status)
+  data.eventLogs = logs.data
 }
 
-onMounted(async ()=>{
-  let log = await getEventLog(data.page,10);
-  data.eventLogs = {...log.data};
+function getEventLog(page,pageSize,id,status){
+  let params = {"page":page,"pageSize":pageSize,"id":"","status":""};
+  if (id !== "") {
+    params.id = id
+  }
+  if(status !== ""){
+    params.status = status
+  }
+  return request.get("event_log/list",{"params":params});
+}
+
+onMounted(async()=>{
+  let log =  await getEventLog(data.page,data.pageSize,data.form.id,data.form.status);
+  data.eventLogs = log.data;
 })
 
-const {eventLogs} = toRefs(data);
+const {eventLogs,form} = toRefs(data);
 
 </script>
 <style scoped>
