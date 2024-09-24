@@ -14,6 +14,7 @@ type Index struct {
 func NewIndex() *Index {
 	return &Index{}
 }
+
 func (t *Index) File(w http.ResponseWriter, r *http.Request) {
 	url := r.RequestURI
 	if strings.HasSuffix(url, ".vue") {
@@ -25,7 +26,7 @@ func (t *Index) File(w http.ResponseWriter, r *http.Request) {
 		dir = filepath.Dir(f)
 	}
 
-	hdl := http.FileServer(http.Dir(path.Join(dir, "../../ui/")))
-	hdl.ServeHTTP(w, r)
+	http.FileServer(http.Dir(path.Join(dir, "../../ui/"))).ServeHTTP(w, r)
+
 	return
 }

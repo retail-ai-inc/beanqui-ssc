@@ -5,9 +5,10 @@ go 1.19
 require (
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/redis/go-redis/v9 v9.4.0
-	github.com/retail-ai-inc/beanq v1.0.1-0.20240918083631-9f66cd480a4c
+	github.com/retail-ai-inc/beanq v1.0.1-0.20240924031600-54d498001f24
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/viper v1.18.2
+	go.mongodb.org/mongo-driver v1.17.0
 )
 
 require (
@@ -45,7 +46,6 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	go.mongodb.org/mongo-driver v1.17.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.26.0 // indirect

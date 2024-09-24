@@ -61,8 +61,8 @@ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZN
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/redis/go-redis/v9 v9.4.0 h1:Yzoz33UZw9I/mFhx4MNrB6Fk+XHO1VukNcCa1+lwyKk=
 github.com/redis/go-redis/v9 v9.4.0/go.mod h1:hdY0cQFCN4fnSYT6TkisLufl/4W5UIXyv0b/CLO2V2M=
-github.com/retail-ai-inc/beanq v1.0.1-0.20240918083631-9f66cd480a4c h1:2CAZ1T9V9Ph5wfTJr2F+ZmqjKln8iJeP/sdvsuS81M8=
-github.com/retail-ai-inc/beanq v1.0.1-0.20240918083631-9f66cd480a4c/go.mod h1:10vxOZLjk+uvItX+lWQ+naCxsvM7hUkouh0C3WH030s=
+github.com/retail-ai-inc/beanq v1.0.1-0.20240924031600-54d498001f24 h1:KjY/aBNkdYDEMJWyzuQMX7ga0rD4MZ3l7UIGVIEJmTc=
+github.com/retail-ai-inc/beanq v1.0.1-0.20240924031600-54d498001f24/go.mod h1:10vxOZLjk+uvItX+lWQ+naCxsvM7hUkouh0C3WH030s=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/rs/xid v1.5.0 h1:mKX4bl4iPYJtEIxp6CYiUuLQ/8DYMoz0PUdtGgMFRVc=
 github.com/rs/xid v1.5.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=

@@ -117,6 +117,22 @@
             </div>
           </div>
         </li>
+        <li class="list-group-item">
+          <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">used_memory_lua(<b>Byte</b>):</label>
+            <div class="col-sm-10">
+              <div class="form-control-plaintext">{{info.used_memory_lua}}</div>
+            </div>
+          </div>
+        </li>
+        <li class="list-group-item">
+          <div class="mb-3 row">
+            <label class="col-sm-2 col-form-label">used_memory_lua_human:</label>
+            <div class="col-sm-10">
+              <div class="form-control-plaintext">{{info.used_memory_lua_human}}</div>
+            </div>
+          </div>
+        </li>
       </ul>
     </div>
     <div class="card">

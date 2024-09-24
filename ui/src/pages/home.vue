@@ -2,6 +2,7 @@
 
   <div class="home">
     <div class="container-fluid text-center" style="padding: 0">
+
       <div class="row align-items-start" style="margin: 1.25rem 0;color:#fff;">
         <div class="col" style="background: #0d6efd;height:7.5rem;padding:1rem;">
           <div>Queue Total</div>

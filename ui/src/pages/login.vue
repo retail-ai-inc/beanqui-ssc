@@ -15,7 +15,7 @@
           <div id="errorMsg" style="color: red;margin-top:0.625rem;">{{msg}}</div>
         </div>
 
-
+`
       </div>
     </div>
   </div>
@@ -68,7 +68,7 @@ const {user,msg} = toRefs(data);
   padding: 1.56rem;
   border:0.0625rem solid #ced4da;
   border-radius: 0.3125rem;
-  box-shadow:0.25rem 0.25rem 0.3125rem 0.375rem;
+  box-shadow:0.1rem 0.2rem 0.2rem #ccc;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
