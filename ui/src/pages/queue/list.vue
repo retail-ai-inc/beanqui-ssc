@@ -27,7 +27,7 @@
                 <tbody>
                 <tr v-for="(d, k) in item" :key="k">
                   <th scope="row">
-                    <router-link to="" class="nav-link text-muted" v-on:click="detailQueue(d)">{{ d.queue }}</router-link>
+                    <router-link to="" class="nav-link text-muted" v-on:click="detailQueue(d)">{{ d.topic }}</router-link>
                   </th>
                   <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'" class="align-middle">{{ d.state }}</td>
                   <td class="align-middle">{{ d.size }}</td>
@@ -93,7 +93,7 @@ function setId(id){
 
 const uRouter = useRouter();
 function detailQueue(item){
-  uRouter.push("queue/detail/"+item.group + ":" + item.queue);
+  uRouter.push("queue/detail/"+item.channel + ":" + item.topic);
 }
 
 const {queues,page,total} = toRefs(data);

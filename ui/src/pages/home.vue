@@ -4,30 +4,30 @@
     <div class="container-fluid text-center" style="padding: 0">
 
       <div class="row align-items-start" style="margin: 1.25rem 0;color:#fff;">
-        <div class="col" style="background: #0d6efd;height:7.5rem;padding:1rem;">
+        <div class="col" style="background: #0d6efd">
           <div>Queue Total</div>
           <div style="font-weight: bold">
             <router-link to="/admin/queue" class="nav-link text-muted link-color" >{{queue_total}}</router-link></div>
         </div>
-        <div class="col" style="background: #198754;height:7.5rem;padding:1rem;">
+        <div class="col" style="background: #198754">
           <div>CPU Total</div>
           <div style="font-weight: bold">
             <router-link to="/admin/redis" class="nav-link text-muted link-color">{{num_cpu}}</router-link>
           </div>
         </div>
-        <div class="col" style="background: #dc3545;height:7.5rem;padding:1rem;">
+        <div class="col" style="background: #dc3545">
           <div>Fail Total</div>
           <div style="font-weight: bold">
             <router-link to="" class="nav-link text-muted link-color">{{fail_count}}</router-link>
           </div>
         </div>
-        <div class="col" style="background: #20c997;height:7.5rem;padding:1rem;">
+        <div class="col" style="background: #20c997">
           <div>Success Total</div>
           <div style="font-weight: bold">
             <router-link to="" class="nav-link text-muted link-color">{{success_count}}</router-link>
           </div>
         </div>
-        <div class="col" style="background: #343a40;height:7.5rem;padding:1rem;">
+        <div class="col" style="background: #343a40">
           <div>Total Payload</div>
           <div style="font-weight: bold">
             <router-link to="" class="nav-link text-muted link-color">{{db_size}}</router-link>
@@ -168,6 +168,10 @@ const {queue_total,db_size,num_cpu,fail_count,success_count} = toRefs(data);
 .home{
   transition: opacity 0.5s ease;
   opacity: 1;
+}
+.home .row .col{
+  height:7.5rem;
+  padding:1rem;
 }
 .chart{
   width:100%;height:80vh;

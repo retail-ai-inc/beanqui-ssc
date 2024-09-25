@@ -1,5 +1,6 @@
 <template>
   <div class="event">
+
     <div class="container-fluid">
 
         <div class="mb-3 row">
@@ -34,7 +35,7 @@
           </div>
 
         </div>
-
+      <Pagination :page="page" :total="total" :cursor="cursor" @changePage="changePage"/>
       <table class="table">
         <thead>
           <tr>
@@ -56,7 +57,11 @@
             <td>{{item.channel}}</td>
             <td>{{item.topic}}</td>
             <td>{{item.moodType}}</td>
-            <td>{{item.status}}</td>
+            <td>
+              <span v-if="item.status == 'success'" class="text-success">{{item.status}}</span>
+              <span v-else-if="item.status == 'failed'" class="text-danger">{{item.status}}</span>
+              <span v-else-if="item.status == 'published'" class="text-warning">{{item.status}}</span>
+            </td>
             <td>{{item.addTime}}</td>
             <td>{{item.payload}}</td>
             <td>
@@ -76,17 +81,20 @@
       </table>
 
     </div>
+    <Pagination :page="page" :total="total" :cursor="cursor" @changePage="changePage"/>
   </div>
 </template>
 <script setup>
 import { reactive,onMounted,toRefs,onUnmounted } from "vue";
 import request  from "request";
+import Pagination from "../components/pagination.vue";
 
 let data = reactive({
   eventLogs:[],
   page:1,
   pageSize:10,
   total:1,
+  cursor:0,
   form:{
     id:"",
     status:""
@@ -94,8 +102,9 @@ let data = reactive({
 })
 
 async function search(){
-  let logs = await getEventLog(data.page,data.pageSize,data.form.id,data.form.status)
-  data.eventLogs = logs.data
+  let logs = await getEventLog(data.page,data.pageSize,data.form.id,data.form.status);
+  data.eventLogs = logs.data.data;
+  data.total = Math.ceil(logs.data.total/ data.pageSize);
 }
 
 function getEventLog(page,pageSize,id,status){
@@ -109,12 +118,21 @@ function getEventLog(page,pageSize,id,status){
   return request.get("event_log/list",{"params":params});
 }
 
+async function changePage(page,cursor){
+  let logs = await getEventLog(page,data.pageSize,data.form.id,data.form.status);
+  data.eventLogs = logs.data.data;
+  data.total = Math.ceil(logs.data.total/ data.pageSize);
+  data.page = page;
+  data.cursor = cursor;
+}
+
 onMounted(async()=>{
   let log =  await getEventLog(data.page,data.pageSize,data.form.id,data.form.status);
-  data.eventLogs = log.data;
+  data.eventLogs = log.data.data;
+  data.total = Math.ceil(log.data.total / data.pageSize);
 })
 
-const {eventLogs,form} = toRefs(data);
+const {eventLogs,form,page,total,cursor} = toRefs(data);
 
 </script>
 <style scoped>

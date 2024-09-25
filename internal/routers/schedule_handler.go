@@ -19,7 +19,7 @@ func (t *Schedule) List(w http.ResponseWriter, r *http.Request) {
 	result, cancel := results.Get()
 	defer cancel()
 
-	bt, err := redisx.QueueInfo(r.Context(), redisx.ScheduleQueueKey(redisx.BqConfig.Redis.Prefix))
+	bt, err := redisx.QueueInfo(r.Context())
 
 	if err != nil {
 		result.Code = consts.InternalServerErrorCode

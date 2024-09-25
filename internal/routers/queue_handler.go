@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -31,8 +32,7 @@ func (t *Queue) List(w http.ResponseWriter, r *http.Request) {
 		_ = result.Json(w, http.StatusNotFound)
 		return
 	}
-
-	bt, err := redisx.QueueInfo(r.Context(), redisx.QueueKey(redisx.BqConfig.Redis.Prefix))
+	bt, err := redisx.QueueInfo(r.Context())
 	if err != nil {
 		result.Code = consts.InternalServerErrorCode
 		result.Msg = err.Error()
@@ -65,8 +65,8 @@ func queueDetail(w http.ResponseWriter, r *http.Request) {
 
 	id := r.FormValue("id")
 	prefix := viper.GetString("redis.prefix")
-	id = strings.Join([]string{prefix, id, "stream"}, ":")
-
+	id = strings.Join([]string{prefix, id, "normal_stream", "stream"}, ":")
+	fmt.Printf("id值:%+v \n", id)
 	ctx := r.Context()
 	ticker := time.NewTicker(300 * time.Millisecond)
 	defer ticker.Stop()

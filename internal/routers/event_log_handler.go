@@ -41,11 +41,16 @@ func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	mog := mongox.NewMongo()
-	data, err := mog.EventLogs(ctx, filter, cast.ToInt64(page), cast.ToInt64(pageSize))
+	data, total, err := mog.EventLogs(ctx, filter, cast.ToInt64(page), cast.ToInt64(pageSize))
 	if err != nil {
 		return
 	}
-	result.Data = data
+	datas := make(map[string]any, 0)
+	datas["data"] = data
+	datas["total"] = total
+	datas["cursor"] = cast.ToInt64(page)
+	result.Data = datas
+
 	_ = result.Json(w, http.StatusOK)
 	return
 

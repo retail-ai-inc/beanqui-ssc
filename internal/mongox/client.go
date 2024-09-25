@@ -49,7 +49,7 @@ func NewMongo() *MongoX {
 			}
 			opts.SetAuth(auth)
 		}
-		
+
 		ctx := context.Background()
 		client, err := mongo.Connect(ctx, opts)
 		if err != nil {
@@ -66,7 +66,7 @@ func NewMongo() *MongoX {
 	return mongoX
 }
 
-func (t *MongoX) EventLogs(ctx context.Context, filter bson.M, page, pageSize int64) ([]bson.M, error) {
+func (t *MongoX) EventLogs(ctx context.Context, filter bson.M, page, pageSize int64) ([]bson.M, int64, error) {
 	skip := (page - 1) * pageSize
 	if skip < 0 {
 		skip = 0
@@ -77,11 +77,15 @@ func (t *MongoX) EventLogs(ctx context.Context, filter bson.M, page, pageSize in
 
 	cursor, err := t.database.Collection(t.collection).Find(ctx, filter, opts)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	var data []bson.M
 	if err := cursor.All(ctx, &data); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return data, nil
+	total, err := t.database.Collection(t.collection).CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+	return data, total, nil
 }

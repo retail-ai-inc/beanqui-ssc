@@ -17,7 +17,7 @@
         <a class="page-link" v-if="(page - 1) > 1" @click="changePage(page-1,cursor)">{{page -1}}</a>
       </li>
       <li class="page-item active" aria-current="page">
-        <a class="page-link">{{page}}</a>
+        <a class="page-link">{{page}}1</a>
       </li>
       <li class="page-item">
         <a class="page-link" v-if="(page + 1) < total" @click="changePage(page+1,cursor)">{{page + 1}}</a>
