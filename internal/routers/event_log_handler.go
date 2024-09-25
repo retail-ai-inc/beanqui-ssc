@@ -48,7 +48,7 @@ func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
 	datas := make(map[string]any, 0)
 	datas["data"] = data
 	datas["total"] = total
-	datas["cursor"] = cast.ToInt64(page)
+	datas["cursor"] = page
 	result.Data = datas
 
 	_ = result.Json(w, http.StatusOK)

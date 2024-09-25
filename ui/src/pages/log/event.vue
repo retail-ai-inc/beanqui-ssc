@@ -102,6 +102,10 @@ let data = reactive({
 })
 
 async function search(){
+
+  sessionStorage.setItem("id",data.form.id);
+  sessionStorage.setItem("status",data.form.status);
+
   let logs = await getEventLog(data.page,data.pageSize,data.form.id,data.form.status);
   data.eventLogs = logs.data.data;
   data.total = Math.ceil(logs.data.total/ data.pageSize);
@@ -124,12 +128,24 @@ async function changePage(page,cursor){
   data.total = Math.ceil(logs.data.total/ data.pageSize);
   data.page = page;
   data.cursor = cursor;
+  sessionStorage.setItem("page",page)
 }
 
 onMounted(async()=>{
+
+  data.form = {
+    id:sessionStorage.getItem("id"),
+    status:sessionStorage.getItem("status")??""
+  };
+  data.page = sessionStorage.getItem("page")??1;
+
   let log =  await getEventLog(data.page,data.pageSize,data.form.id,data.form.status);
   data.eventLogs = log.data.data;
   data.total = Math.ceil(log.data.total / data.pageSize);
+})
+
+onUnmounted(()=>{
+  sessionStorage.clear();
 })
 
 const {eventLogs,form,page,total,cursor} = toRefs(data);
