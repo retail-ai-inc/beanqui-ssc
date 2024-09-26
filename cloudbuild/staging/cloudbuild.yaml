@@ -113,3 +113,6 @@ steps:
     entrypoint: "bash"
     args: ['cloudbuild/cloudbuild.sh', '-w', '$_SLACK_WEBHOOK_URL', '-c', '$_SLACK_CHANNEL', '-u', '$_SLACK_USER_NAME', '-m', '$_SLACK_TEXT', '-a', '$_SLACK_ALERT_TYPE', '-t', '<https://console.cloud.google.com/cloud-build/builds;region=$LOCATION/$BUILD_ID?project=$PROJECT_ID|$TRIGGER_NAME>', '-U', '<https://github.com/retail-ai-inc/beanqui/commit/$COMMIT_SHA|$SHORT_SHA>', '-b', '$BRANCH_NAME', '-s', ' ']
     allowFailure: true
+
+options:
+  logging: CLOUD_LOGGING_ONLY
