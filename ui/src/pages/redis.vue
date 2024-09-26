@@ -193,7 +193,7 @@ onMounted(async ()=>{
     Object.assign(info,body.data);
   })
   sse.onerror = (err)=>{
-    useRe.push("/login");
+    //useRe.push("/login");
     console.log(err)
   }
 

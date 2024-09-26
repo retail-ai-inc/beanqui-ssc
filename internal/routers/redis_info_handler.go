@@ -21,7 +21,8 @@ func (t *RedisInfo) Info(w http.ResponseWriter, r *http.Request) {
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-
+		http.Error(w, "server error", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")

@@ -74,6 +74,7 @@ func (t *MongoX) EventLogs(ctx context.Context, filter bson.M, page, pageSize in
 	opts := options.Find()
 	opts.SetSkip(skip)
 	opts.SetLimit(pageSize)
+	opts.SetSort(bson.D{{"addTime", 1}})
 
 	cursor, err := t.database.Collection(t.collection).Find(ctx, filter, opts)
 	if err != nil {
