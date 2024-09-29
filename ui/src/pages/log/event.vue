@@ -9,7 +9,7 @@
             <div class="row">
             <label for="formId" class="col-sm-2 col-form-label">Id:</label>
             <div class="col-sm-10">
-              <input type="text" class="form-control" id="formId"  v-model="form.id">
+              <input type="text" class="form-control" id="formId" name="formId"  v-model="form.id">
             </div>
             </div>
           </div>
@@ -18,7 +18,7 @@
             <div class="row">
               <label for="formStatus" class="col-sm-2 col-form-label">Status:</label>
               <div class="col-sm-10">
-                <select class="form-select" aria-label="Default select" id="formStatus" style="cursor: pointer" v-model="form.status">
+                <select class="form-select" aria-label="Default select" id="formStatus" name="formStatus" style="cursor: pointer" v-model="form.status">
                   <option selected value="">Open this select</option>
                   <option value="published">Published</option>
                   <option value="success">Success</option>
@@ -122,6 +122,9 @@ function getEventLog(page,pageSize,id,status){
   return request.get("event_log/list",{"params":params});
 }
 
+let sseUrl = `${cfg.sseUrl}event_log/list?page=${data.page}&pageSize=${data.pageSize}&id=${data.form.id}&status=${data.form.status}&token=${sessionStorage.getItem("token")}`;
+let sse = new EventSource(sseUrl);
+
 async function changePage(page,cursor){
   let logs = await getEventLog(page,data.pageSize,data.form.id,data.form.status);
   data.eventLogs = logs.data.data;
@@ -129,10 +132,8 @@ async function changePage(page,cursor){
   data.page = page;
   data.cursor = cursor;
   sessionStorage.setItem("page",page)
-}
 
-let sseUrl = `${cfg.sseUrl}event_log/list?page=${data.page}&pageSize=${data.pageSize}&id=${data.form.id}&status=${data.form.status}&token=${sessionStorage.getItem("token")}`;
-let sse = new EventSource(sseUrl);
+}
 
 onMounted(async()=>{
 
