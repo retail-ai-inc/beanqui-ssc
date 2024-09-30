@@ -98,74 +98,62 @@ let data = reactive({
   form:{
     id:"",
     status:""
-  }
+  },
+  sseEvent:null
 })
 
 async function search(){
 
   sessionStorage.setItem("id",data.form.id);
   sessionStorage.setItem("status",data.form.status);
-
-  let logs = await getEventLog(data.page,data.pageSize,data.form.id,data.form.status);
-  data.eventLogs = logs.data.data;
-  data.total = Math.ceil(logs.data.total/ data.pageSize);
+  
+  initEventSource();
 }
-
-function getEventLog(page,pageSize,id,status){
-  let params = {"page":page,"pageSize":pageSize,"id":"","status":""};
-  if (id !== "") {
-    params.id = id
-  }
-  if(status !== ""){
-    params.status = status
-  }
-  return request.get("event_log/list",{"params":params});
-}
-
-let sseUrl = `${cfg.sseUrl}event_log/list?page=${data.page}&pageSize=${data.pageSize}&id=${data.form.id}&status=${data.form.status}&token=${sessionStorage.getItem("token")}`;
-let sse = new EventSource(sseUrl);
 
 async function changePage(page,cursor){
-  let logs = await getEventLog(page,data.pageSize,data.form.id,data.form.status);
-  data.eventLogs = logs.data.data;
-  data.total = Math.ceil(logs.data.total/ data.pageSize);
   data.page = page;
   data.cursor = cursor;
   sessionStorage.setItem("page",page)
 
+  initEventSource();
+}
+
+function initEventSource(){
+  let url = `${cfg.sseUrl}event_log/list?page=${data.page}&pageSize=${data.pageSize}&id=${data.form.id}&status=${data.form.status}&token=${sessionStorage.getItem("token")}`;
+  if (data.sseEvent){
+    data.sseEvent.close();
+  }
+  data.sseEvent = new EventSource(url);
+  data.sseEvent.onopen = () =>{
+    console.log("handshake success");
+  }
+  data.sseEvent.onerror = (err)=>{
+    console.log(err);
+    sessionStorage.clear();
+    useRouter().push("/login");
+  }
+  data.sseEvent.addEventListener("event_log",async function(res){
+    let body = await JSON.parse(res.data);
+    data.eventLogs = body.data.data;
+    data.page = body.data.cursor;
+    data.total = body.data.total;
+  })
 }
 
 onMounted(async()=>{
 
   data.form = {
-    id:sessionStorage.getItem("id"),
+    id:sessionStorage.getItem("id")??"",
     status:sessionStorage.getItem("status")??""
   };
   data.page = sessionStorage.getItem("page")??1;
-  sse.onopen = ()=>{
-    console.log("handshake success");
-  }
-  sse.addEventListener("event_log",async function (res){
-    let body = await JSON.parse(res.data)
-    data.eventLogs = body.data.data;
-    data.page = body.data.cursor;
-    data.total = body.data.total;
-  })
-  sse.onerror = (err) => {
-    console.log(err)
-  }
 
-  // let log =  await getEventLog(data.page,data.pageSize,data.form.id,data.form.status);
-  // data.eventLogs = log.data.data;
-  // data.total = Math.ceil(log.data.total / data.pageSize);
+  initEventSource();
+
 })
 
 onUnmounted(()=>{
-
-  sse.close();
-
-  sessionStorage.clear();
-  useRouter().push("/login");
+  data.sseEvent.close();
 })
 
 const {eventLogs,form,page,total,cursor} = toRefs(data);

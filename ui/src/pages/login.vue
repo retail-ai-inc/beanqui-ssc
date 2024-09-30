@@ -7,8 +7,8 @@
       <div class="col right-col" >
         <div class="bq-box">
           <div style="width: 100%">
-            <input class="form-control" type="text" placeholder="Username" aria-label="default input example" v-model="user.username">
-            <input class="form-control" type="password" placeholder="Password" aria-label="default input example" style="margin-top: 0.9375rem" v-model="user.password">
+            <input class="form-control" type="text" placeholder="Username" name="userName" autocomplete="off" aria-label="default input example" v-model="user.username">
+            <input class="form-control" type="password" placeholder="Password" name="password" autocomplete="off" aria-label="default input example" style="margin-top: 0.9375rem" v-model="user.password">
           </div>
 
           <button type="button" class="btn btn-primary" style="margin-top: 0.625rem" @click="onSubmit">Login</button>
