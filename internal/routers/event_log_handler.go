@@ -2,7 +2,8 @@ package routers
 
 import (
 	"github.com/retail-ai-inc/beanqui/internal/mongox"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/cast"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
@@ -18,12 +19,9 @@ func NewEventLog() *EventLog {
 
 func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
 
-	//ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	result, cancelR := results.Get()
-
+	result, cancel := response.Get()
 	defer func() {
-		//cancel()
-		cancelR()
+		cancel()
 	}()
 	query := r.URL.Query()
 	page := cast.ToInt64(query.Get("page"))
@@ -54,7 +52,7 @@ func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 
 	mog := mongox.NewMongo()
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(300 * time.Millisecond)
 	defer ticker.Stop()
 
 	datas := make(map[string]any, 3)
@@ -83,5 +81,22 @@ func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
 			ticker.Reset(5 * time.Second)
 		}
 	}
+}
 
+func (t *EventLog) Detail(w http.ResponseWriter, r *http.Request) {
+	res, cancel := response.Get()
+	defer cancel()
+
+	id := r.URL.Query().Get("id")
+	mog := mongox.NewMongo()
+	data, err := mog.DetailEventLog(r.Context(), id)
+	if err != nil {
+		res.Msg = err.Error()
+		res.Code = consts.InternalServerErrorCode
+		_ = res.Json(w, http.StatusInternalServerError)
+		return
+	}
+	res.Data = data
+	_ = res.Json(w, http.StatusOK)
+	return
 }

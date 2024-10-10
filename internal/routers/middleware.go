@@ -6,13 +6,13 @@ import (
 
 	"github.com/retail-ai-inc/beanqui/internal/jwtx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
 func Auth(next HandleFunc) HandleFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
-		result, cancel := results.Get()
+		result, cancel := response.Get()
 		defer cancel()
 
 		var (

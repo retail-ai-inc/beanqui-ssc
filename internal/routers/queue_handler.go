@@ -7,7 +7,7 @@ import (
 
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/viper"
 )
 
@@ -19,7 +19,7 @@ func NewQueue() *Queue {
 }
 
 func (t *Queue) List(w http.ResponseWriter, r *http.Request) {
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	bt, err := redisx.QueueInfo(r.Context())
@@ -42,7 +42,7 @@ func (t *Queue) Detail(w http.ResponseWriter, r *http.Request) {
 
 func queueDetail(w http.ResponseWriter, r *http.Request) {
 
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	flusher, ok := w.(http.Flusher)

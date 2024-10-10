@@ -7,7 +7,7 @@ import (
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/cast"
 )
 
@@ -20,7 +20,7 @@ func NewLogs() *Logs {
 
 func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
 
-	resultRes, cancel := results.Get()
+	resultRes, cancel := response.Get()
 	defer cancel()
 
 	var (

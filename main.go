@@ -1,8 +1,11 @@
 package main
 
 import (
+	"embed"
+	_ "embed"
 	. "github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/spf13/viper"
+	"io/fs"
 	"log"
 	"net/http"
 )
@@ -21,6 +24,9 @@ func init() {
 	}
 }
 
+//go:embed ui
+var folder embed.FS
+
 func main() {
 
 	//flag.StringVar(&port, "port", ":9090", "port")
@@ -28,7 +34,14 @@ func main() {
 
 	// init http server
 	router := NewRouter()
-	router.File("/", NewIndex().File)
+	// FS static files
+	router.File("/", func(w http.ResponseWriter, r *http.Request) {
+		fd, err := fs.Sub(folder, "ui")
+		if err != nil {
+			log.Fatalf("static files error:%+v \n", err)
+		}
+		http.FileServer(http.FS(fd)).ServeHTTP(w, r)
+	})
 
 	router.Get("/ping", ping)
 	router.Get("/schedule", Auth(NewSchedule().List))
@@ -41,6 +54,7 @@ func main() {
 	router.Get("/clients", Auth(NewClient().List))
 	router.Get("/dashboard", Auth(NewDashboard().Info))
 	router.Get("/event_log/list", Auth(NewEventLog().List))
+	router.Get("/event_log/detail", Auth(NewEventLog().Detail))
 
 	log.Printf("server start on port %+v", port)
 	if err := http.ListenAndServe(port, router); err != nil {

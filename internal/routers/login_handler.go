@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/retail-ai-inc/beanqui/internal/jwtx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/viper"
 )
 
@@ -23,7 +23,7 @@ func (t *Login) Login(w http.ResponseWriter, r *http.Request) {
 	username := r.PostFormValue("username")
 	password := r.PostFormValue("password")
 
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	m := viper.GetStringMap("ui")

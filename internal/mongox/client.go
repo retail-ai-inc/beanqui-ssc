@@ -90,3 +90,21 @@ func (t *MongoX) EventLogs(ctx context.Context, filter bson.M, page, pageSize in
 	}
 	return data, total, nil
 }
+
+func (t *MongoX) DetailEventLog(ctx context.Context, id string) (bson.M, error) {
+
+	filter := bson.M{}
+	if id != "" {
+		filter["id"] = id
+	}
+
+	single := t.database.Collection(t.collection).FindOne(ctx, filter)
+	if err := single.Err(); err != nil {
+		return nil, err
+	}
+	var data bson.M
+	if err := single.Decode(&data); err != nil {
+		return nil, err
+	}
+	return data, nil
+}

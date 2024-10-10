@@ -2090,7 +2090,7 @@
     var scaleX = 1;
     var scaleY = 1; // FIXME:
     // `offsetWidth` returns an integer while `getBoundingClientRect`
-    // returns a float. This results in `scaleX` or `scaleY` being
+    // returns a float. This response in `scaleX` or `scaleY` being
     // non-1 when it should be for elements that aren't a full pixel in
     // width or height.
     // if (isHTMLElement(element) && includeScale) {
@@ -2160,7 +2160,7 @@
 
           next = next.parentNode || next.host;
         } while (next);
-      } // Give up, the results is false
+      } // Give up, the response is false
 
 
     return false;

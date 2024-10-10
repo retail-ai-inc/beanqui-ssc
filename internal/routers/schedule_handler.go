@@ -5,7 +5,7 @@ import (
 
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
 type Schedule struct {
@@ -16,7 +16,7 @@ func NewSchedule() *Schedule {
 }
 
 func (t *Schedule) List(w http.ResponseWriter, r *http.Request) {
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	bt, err := redisx.QueueInfo(r.Context())

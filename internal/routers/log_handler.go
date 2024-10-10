@@ -11,7 +11,7 @@ import (
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
 type Log struct {
@@ -24,7 +24,7 @@ func NewLog() *Log {
 // del ,retry,archive,detail
 func (t *Log) List(w http.ResponseWriter, r *http.Request) {
 
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	id := r.FormValue("id")
@@ -52,7 +52,7 @@ func (t *Log) List(w http.ResponseWriter, r *http.Request) {
 
 func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
 
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	id := r.PostFormValue("id")
@@ -76,7 +76,7 @@ func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *Log) Delete(w http.ResponseWriter, r *http.Request) {
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	msgType := r.FormValue("msgType")

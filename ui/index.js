@@ -48,7 +48,7 @@
           { path: 'log/workflow',component:()=>loadModule("./src/pages/log/workflow.vue",options)},
           // { path: 'log/success',component:()=>loadModule("./src/pages/log/success.vue",options)},
           // { path: 'log/error',component:()=>loadModule("./src/pages/log/error.vue",options)},
-          { path: 'log/detail/:id/:msgType',component:()=>loadModule("./src/pages/log/detail.vue",options)},
+          { path: 'log/detail/:id',component:()=>loadModule("./src/pages/log/detail.vue",options)},
           { path: 'redis', component: () => loadModule("./src/pages/redis.vue", options) },
         ]
   };

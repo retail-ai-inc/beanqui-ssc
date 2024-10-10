@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <div class="container-fluid" style="background: #212529;color:#fff;padding: 1.5rem">
+    <div class="container-fluid" style="background: #212529;color:#fff;padding: 1.5rem;border-radius: 0.25rem">
       <div class="row" v-for="(item,key) in detail" style="min-height: 2.5rem">
         <div class="col-1" style="font-weight: bold">
           {{key}}
@@ -20,8 +20,8 @@ import {reactive,toRefs,onMounted} from "vue";
 import { useRoute,useRouter } from 'vueRouter';
 import request  from "request";
 
-function getDetail(id,msgType){
-  return request.get("/log",{"params":{"id":id,"msgType":msgType}})
+function getDetail(id){
+  return request.get("/event_log/detail",{"params":{"id":id}})
 }
 
 let data = reactive({
@@ -31,8 +31,7 @@ let data = reactive({
 const uRoute = useRoute();
 onMounted(async ()=>{
   let id = uRoute.params.id;
-  let msgType = uRoute.params.msgType;
-  let res = await getDetail(id,msgType);
+  let res = await getDetail(id);
   data.detail = res.data;
 })
 const {detail} = toRefs(data);

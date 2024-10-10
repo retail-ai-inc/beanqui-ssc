@@ -52,7 +52,7 @@
         <tbody>
           <tr v-for="(item, key) in eventLogs" :key="key" style="height: 3rem;line-height:3rem">
             <th scope="row">{{parseInt(key)+1}}</th>
-            <td>{{item.id}}</td>
+            <td><router-link to="" class="nav-link text-muted" style="display: contents" v-on:click="detailEvent(item)">{{item.id}}</router-link></td>
             <td>{{item.channel}}</td>
             <td>{{item.topic}}</td>
             <td>{{item.moodType}}</td>
@@ -62,7 +62,11 @@
               <span v-else-if="item.status == 'published'" class="text-warning">{{item.status}}</span>
             </td>
             <td>{{item.addTime}}</td>
-            <td>{{item.payload}}</td>
+            <td>
+              <span class="d-block text-truncate" style="max-width: 30rem;">
+                {{item.payload}}
+              </span>
+            </td>
             <td>
               <div class="btn-group-sm" role="group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -106,7 +110,7 @@ async function search(){
 
   sessionStorage.setItem("id",data.form.id);
   sessionStorage.setItem("status",data.form.status);
-  
+
   initEventSource();
 }
 
@@ -116,6 +120,10 @@ async function changePage(page,cursor){
   sessionStorage.setItem("page",page)
 
   initEventSource();
+}
+const uRouter = useRouter();
+function detailEvent(item){
+  uRouter.push("detail/"+item.id);
 }
 
 function initEventSource(){
@@ -129,14 +137,12 @@ function initEventSource(){
   }
   data.sseEvent.onerror = (err)=>{
     console.log(err);
-    sessionStorage.clear();
-    useRouter().push("/login");
   }
   data.sseEvent.addEventListener("event_log",async function(res){
     let body = await JSON.parse(res.data);
     data.eventLogs = body.data.data;
-    data.page = body.data.cursor;
-    data.total = body.data.total;
+    data.page =  body.data.cursor;
+    data.total = Math.ceil(body.data.total / data.pageSize);
   })
 }
 

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
 type Client struct {
@@ -16,7 +16,7 @@ func NewClient() *Client {
 
 func (t *Client) List(w http.ResponseWriter, r *http.Request) {
 
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	data, err := redisx.ClientList(r.Context())
