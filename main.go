@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	_ "embed"
 	. "github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/spf13/viper"
 	"io/fs"
