@@ -3,12 +3,13 @@
 
     <div class="container-fluid">
 
+      <!--search-->
         <div class="mb-3 row">
 
           <div class="col-2">
             <div class="row">
-            <label for="formId" class="col-sm-2 col-form-label">Id:</label>
-            <div class="col-sm-10">
+            <label for="formId" class="col-sm-3 col-form-label text-end">Id:</label>
+            <div class="col-sm-9">
               <input type="text" class="form-control" id="formId" name="formId"  v-model="form.id">
             </div>
             </div>
@@ -16,8 +17,8 @@
 
           <div class="col-2">
             <div class="row">
-              <label for="formStatus" class="col-sm-2 col-form-label">Status:</label>
-              <div class="col-sm-10">
+              <label for="formStatus" class="col-sm-3 col-form-label text-end">Status:</label>
+              <div class="col-sm-9">
                 <select class="form-select" aria-label="Default select" id="formStatus" name="formStatus" style="cursor: pointer" v-model="form.status">
                   <option selected value="">Open this select</option>
                   <option value="published">Published</option>
@@ -34,6 +35,7 @@
             </div>
           </div>
         </div>
+      <!--search end-->
       <Pagination :page="page" :total="total" :cursor="cursor" @changePage="changePage"/>
       <table class="table">
         <thead>
@@ -73,8 +75,9 @@
                   actions
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Retry</a></li>
-                  <li><a class="dropdown-item" href="#">Delete</a></li>
+                  <li><a class="dropdown-item" href="javascript:;" @click="retryInfo(item)">Retry</a></li>
+                  <li><a class="dropdown-item" href="javascript:;" @click="deleteInfo(item)">Delete</a></li>
+                  <li><a class="dropdown-item" href="javascript:;" @click="editModal(item)">Edit Payload</a></li>
                 </ul>
               </div>
             </td>
@@ -83,6 +86,36 @@
 
       </table>
       <Pagination :page="page" :total="total" :cursor="cursor" @changePage="changePage"/>
+
+      <!--edit modal-->
+      <div class="modal fade" id="infoDetail" data-bs-keyboard="false" tabindex="-1" aria-labelledby="infoDetailLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="infoDetailLabel">Edit Payload</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3 row" v-for="(item,key) in detail" :key="key">
+                <label :for="key" class="col-sm-2 col-form-label" style="font-weight: bold">{{key}}</label>
+                <div class="col-sm-10">
+
+                  <div id="payloadAlertInfo" v-if="key === 'payload'">
+                  </div>
+
+                  <textarea class="form-control" id="payload" rows="3" v-if="key === 'payload'" v-model="detail.payload" @blur="payloadTrigger"></textarea>
+                  <input type="text" readonly :id="key" class="form-control-plaintext" :value="item" v-else>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" @click="editInfo(detail)">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--edit modal end-->
     </div>
   </div>
 </template>
@@ -103,9 +136,84 @@ let data = reactive({
     id:"",
     status:""
   },
+  detail:{},
+  isFormat:false,
   sseEvent:null
 })
+// send payload into queue to consume it again
+function retryInfo(item){
+  console.log("retry",item)
+}
+// delete log
+function deleteInfo(item){
+  console.log("deleteInfo",item)
+}
+// trigger modal
+function editModal(item){
 
+  // sort keys
+  data.detail = {
+    _id:item._id,
+    id:item.id,
+    moodType:item.moodType,
+    channel:item.channel,
+    topic:item.topic,
+    consumer:`${item.consumer}`,
+    addTime:item.addTime,
+    beginTime:item.beginTime,
+    endTime:item.endTime,
+    executeTime:item.executeTime,
+    payload:item.payload,
+    pendingRetry:item.pendingRetry,
+    priority:item.priority,
+    retry:item.retry,
+    runTime:item.runTime,
+    status:item.status
+  };
+
+  const myModal = new bootstrap.Modal(document.getElementById("infoDetail"));
+  myModal.show(document.getElementById("infoDetail"));
+}
+// make bootstrap alert html element
+function alert(message,type){
+
+  const alertPlaceholder = document.getElementById('payloadAlertInfo');
+  alertPlaceholder.innerHTML = `<div class="alert alert-${type} alert-dismissible" id="my-alert" role="alert">
+      <div>${message}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+}
+
+// Verify the JSON format of the payload
+function payloadTrigger(){
+
+  data.isFormat = false;
+  try {
+    JSON.parse(data.detail.payload);
+  }catch (e) {
+    data.isFormat = true;
+  }
+  if (data.isFormat === true){
+      alert("Must be in JSON format","danger");
+      return;
+  }
+  const alertTrigger = new bootstrap.Alert('#my-alert');
+  alertTrigger.close();
+
+}
+
+
+function editInfo(){
+  //Check if the payload is in JSON format
+  try{
+    JSON.parse(data.detail.payload)
+  }catch (e) {
+    console.log(e)
+  }
+
+}
+
+// search feature
 async function search(){
 
   sessionStorage.setItem("id",data.form.id);
@@ -113,7 +221,7 @@ async function search(){
 
   initEventSource();
 }
-
+// paging
 async function changePage(page,cursor){
   data.page = page;
   data.cursor = cursor;
@@ -162,7 +270,7 @@ onUnmounted(()=>{
   data.sseEvent.close();
 })
 
-const {eventLogs,form,page,total,cursor} = toRefs(data);
+const {eventLogs,form,page,total,cursor,detail} = toRefs(data);
 
 </script>
 <style scoped>
