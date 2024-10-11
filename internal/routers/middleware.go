@@ -1,8 +1,10 @@
 package routers
 
 import (
+	"context"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/retail-ai-inc/beanqui/internal/jwtx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
@@ -12,8 +14,16 @@ import (
 func Auth(next HandleFunc) HandleFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
-		result, cancel := response.Get()
-		defer cancel()
+		result, cancelr := response.Get()
+		defer cancelr()
+
+		accept := request.Header.Get("Accept")
+
+		if !strings.EqualFold(accept, "text/event-stream") {
+			ctx, cancel := context.WithTimeout(request.Context(), 20*time.Second)
+			defer cancel()
+			request = request.WithContext(ctx)
+		}
 
 		var (
 			err   error

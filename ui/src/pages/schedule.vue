@@ -26,14 +26,13 @@
                 </thead>
                 <tbody>
                 <tr v-for="(d, k) in item" :key="k">
-                  <th scope="row">{{ d.queue }}</th>
+                  <th scope="row">{{ d.topic }}</th>
                   <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'">{{ d.state }}</td>
                   <td>{{ d.size }}</td>
                   <td>{{ d.memory }}</td>
                   <td>{{ d.process }}</td>
                   <td>
-                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                      <div class="btn-group" role="group">
+                    <div class="btn-group-sm" role="group" aria-label="Button group with nested dropdown">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                           Actions
                         </button>
@@ -41,7 +40,6 @@
                           <li><a class="dropdown-item" href="#">Delete</a></li>
                           <li><a class="dropdown-item" href="#">Pause</a></li>
                         </ul>
-                      </div>
                     </div>
                   </td>
                 </tr>

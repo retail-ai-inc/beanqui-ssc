@@ -1,11 +1,10 @@
 package routers
 
 import (
-	"net/http"
-
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
+	"net/http"
 )
 
 type Schedule struct {
