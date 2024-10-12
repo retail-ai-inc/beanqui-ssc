@@ -52,7 +52,6 @@
 
 <script setup>
 import {ref,reactive,onMounted,toRefs,} from "vue";
-import request  from "request";
 
 let data = reactive({
   "queue_total":0,

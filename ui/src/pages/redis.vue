@@ -166,11 +166,10 @@
 
 import { reactive,onMounted,onUnmounted } from "vue";
 import { useRouter } from 'vueRouter';
-import cfg  from "config";
 
 let info = reactive({});
 const token = sessionStorage.getItem("token");
-let sseUrl = `${cfg.sseUrl}redis?token=${token}`;
+let sseUrl = `${config.sseUrl}redis?token=${token}`;
 const sse = new EventSource(sseUrl);
 
 const useRe = useRouter();

@@ -122,9 +122,7 @@
 <script setup>
 import { reactive,onMounted,toRefs,onUnmounted } from "vue";
 import { useRouter } from 'vueRouter';
-import request  from "request";
 import Pagination from "../components/pagination.vue";
-import cfg  from "config";
 
 let data = reactive({
   eventLogs:[],
@@ -174,15 +172,6 @@ function editModal(item){
   const myModal = new bootstrap.Modal(document.getElementById("infoDetail"));
   myModal.show(document.getElementById("infoDetail"));
 }
-// make bootstrap alert html element
-function alert(message,type){
-
-  const alertPlaceholder = document.getElementById('payloadAlertInfo');
-  alertPlaceholder.innerHTML = `<div class="alert alert-${type} alert-dismissible" id="my-alert" role="alert">
-      <div>${message}</div>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>`;
-}
 
 // Verify the JSON format of the payload
 function payloadTrigger(){
@@ -194,7 +183,7 @@ function payloadTrigger(){
     data.isFormat = true;
   }
   if (data.isFormat === true){
-      alert("Must be in JSON format","danger");
+      event.Alert("Must be in JSON format","danger");
       return;
   }
   const alertTrigger = new bootstrap.Alert('#my-alert');
@@ -235,7 +224,7 @@ function detailEvent(item){
 }
 
 function initEventSource(){
-  let url = `${cfg.sseUrl}event_log/list?page=${data.page}&pageSize=${data.pageSize}&id=${data.form.id}&status=${data.form.status}&token=${sessionStorage.getItem("token")}`;
+  let url = `${config.sseUrl}event_log/list?page=${data.page}&pageSize=${data.pageSize}&id=${data.form.id}&status=${data.form.status}&token=${sessionStorage.getItem("token")}`;
   if (data.sseEvent){
     data.sseEvent.close();
   }

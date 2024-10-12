@@ -2,7 +2,7 @@
   <div class="container text-center" style="background: #f8f9fa">
     <div class="row align-items-start" style="height: 100vh;">
       <div class="col left-col">
-        {{config.title}}
+        {{title}}
       </div>
       <div class="col right-col" >
         <div class="bq-box">
@@ -24,12 +24,10 @@
 import { reactive,toRefs,onMounted,onUnmounted } from "vue";
 import { useRouter } from 'vueRouter';
 
-import request  from "request";
-import config from "config";
-
 const data = reactive({
   user:{"username":"","password":""},
-  msg:""
+  msg:"",
+  title:config.title,
 })
 const useRe = useRouter();
 
@@ -50,7 +48,7 @@ function onSubmit(event){
     }
   })
 }
-const {user,msg} = toRefs(data);
+const {user,msg,title} = toRefs(data);
 </script>
 <style scoped>
 .left-col{

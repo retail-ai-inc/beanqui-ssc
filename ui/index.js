@@ -11,6 +11,8 @@
       vueRouter: VueRouter,
       request:request,
       config:config,
+      schedule,
+      event,
     },
 
     async getFile(url) {

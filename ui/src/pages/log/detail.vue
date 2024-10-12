@@ -18,7 +18,6 @@
 
 import {reactive,toRefs,onMounted} from "vue";
 import { useRoute,useRouter } from 'vueRouter';
-import request  from "request";
 
 function getDetail(id){
   return request.get("/event_log/detail",{"params":{"id":id}})
