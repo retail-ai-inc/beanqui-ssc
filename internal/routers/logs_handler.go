@@ -6,7 +6,7 @@ import (
 
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/cast"
 )
@@ -32,8 +32,8 @@ func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
 	gCursor := cast.ToUint64(r.FormValue("cursor"))
 
 	if dataType != "success" && dataType != "error" {
-		resultRes.Code = consts.TypeErrorCode
-		resultRes.Msg = consts.TypeErrorMsg
+		resultRes.Code = errorx.TypeErrorCode
+		resultRes.Msg = errorx.TypeErrorMsg
 
 		_ = resultRes.Json(w, http.StatusInternalServerError)
 		return

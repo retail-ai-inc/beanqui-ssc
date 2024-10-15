@@ -10,7 +10,7 @@ import (
 	"github.com/retail-ai-inc/beanq"
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
@@ -32,8 +32,8 @@ func (t *Log) List(w http.ResponseWriter, r *http.Request) {
 
 	if id == "" || msgType == "" {
 		// error
-		result.Code = consts.MissParameterCode
-		result.Msg = consts.MissParameterMsg
+		result.Code = errorx.MissParameterCode
+		result.Msg = errorx.MissParameterMsg
 		_ = result.Json(w, http.StatusBadRequest)
 		return
 	}
@@ -61,13 +61,13 @@ func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
 		msgType = "success"
 	}
 	if id == "" {
-		result.Code = consts.MissParameterCode
-		result.Msg = consts.MissParameterMsg
+		result.Code = errorx.MissParameterCode
+		result.Msg = errorx.MissParameterMsg
 		_ = result.Json(w, http.StatusInternalServerError)
 		return
 	}
 	if err := retryHandler(r.Context(), id, msgType); err != nil {
-		result.Code = consts.InternalServerErrorCode
+		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
 		_ = result.Json(w, http.StatusInternalServerError)
 		return
@@ -85,7 +85,7 @@ func (t *Log) Delete(w http.ResponseWriter, r *http.Request) {
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 	cmd := client.ZRemRangeByScore(r.Context(), key, score, score)
 	if cmd.Err() != nil {
-		result.Code = consts.InternalServerErrorCode
+		result.Code = errorx.InternalServerErrorCode
 		result.Msg = cmd.Err().Error()
 		_ = result.Json(w, http.StatusInternalServerError)
 		return

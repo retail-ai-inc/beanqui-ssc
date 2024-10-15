@@ -54,7 +54,7 @@
         <tbody>
           <tr v-for="(item, key) in eventLogs" :key="key" style="height: 3rem;line-height:3rem">
             <th scope="row">{{parseInt(key)+1}}</th>
-            <td><router-link to="" class="nav-link text-muted" style="display: contents" v-on:click="detailEvent(item)">{{item.id}}</router-link></td>
+            <td><router-link to="" class="nav-link text-primary" style="display: contents" v-on:click="detailEvent(item)">{{item.id}}</router-link></td>
             <td>{{item.channel}}</td>
             <td>{{item.topic}}</td>
             <td>{{item.moodType}}</td>
@@ -75,7 +75,7 @@
                   actions
                 </button>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="javascript:;" @click="retryInfo(item)">Retry</a></li>
+                  <li v-if="item.status != 'success'"><a class="dropdown-item" href="javascript:;" @click="retryInfo(item)">Retry</a></li>
                   <li><a class="dropdown-item" href="javascript:;" @click="deleteInfo(item)">Delete</a></li>
                   <li><a class="dropdown-item" href="javascript:;" @click="editModal(item)">Edit Payload</a></li>
                 </ul>
@@ -136,7 +136,8 @@ let data = reactive({
   },
   detail:{},
   isFormat:false,
-  sseEvent:null
+  sseEvent:null,
+  infoDetailModal:null,
 })
 // send payload into queue to consume it again
 function retryInfo(item){
@@ -144,7 +145,13 @@ function retryInfo(item){
 }
 // delete log
 function deleteInfo(item){
-  console.log("deleteInfo",item)
+
+  try {
+    eventApi.Delete(item);
+  }catch (e) {
+    console.log(e);
+  }
+
 }
 // trigger modal
 function editModal(item){
@@ -168,22 +175,22 @@ function editModal(item){
     runTime:item.runTime,
     status:item.status
   };
-
-  const myModal = new bootstrap.Modal(document.getElementById("infoDetail"));
-  myModal.show(document.getElementById("infoDetail"));
+  const ele = document.getElementById("infoDetail");
+  data.infoDetailModal = new bootstrap.Modal(ele);
+  data.infoDetailModal.show(ele);
 }
 
 // Verify the JSON format of the payload
-function payloadTrigger(){
+async function payloadTrigger(){
 
   data.isFormat = false;
   try {
-    JSON.parse(data.detail.payload);
+    await JSON.parse(data.detail.payload);
   }catch (e) {
     data.isFormat = true;
   }
   if (data.isFormat === true){
-      event.Alert("Must be in JSON format","danger");
+      await eventApi.Alert("Must be in JSON format","danger");
       return;
   }
   const alertTrigger = new bootstrap.Alert('#my-alert');
@@ -191,13 +198,18 @@ function payloadTrigger(){
 
 }
 
+async function editInfo(item){
 
-function editInfo(){
-  //Check if the payload is in JSON format
   try{
-    JSON.parse(data.detail.payload)
+    let res = await eventApi.Edit(item._id,item.payload);
+    //if success
+    if(res.code == "0000"){
+      const hideModal = new bootstrap.Modal(document.getElementById("infoDetail"));
+      data.infoDetailModal.hide();
+      return;
+    }
   }catch (e) {
-    console.log(e)
+    console.log(e);
   }
 
 }
@@ -224,16 +236,16 @@ function detailEvent(item){
 }
 
 function initEventSource(){
-  let url = `${config.sseUrl}event_log/list?page=${data.page}&pageSize=${data.pageSize}&id=${data.form.id}&status=${data.form.status}&token=${sessionStorage.getItem("token")}`;
+
   if (data.sseEvent){
     data.sseEvent.close();
   }
-  data.sseEvent = new EventSource(url);
+  data.sseEvent = sseApi.Init(`event_log/list?page=${data.page}&pageSize=${data.pageSize}&id=${data.form.id}&status=${data.form.status}`);
   data.sseEvent.onopen = () =>{
     console.log("handshake success");
   }
   data.sseEvent.onerror = (err)=>{
-    console.log(err);
+    console.log("event err----",err);
   }
   data.sseEvent.addEventListener("event_log",async function(res){
     let body = await JSON.parse(res.data);

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/viper"
 )
@@ -24,7 +24,7 @@ func (t *Queue) List(w http.ResponseWriter, r *http.Request) {
 
 	bt, err := redisx.QueueInfo(r.Context())
 	if err != nil {
-		result.Code = consts.InternalServerErrorCode
+		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
 		_ = result.Json(w, http.StatusInternalServerError)
 		return

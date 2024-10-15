@@ -31,22 +31,22 @@ const data = reactive({
 })
 const useRe = useRouter();
 
-function onSubmit(event){
+async function onSubmit(event){
 
   if (data.user.username == "" || data.user.password == ""){
     console.log("can not empty");
     return;
   }
   //,{headers:{"Content-Type":"multipart/form-data"}}
-  request.post("login", {username:data.user.username,password:data.user.password} ).then(res=>{
-
+  try{
+    let res = await loginApi.Login(data.user.username,data.user.password);
     sessionStorage.setItem("token",res.data.token);
     useRe.push("/admin/home");
-  }).catch(err=>{
+  }catch(err){
     if (err.response.status === 401){
       data.msg = err.response.data.msg;
     }
-  })
+  }
 }
 const {user,msg,title} = toRefs(data);
 </script>

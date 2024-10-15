@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/retail-ai-inc/beanq/helper/json"
-	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/spf13/cast"
 )
 
@@ -19,8 +19,8 @@ type Result struct {
 
 func (t *Result) reset() {
 	t.Data = nil
-	t.Msg = consts.SuccessMsg
-	t.Code = consts.SuccessCode
+	t.Msg = errorx.SuccessMsg
+	t.Code = errorx.SuccessCode
 }
 
 func (t *Result) Json(w http.ResponseWriter, httpCode int) error {
@@ -64,8 +64,8 @@ func (t *Result) EventMsg(w http.ResponseWriter, eventName string) error {
 
 var resultPool = sync.Pool{New: func() any {
 	return &Result{
-		Code: consts.SuccessCode,
-		Msg:  consts.SuccessMsg,
+		Code: errorx.SuccessCode,
+		Msg:  errorx.SuccessMsg,
 		Data: nil,
 	}
 }}

@@ -11,8 +11,12 @@
       vueRouter: VueRouter,
       request:request,
       config:config,
-      schedule,
-      event,
+      //apis
+      sseApi,
+      scheduleApi,
+      eventApi,
+      loginApi,
+      //apis end
     },
 
     async getFile(url) {

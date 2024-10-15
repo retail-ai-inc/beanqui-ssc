@@ -1,11 +1,13 @@
 package routers
 
 import (
+	"encoding/json"
 	"github.com/retail-ai-inc/beanqui/internal/mongox"
-	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/cast"
 	"go.mongodb.org/mongo-driver/bson"
+	"io"
 	"net/http"
 	"time"
 )
@@ -92,11 +94,66 @@ func (t *EventLog) Detail(w http.ResponseWriter, r *http.Request) {
 	data, err := mog.DetailEventLog(r.Context(), id)
 	if err != nil {
 		res.Msg = err.Error()
-		res.Code = consts.InternalServerErrorCode
+		res.Code = errorx.InternalServerErrorCode
 		_ = res.Json(w, http.StatusInternalServerError)
 		return
 	}
 	res.Data = data
+	_ = res.Json(w, http.StatusOK)
+	return
+}
+
+func (t *EventLog) Delete(w http.ResponseWriter, r *http.Request) {
+	res, cancel := response.Get()
+	defer cancel()
+
+	id := r.URL.Query().Get("id")
+	mog := mongox.NewMongo()
+	count, err := mog.Delete(r.Context(), id)
+	if err != nil {
+		res.Msg = err.Error()
+		res.Code = errorx.InternalServerErrorCode
+		_ = res.Json(w, http.StatusInternalServerError)
+		return
+	}
+	res.Data = count
+	_ = res.Json(w, http.StatusOK)
+	return
+}
+
+type editInfo struct {
+	Id      string `json:"id"`
+	Payload any    `json:"payload"`
+}
+
+func (t *EventLog) Edit(w http.ResponseWriter, r *http.Request) {
+	res, cancel := response.Get()
+	defer cancel()
+
+	var info editInfo
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		res.Msg = err.Error()
+		res.Code = errorx.InternalServerErrorCode
+		_ = res.Json(w, http.StatusInternalServerError)
+		return
+	}
+	if err := json.Unmarshal(b, &info); err != nil {
+		res.Msg = err.Error()
+		res.Code = errorx.InternalServerErrorCode
+		_ = res.Json(w, http.StatusInternalServerError)
+		return
+	}
+
+	mog := mongox.NewMongo()
+	count, err := mog.Edit(r.Context(), info.Id, info.Payload)
+	if err != nil {
+		res.Msg = err.Error()
+		res.Code = errorx.InternalServerErrorCode
+		_ = res.Json(w, http.StatusInternalServerError)
+		return
+	}
+	res.Data = count
 	_ = res.Json(w, http.StatusOK)
 	return
 }

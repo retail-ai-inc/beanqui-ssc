@@ -167,10 +167,9 @@
 import { reactive,onMounted,onUnmounted } from "vue";
 import { useRouter } from 'vueRouter';
 
-let info = reactive({});
-const token = sessionStorage.getItem("token");
-let sseUrl = `${config.sseUrl}redis?token=${token}`;
-const sse = new EventSource(sseUrl);
+let info = reactive({
+  sse:null
+});
 
 const useRe = useRouter();
 
@@ -180,18 +179,21 @@ onMounted(async ()=>{
   const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
   const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-
-  sse.onopen = ()=>{
+  if(info.sse){
+    info.sse.close();
+  }
+  info.sse = sseApi.Init("redis");
+  info.sse.onopen = () => {
     console.log("success")
   }
-  sse.addEventListener("redis_info",function (res) {
+  info.sse.addEventListener("redis_info",function (res) {
     let body = JSON.parse(res.data);
     if (body.code !== "0000"){
       return
     }
     Object.assign(info,body.data);
   })
-  sse.onerror = (err)=>{
+  info.sse.onerror = (err)=>{
     //useRe.push("/login");
     console.log(err)
   }
@@ -199,7 +201,7 @@ onMounted(async ()=>{
 })
 
 onUnmounted(()=>{
-  sse.close();
+  info.sse.close();
 })
 
 </script>

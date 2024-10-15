@@ -54,6 +54,8 @@ func main() {
 	router.Get("/dashboard", Auth(NewDashboard().Info))
 	router.Get("/event_log/list", Auth(NewEventLog().List))
 	router.Get("/event_log/detail", Auth(NewEventLog().Detail))
+	router.Delete("/event_log/delete", Auth(NewEventLog().Delete))
+	router.Put("/event_log/edit", Auth(NewEventLog().Edit))
 
 	log.Printf("server start on port %+v", port)
 	if err := http.ListenAndServe(port, router); err != nil {

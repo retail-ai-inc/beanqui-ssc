@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/viper"
 )
@@ -28,7 +28,7 @@ func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 	// get queue total
 	keys, err := redisx.Keys(r.Context(), strings.Join([]string{redisx.BqConfig.Redis.Prefix, "*", "stream"}, ":"))
 	if err != nil {
-		result.Code = consts.InternalServerErrorCode
+		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
 		_ = result.Json(w, http.StatusInternalServerError)
 		return
@@ -39,7 +39,7 @@ func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 	db_size, err := client.DBSize(r.Context()).Result()
 	if err != nil {
 
-		result.Code = consts.InternalServerErrorCode
+		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
 		_ = result.Json(w, http.StatusInternalServerError)
 

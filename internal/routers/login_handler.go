@@ -6,7 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/retail-ai-inc/beanqui/internal/jwtx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
+	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/viper"
 )
@@ -36,7 +36,7 @@ func (t *Login) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if username != user || password != pwd {
-		result.Code = consts.InternalServerErrorCode
+		result.Code = errorx.InternalServerErrorCode
 		result.Msg = "username or password mismatch"
 		_ = result.Json(w, http.StatusUnauthorized)
 		return
@@ -57,7 +57,7 @@ func (t *Login) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := jwtx.MakeHsToken(claim)
 	if err != nil {
-		result.Code = consts.InternalServerErrorCode
+		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
 		_ = result.Json(w, http.StatusInternalServerError)
 		return

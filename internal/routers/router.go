@@ -61,6 +61,10 @@ func (t *Router) Delete(pattern string, handleFunc HandleFunc) {
 	t.addRoute(pattern, http.MethodDelete, handleFunc)
 }
 
+func (t *Router) Put(pattern string, handleFunc HandleFunc) {
+	t.addRoute(pattern, http.MethodPut, handleFunc)
+}
+
 func (t *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer func() {

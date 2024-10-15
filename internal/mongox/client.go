@@ -5,6 +5,7 @@ import (
 	"github.com/retail-ai-inc/beanq"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -107,4 +108,39 @@ func (t *MongoX) DetailEventLog(ctx context.Context, id string) (bson.M, error) 
 		return nil, err
 	}
 	return data, nil
+}
+
+func (t *MongoX) Delete(ctx context.Context, id string) (int64, error) {
+	filter := bson.M{}
+	if id != "" {
+		nid, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return 0, err
+		}
+		filter["_id"] = nid
+	}
+	result, err := t.database.Collection(t.collection).DeleteOne(ctx, filter)
+	if err != nil {
+		return 0, err
+	}
+	return result.DeletedCount, nil
+}
+
+func (t *MongoX) Edit(ctx context.Context, id string, payload any) (int64, error) {
+	filter := bson.M{}
+	if id != "" {
+		nid, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return 0, err
+		}
+		filter["_id"] = nid
+	}
+	update := bson.D{
+		{"$set", bson.D{{"payload", payload}}},
+	}
+	result, err := t.database.Collection(t.collection).UpdateOne(ctx, filter, update)
+	if err != nil {
+		return 0, err
+	}
+	return result.ModifiedCount, nil
 }

@@ -66,13 +66,13 @@ const data = reactive({
 })
 
 async function changePage(page){
-  let scheduleData = await schedule.GetSchedule(page,10);
+  let scheduleData = await scheduleApi.GetSchedule(page,10);
   data.schedules = {...scheduleData.data};
   data.total = Math.ceil(scheduleData.data.total / 10);
   data.page = page;
 }
 onMounted(async ()=>{
-  let scheduleData = await schedule.GetSchedule(data.page,10);
+  let scheduleData = await scheduleApi.GetSchedule(data.page,10);
   data.schedules = {...scheduleData.data};
   data.total = Math.ceil(scheduleData.data.total / 10);
 })
