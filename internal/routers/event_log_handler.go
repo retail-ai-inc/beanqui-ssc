@@ -157,3 +157,23 @@ func (t *EventLog) Edit(w http.ResponseWriter, r *http.Request) {
 	_ = res.Json(w, http.StatusOK)
 	return
 }
+
+func (t *EventLog) Retry(w http.ResponseWriter, r *http.Request) {
+	res, cancel := response.Get()
+	defer cancel()
+	m := make(map[string]any)
+	id := r.FormValue("id")
+	m["uniqueId"] = id
+
+	payload := make(map[string]any)
+	if err := json.Unmarshal([]byte(r.FormValue("data")), &payload); err != nil {
+		res.Msg = err.Error()
+		res.Code = errorx.InternalServerErrorCode
+		_ = res.Json(w, http.StatusInternalServerError)
+		return
+	}
+	m["data"] = payload
+	res.Data = m
+	_ = res.Json(w, http.StatusOK)
+	return
+}

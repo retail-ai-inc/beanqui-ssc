@@ -7,10 +7,13 @@ const eventApi = {
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>`;
     },
-    Delete(item){
-        return request.delete(`event_log/delete?id=${item._id}`);
+    Delete(id){
+        return request.delete(`event_log/delete?id=${id}`);
     },
     Edit(id,payload){
         return request.put(`/event_log/edit`,{id:id,payload:payload});
+    },
+    Retry(id,data){
+        return request.post(`/event_log/retry`,{uniqueId:id,data:JSON.stringify(data)},{headers:{"Content-Type":"multipart/form-data"}});
     }
 }

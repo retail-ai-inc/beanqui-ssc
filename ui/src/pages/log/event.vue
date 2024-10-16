@@ -140,16 +140,22 @@ let data = reactive({
   infoDetailModal:null,
 })
 // send payload into queue to consume it again
-function retryInfo(item){
-  console.log("retry",item)
+async function retryInfo(item){
+  
+  try{
+    let res = await eventApi.Retry(item._id,item);
+  }catch (e) {
+    console.log("retry err:",e)
+  }
+
 }
 // delete log
-function deleteInfo(item){
+async function deleteInfo(item){
 
   try {
-    eventApi.Delete(item);
+    let res = await eventApi.Delete(item._id);
   }catch (e) {
-    console.log(e);
+    console.log("delete err:",e);
   }
 
 }
@@ -204,12 +210,11 @@ async function editInfo(item){
     let res = await eventApi.Edit(item._id,item.payload);
     //if success
     if(res.code == "0000"){
-      const hideModal = new bootstrap.Modal(document.getElementById("infoDetail"));
       data.infoDetailModal.hide();
       return;
     }
   }catch (e) {
-    console.log(e);
+    console.log("edit err:",e);
   }
 
 }
