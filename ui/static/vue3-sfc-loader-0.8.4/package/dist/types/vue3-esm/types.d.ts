@@ -286,7 +286,7 @@ export declare type Options = {
      * @param options  The options object.
      * @returns A Promise of the module or undefined
      *
-     * [[moduleCache]] and [[Options.loadModule]] are strongly related, in the sense that the results of [[options.loadModule]] is stored in [[moduleCache]].
+     * [[moduleCache]] and [[Options.loadModule]] are strongly related, in the sense that the response of [[options.loadModule]] is stored in [[moduleCache]].
      * However, [[options.loadModule]] is asynchronous and may help you to handle modules or components that are conditionally required (optional features, current languages, plugins, ...).
      * ```javascript
      *	...

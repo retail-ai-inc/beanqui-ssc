@@ -1,4 +1,4 @@
-package consts
+package errorx
 
 const (
 	SuccessCode             = "0000"

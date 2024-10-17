@@ -10,7 +10,13 @@
       vue: Vue,
       vueRouter: VueRouter,
       request:request,
-      config:config
+      config:config,
+      //apis
+      sseApi,
+      scheduleApi,
+      eventApi,
+      loginApi,
+      //apis end
     },
 
     async getFile(url) {
@@ -44,9 +50,11 @@
           { path: 'schedule', component: () => loadModule("./src/pages/schedule.vue", options) },
           { path: 'queue', component: () => loadModule("./src/pages/queue/list.vue", options) },
           { path: 'queue/detail/:id',component:()=>loadModule("./src/pages/queue/detail.vue",options)},
-          { path: 'log/success',component:()=>loadModule("./src/pages/log/success.vue",options)},
-          { path: 'log/error',component:()=>loadModule("./src/pages/log/error.vue",options)},
-          { path: 'log/detail/:id/:msgType',component:()=>loadModule("./src/pages/log/detail.vue",options)},
+          { path: 'log/event',component:()=>loadModule("./src/pages/log/event.vue",options)},
+          { path: 'log/workflow',component:()=>loadModule("./src/pages/log/workflow.vue",options)},
+          // { path: 'log/success',component:()=>loadModule("./src/pages/log/success.vue",options)},
+          // { path: 'log/error',component:()=>loadModule("./src/pages/log/error.vue",options)},
+          { path: 'log/detail/:id',component:()=>loadModule("./src/pages/log/detail.vue",options)},
           { path: 'redis', component: () => loadModule("./src/pages/redis.vue", options) },
         ]
   };

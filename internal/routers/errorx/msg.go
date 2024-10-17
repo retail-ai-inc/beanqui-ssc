@@ -1,4 +1,4 @@
-package consts
+package errorx
 
 const (
 	SuccessMsg             = "success"

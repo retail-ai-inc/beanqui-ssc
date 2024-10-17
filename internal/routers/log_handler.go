@@ -7,99 +7,100 @@ import (
 	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanq"
 	"github.com/retail-ai-inc/beanq/helper/json"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/consts"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
 type Log struct {
-	client *redis.Client
 }
 
-func NewLog(client *redis.Client) *Log {
-	return &Log{client: client}
+func NewLog() *Log {
+	return &Log{}
 }
 
 // del ,retry,archive,detail
-func (t *Log) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *Log) List(w http.ResponseWriter, r *http.Request) {
 
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
-	// job detail
-	if r.Method == http.MethodGet {
+	id := r.FormValue("id")
+	msgType := r.FormValue("msgType")
 
-		id := r.FormValue("id")
-		msgType := r.FormValue("msgType")
-
-		if id == "" || msgType == "" {
-			// error
-			result.Code = consts.MissParameterCode
-			result.Msg = consts.MissParameterMsg
-			_ = result.Json(w, http.StatusBadRequest)
-			return
-		}
-		data, err := detailHandler(r.Context(), t.client, id, msgType)
-		if err != nil {
-			result.Code = "1003"
-			result.Msg = err.Error()
-			_ = result.Json(w, http.StatusInternalServerError)
-			return
-		}
-		result.Data = data
-		_ = result.Json(w, http.StatusOK)
+	if id == "" || msgType == "" {
+		// error
+		result.Code = errorx.MissParameterCode
+		result.Msg = errorx.MissParameterMsg
+		_ = result.Json(w, http.StatusBadRequest)
 		return
 	}
-	// retry
-	if r.Method == http.MethodPost {
-
-		id := r.PostFormValue("id")
-		msgType := r.PostFormValue("msgType")
-		if msgType == "" {
-			msgType = "success"
-		}
-		if id == "" {
-			result.Code = consts.MissParameterCode
-			result.Msg = consts.MissParameterMsg
-			_ = result.Json(w, http.StatusInternalServerError)
-			return
-		}
-		if err := retryHandler(r.Context(), t.client, id, msgType); err != nil {
-			result.Code = consts.InternalServerErrorCode
-			result.Msg = err.Error()
-			_ = result.Json(w, http.StatusInternalServerError)
-			return
-		}
+	data, err := detailHandler(r.Context(), id, msgType)
+	if err != nil {
+		result.Code = "1003"
+		result.Msg = err.Error()
+		_ = result.Json(w, http.StatusInternalServerError)
 		return
 	}
-	// delete job
-	if r.Method == http.MethodDelete {
+	result.Data = data
+	_ = result.Json(w, http.StatusOK)
+	return
 
-		msgType := r.FormValue("msgType")
-		score := r.FormValue("score")
+}
 
-		key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
-		cmd := t.client.ZRemRangeByScore(r.Context(), key, score, score)
-		if cmd.Err() != nil {
-			result.Code = consts.InternalServerErrorCode
-			result.Msg = cmd.Err().Error()
-			_ = result.Json(w, http.StatusInternalServerError)
-			return
-		}
-		_ = result.Json(w, http.StatusOK)
-		return
+func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
 
+	result, cancel := response.Get()
+	defer cancel()
+
+	id := r.PostFormValue("id")
+	msgType := r.PostFormValue("msgType")
+	if msgType == "" {
+		msgType = "success"
 	}
+	if id == "" {
+		result.Code = errorx.MissParameterCode
+		result.Msg = errorx.MissParameterMsg
+		_ = result.Json(w, http.StatusInternalServerError)
+		return
+	}
+	if err := retryHandler(r.Context(), id, msgType); err != nil {
+		result.Code = errorx.InternalServerErrorCode
+		result.Msg = err.Error()
+		_ = result.Json(w, http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
+func (t *Log) Delete(w http.ResponseWriter, r *http.Request) {
+	result, cancel := response.Get()
+	defer cancel()
+
+	msgType := r.FormValue("msgType")
+	score := r.FormValue("score")
+	client := redisx.Client()
+	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
+	cmd := client.ZRemRangeByScore(r.Context(), key, score, score)
+	if cmd.Err() != nil {
+		result.Code = errorx.InternalServerErrorCode
+		result.Msg = cmd.Err().Error()
+		_ = result.Json(w, http.StatusInternalServerError)
+		return
+	}
+	_ = result.Json(w, http.StatusOK)
+	return
+}
+func (t *Log) Add(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut {
 
 	}
 }
 
 // log detail
-func detailHandler(ctx context.Context, client *redis.Client, id, msgType string) (map[string]any, error) {
+func detailHandler(ctx context.Context, id, msgType string) (map[string]any, error) {
 
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 
@@ -108,7 +109,7 @@ func detailHandler(ctx context.Context, client *redis.Client, id, msgType string
 	build.WriteString("*")
 	build.WriteString(id)
 	build.WriteString("*")
-
+	client := redisx.Client()
 	vals, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
 	if len(vals) <= 0 {
 		return nil, errors.New("record is empty")
@@ -121,7 +122,7 @@ func detailHandler(ctx context.Context, client *redis.Client, id, msgType string
 	return m, nil
 }
 
-func retryHandler(ctx context.Context, client *redis.Client, id, msgType string) error {
+func retryHandler(ctx context.Context, id, msgType string) error {
 
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
 
@@ -130,6 +131,7 @@ func retryHandler(ctx context.Context, client *redis.Client, id, msgType string)
 	build.WriteString("*")
 	build.WriteString(id)
 	build.WriteString("*")
+	client := redisx.Client()
 
 	keys, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
 	if len(keys) <= 0 {
@@ -149,9 +151,8 @@ func retryHandler(ctx context.Context, client *redis.Client, id, msgType string)
 		return err
 	}
 
-	publish := beanq.NewPublisher(redisx.BqConfig)
-	task := beanq.NewMessage([]byte(payload))
-	if err := publish.PublishWithContext(ctx, task, beanq.ExecuteTime(dup), beanq.Channel(groupName), beanq.Topic(queue)); err != nil {
+	bq := beanq.New(&redisx.BqConfig)
+	if err := bq.BQ().PublishAtTime(groupName, queue, []byte(payload), dup); err != nil {
 		return err
 	}
 

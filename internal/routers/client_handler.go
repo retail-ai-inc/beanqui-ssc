@@ -3,25 +3,23 @@ package routers
 import (
 	"net/http"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
 type Client struct {
-	client *redis.Client
 }
 
-func NewClient(client *redis.Client) *Client {
-	return &Client{client: client}
+func NewClient() *Client {
+	return &Client{}
 }
 
-func (t *Client) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *Client) List(w http.ResponseWriter, r *http.Request) {
 
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
-	data, err := redisx.ClientList(r.Context(), t.client)
+	data, err := redisx.ClientList(r.Context())
 	if err != nil {
 		result.Code = "1001"
 		result.Msg = err.Error()

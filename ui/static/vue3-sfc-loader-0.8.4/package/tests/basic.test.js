@@ -808,7 +808,7 @@ const { defaultFilesFactory, createPage } = require('./testsTools.js');
 
 			// original Vue2 expected match: `_vm.store.foo.apply(_vm.store, args)`
 			// Vue3 expected match: `_ctx.store.foo(...args)`
-			await expect(page.$eval('#results', el => el.textContent)).resolves.toMatch('[1,2,3]');
+			await expect(page.$eval('#response', el => el.textContent)).resolves.toMatch('[1,2,3]');
 		});
 
 

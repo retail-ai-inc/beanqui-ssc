@@ -37,7 +37,6 @@
 <script setup>
 
 import { reactive,onMounted,onUnmounted } from "vue";
-import request  from "request";
 
 const logs = reactive([])
 function getLog(){
