@@ -1,7 +1,7 @@
 package redisx
 
 import (
-	"github.com/retail-ai-inc/beanq"
+	"github.com/retail-ai-inc/beanq/v3"
 	"github.com/spf13/viper"
 	"log"
 	"strings"

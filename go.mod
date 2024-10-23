@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/redis/go-redis/v9 v9.4.0
-	github.com/retail-ai-inc/beanq v1.0.1-0.20240924031600-54d498001f24
+	github.com/retail-ai-inc/beanq/v3 v3.0.1
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/viper v1.18.2
 	go.mongodb.org/mongo-driver v1.17.0
@@ -17,6 +17,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/google/uuid v1.4.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

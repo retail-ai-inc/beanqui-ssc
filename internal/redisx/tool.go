@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/retail-ai-inc/beanq/helper/json"
-	"github.com/retail-ai-inc/beanq/helper/stringx"
+	"github.com/retail-ai-inc/beanq/v3/helper/json"
+	"github.com/retail-ai-inc/beanq/v3/helper/stringx"
 	"github.com/spf13/cast"
 )
 
