@@ -4,26 +4,25 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
-	"github.com/retail-ai-inc/beanqui/internal/routers/results"
+	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
 type RedisInfo struct {
-	client *redis.Client
 }
 
-func NewRedisInfo(client *redis.Client) *RedisInfo {
-	return &RedisInfo{client: client}
+func NewRedisInfo() *RedisInfo {
+	return &RedisInfo{}
 }
-func (t *RedisInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (t *RedisInfo) Info(w http.ResponseWriter, r *http.Request) {
 
-	result, cancel := results.Get()
+	result, cancel := response.Get()
 	defer cancel()
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-
+		http.Error(w, "server error", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -38,7 +37,7 @@ func (t *RedisInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			d, err := redisx.Info(ctx, t.client)
+			d, err := redisx.Info(ctx)
 
 			if err != nil {
 				result.Code = "1001"

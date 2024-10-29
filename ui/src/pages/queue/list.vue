@@ -1,12 +1,12 @@
 <template>
-    <div>
+    <div class="channel">
       <Pagination :page="page" :total="total" @changePage="changePage"/>
 
       <div class="accordion" id="ui-accordion">
         <div class="accordion-item" v-if="queues.length === 0">
           Hurrah! We processed all messages.
         </div>
-        <div class="accordion-item" v-else v-for="(item, key) in queues" :key="key" style="margin-bottom: 15px">
+        <div class="accordion-item" v-else v-for="(item, key) in queues" :key="key" style="margin-bottom: 0.9375rem">
           <h2 class="accordion-header">
             <button style="font-weight: bold" class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="setId(key)" aria-expanded="true" :aria-controls="key">
               {{key}}
@@ -27,11 +27,11 @@
                 <tbody>
                 <tr v-for="(d, k) in item" :key="k">
                   <th scope="row">
-                    <router-link to="" class="nav-link text-muted" v-on:click="detailQueue(d)">{{ d.queue }}</router-link>
+                    <router-link to="" class="nav-link text-muted" v-on:click="detailQueue(d)">{{ d.topic }}</router-link>
                   </th>
-                  <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'">{{ d.state }}</td>
-                  <td>{{ d.size }}</td>
-                  <td>{{ d.idle }}</td>
+                  <td :class="d.state == 'Run' ? 'text-success-emphasis' : 'text-danger-emphasis'" class="align-middle">{{ d.state }}</td>
+                  <td class="align-middle">{{ d.size }}</td>
+                  <td class="align-middle">{{ d.idle }}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                       <div class="btn-group" role="group">
@@ -61,7 +61,6 @@
 
 import { reactive,onMounted,toRefs,onUnmounted } from "vue";
 import { useRouter } from 'vueRouter';
-import request  from "request";
 import Pagination from "../components/pagination.vue";
 
 let pageSize = 10;
@@ -72,7 +71,7 @@ let data = reactive({
 })
 
 function getQueue(page,pageSize){
-  return request.get("queue?list",{"params":{"page":page,"pageSize":pageSize}});
+  return request.get("queue/list",{"params":{"page":page,"pageSize":pageSize}});
 }
 
 onMounted(async ()=>{
@@ -93,7 +92,7 @@ function setId(id){
 
 const uRouter = useRouter();
 function detailQueue(item){
-  uRouter.push("queue/detail/"+item.group + ":" + item.queue);
+  uRouter.push("queue/detail/"+item.channel + ":" + item.topic);
 }
 
 const {queues,page,total} = toRefs(data);
@@ -108,6 +107,10 @@ const {queues,page,total} = toRefs(data);
 }
 .table .text-danger-emphasis {
     color: var(--bs-danger) !important;
+}
+.channel {
+  transition: opacity 0.5s ease;
+  opacity: 1;
 }
 </style>
   

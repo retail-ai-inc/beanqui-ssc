@@ -1,11 +1,11 @@
 <template>
   <nav aria-label="Page navigation">
     <ul class="pagination justify-content-end" v-if="page <= total">
-      <li class="page-item" :class="page == 1 ? 'disabled' : ''" >
+      <li class="page-item" :class="page === 1 ? 'disabled' : ''" >
         <a class="page-link" @click="changePage(page-1 <= 0 ? 1 : page-1,cursor)">&laquo;</a>
       </li>
       <li class="page-item">
-        <a class="page-link" v-if="page != 1" @click="changePage(1,cursor)">1</a>
+        <a class="page-link" v-if="page !== 1" @click="changePage(1,cursor)">1</a>
       </li>
       <li class="page-item">
         <a class="page-link" v-if="(page -2) > 1">...</a>

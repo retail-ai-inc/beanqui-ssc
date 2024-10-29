@@ -28,7 +28,7 @@
           <td>{{item.Values.priority}}</td>
           <td>{{ item.Values.channel }}</td>
           <td>{{item.Values.topic}}</td>
-          <td>{{item.Values.message}}</td>
+          <td>{{item.Values.payload}}</td>
         </tr>
         </tbody>
       </table>
@@ -49,7 +49,7 @@ let data = reactive({
 const uRoute = useRoute();
 let id = uRoute.params.id;
 
-let sseUrl = cfg.sseUrl + "/queue?detail&id=" + id + "&token=" + sessionStorage.getItem("token");
+let sseUrl = `${cfg.sseUrl}queue/detail?id=${id}&token=${sessionStorage.getItem("token")}`;
 const sse = new EventSource(sseUrl);
 
 onMounted( async ()=>{
@@ -59,7 +59,7 @@ onMounted( async ()=>{
   }
   sse.addEventListener("queue_detail",function (res) {
     let body = JSON.parse(res.data);
-    if (body.code != "0000"){
+    if (body.code !== "0000"){
       return
     }
     data.queueDetail = body.data;

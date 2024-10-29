@@ -55,7 +55,6 @@
 
 import { useRouter } from 'vueRouter';
 import { reactive,toRefs,onMounted,onUnmounted } from "vue";
-import request  from "request";
 import Pagination from "../components/pagination.vue";
 
 let pageSize = 10;

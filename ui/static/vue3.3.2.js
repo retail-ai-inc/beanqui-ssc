@@ -6924,7 +6924,7 @@ var Vue = (function (exports) {
             optimized
           );
         } else {
-          if (patchFlag > 0 && patchFlag & 64 && dynamicChildren && // #2715 the previous fragment could've been a BAILed one as a results
+          if (patchFlag > 0 && patchFlag & 64 && dynamicChildren && // #2715 the previous fragment could've been a BAILed one as a response
           // of renderSlot() with no valid children
           n1.dynamicChildren) {
             patchBlockChildren(
@@ -8522,7 +8522,7 @@ var Vue = (function (exports) {
         asyncDep: null,
         asyncResolved: false,
         // lifecycle hooks
-        // not using enums here because it results in computed properties
+        // not using enums here because it response in computed properties
         isMounted: false,
         isUnmounted: false,
         isDeactivated: false,

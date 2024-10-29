@@ -53,7 +53,7 @@ file.md:
 
 > node ./build/evalHtmlComments.js README.md
 
-results:
+response:
 |   ...
 |   <script src="https://cdn.jsdelivr.net/npm/vue3-sfc-loader@^0.2/dist/vue3-sfc-loader.js"></script>
 |   ...

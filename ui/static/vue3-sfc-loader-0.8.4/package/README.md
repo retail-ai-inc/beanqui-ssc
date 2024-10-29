@@ -178,12 +178,12 @@ function fileSize(filename) {
 
 const version = process.argv[3];
 
-let results = ctx.wholeContent;
+let response = ctx.wholeContent;
 
-results = replaceBlock(results, 'update-min-br-size', content => content.replace(/-(.*?)-/, '-' + Math.floor(fileSize('../dist/vue3-sfc-loader.js.br')/1024) + 'kB' + '-'));
-results = replaceBlock(results, 'update-min-gz-size', content => content.replace(/-(.*?)-/, '-' + Math.floor(fileSize('../dist/vue3-sfc-loader.js.gz')/1024) + 'kB' + '-'));
-results = replaceBlock(results, 'update-min-size', content => content.replace(/-(.*?)-/, '-' + Math.floor(fileSize('../dist/vue3-sfc-loader.js')/1024) + 'kB' + '-'));
+response = replaceBlock(response, 'update-min-br-size', content => content.replace(/-(.*?)-/, '-' + Math.floor(fileSize('../dist/vue3-sfc-loader.js.br')/1024) + 'kB' + '-'));
+response = replaceBlock(response, 'update-min-gz-size', content => content.replace(/-(.*?)-/, '-' + Math.floor(fileSize('../dist/vue3-sfc-loader.js.gz')/1024) + 'kB' + '-'));
+response = replaceBlock(response, 'update-min-size', content => content.replace(/-(.*?)-/, '-' + Math.floor(fileSize('../dist/vue3-sfc-loader.js')/1024) + 'kB' + '-'));
 
-results;
+response;
 
 --->
