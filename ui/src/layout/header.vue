@@ -17,27 +17,30 @@
           <li class="nav-item">
             <router-link to="/admin/queue" class="nav-link text-muted" :class="route == '/admin/queue' ? 'active' : ''">Channel</router-link>
           </li>
-          <li class="nav-item">
-            <router-link to="/admin/log/event" class="nav-link text-muted" :class="route == '/admin/log/event' ? 'active' : ''">EventLog</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/admin/log/workflow" class="nav-link text-muted" :class="route == '/admin/log/workflow' ? 'active' : ''">WorkFlowLog</router-link>
-          </li>
-<!--          <li class="nav-item dropdown">-->
-
-<!--            <a class="nav-link dropdown-toggle text-muted" :class="route == '/admin/log/success' || route == '/admin/log/error' ? 'active' : ''"  role="button" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--              Log-->
-<!--            </a>-->
-<!--            <ul class="dropdown-menu dropdown-menu-dark" >-->
-<!--              <li>-->
-<!--                <router-link to="/admin/log/success" class="dropdown-item nav-link text-muted" :class="route=='/admin/log/success' ? 'active' : ''">Success Jobs</router-link>-->
-<!--              </li>-->
-<!--              <li>-->
-<!--                <router-link to="/admin/log/error" class="dropdown-item nav-link text-muted" :class="route == '/admin/log/error' ? 'active' : ''">Fail Jobs</router-link>-->
-<!--              </li>-->
-<!--            </ul>-->
-
+<!--          <li class="nav-item">-->
+<!--            <router-link to="/admin/log/event" class="nav-link text-muted" :class="route == '/admin/log/event' ? 'active' : ''">EventLog</router-link>-->
 <!--          </li>-->
+<!--          <li class="nav-item">-->
+<!--            <router-link to="/admin/log/workflow" class="nav-link text-muted" :class="route == '/admin/log/workflow' ? 'active' : ''">WorkFlowLog</router-link>-->
+<!--          </li>-->
+          <li class="nav-item dropdown">
+
+            <a class="nav-link dropdown-toggle text-muted" :class="route == '/admin/log/event' || route == '/admin/log/workflow' ? 'active' : ''"  role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Log
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark" >
+              <li>
+                <router-link to="/admin/log/event" class="dropdown-item nav-link text-muted" :class="route=='/admin/log/event' ? 'active' : ''">EventLog</router-link>
+              </li>
+              <li>
+                <router-link to="/admin/log/dlq" class="dropdown-item nav-link text-muted" :class="route == '/admin/log/dlq' ? 'active' : ''">DLQLog</router-link>
+              </li>
+              <li>
+                <router-link to="/admin/log/workflow" class="dropdown-item nav-link text-muted" :class="route == '/admin/log/workflow' ? 'active' : ''">WorkFlowLog</router-link>
+              </li>
+            </ul>
+
+          </li>
           <li class="nav-item">
             <router-link to="/admin/redis" class="nav-link text-muted" :class="route == '/admin/redis' ? 'active' : ''">Redis</router-link>
           </li>
