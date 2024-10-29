@@ -1,13 +1,12 @@
 package redisx
 
 import (
+	"github.com/go-redis/redis/v8"
 	"github.com/retail-ai-inc/beanq/v3"
 	"github.com/spf13/viper"
 	"log"
 	"strings"
 	"sync"
-
-	"github.com/redis/go-redis/v9"
 )
 
 var (
