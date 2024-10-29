@@ -2,7 +2,9 @@ package routers
 
 import (
 	"encoding/json"
+	"github.com/retail-ai-inc/beanq/v3"
 	"github.com/retail-ai-inc/beanqui/internal/mongox"
+	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/cast"
@@ -164,16 +166,64 @@ func (t *EventLog) Retry(w http.ResponseWriter, r *http.Request) {
 	m := make(map[string]any)
 	id := r.FormValue("id")
 	m["uniqueId"] = id
+	ctx := r.Context()
 
-	payload := make(map[string]any)
-	if err := json.Unmarshal([]byte(r.FormValue("data")), &payload); err != nil {
+	data := make(map[string]any)
+	if err := json.Unmarshal([]byte(r.FormValue("data")), &data); err != nil {
 		res.Msg = err.Error()
 		res.Code = errorx.InternalServerErrorCode
 		_ = res.Json(w, http.StatusInternalServerError)
 		return
 	}
-	m["data"] = payload
-	res.Data = m
-	_ = res.Json(w, http.StatusOK)
+
+	moodType := ""
+	if v, ok := data["moodType"]; ok {
+		moodType = v.(string)
+	}
+	payload := ""
+	if v, ok := data["payload"]; ok {
+		payload = v.(string)
+	}
+	channel := ""
+	if v, ok := data["channel"]; ok {
+		channel = v.(string)
+	}
+	topic := ""
+	if v, ok := data["topic"]; ok {
+		topic = v.(string)
+	}
+
+	bq := beanq.New(&redisx.BqConfig)
+
+	if moodType == string(beanq.SEQUENTIAL) {
+		return
+	}
+	if moodType == string(beanq.DELAY) {
+		executeTime := ""
+		if v, ok := data["executeTime"]; ok {
+			executeTime = v.(string)
+		}
+		dup, err := time.ParseInLocation(time.RFC3339, executeTime, time.Local)
+		if err != nil {
+			res.Msg = err.Error()
+			res.Code = errorx.InternalServerErrorCode
+			_ = res.Json(w, http.StatusOK)
+			return
+		}
+		if err := bq.BQ().WithContext(ctx).PublishAtTime(channel, topic, []byte(payload), dup); err != nil {
+			res.Msg = err.Error()
+			res.Code = errorx.InternalServerErrorCode
+			_ = res.Json(w, http.StatusOK)
+			return
+		}
+		return
+	}
+	if err := bq.BQ().WithContext(ctx).Publish(channel, topic, []byte(payload)); err != nil {
+		res.Msg = err.Error()
+		res.Code = errorx.InternalServerErrorCode
+		_ = res.Json(w, http.StatusOK)
+		return
+	}
+
 	return
 }

@@ -2,7 +2,7 @@ package mongox
 
 import (
 	"context"
-	"github.com/retail-ai-inc/beanq"
+	"github.com/retail-ai-inc/beanq/v3"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

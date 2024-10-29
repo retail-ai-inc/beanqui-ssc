@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	. "github.com/retail-ai-inc/beanqui/internal/routers"
 	"github.com/spf13/viper"
 	"io/fs"
@@ -20,6 +21,10 @@ func init() {
 	viper.SetConfigType("json")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalln(err)
+	}
+	//Initialize configuration information
+	if err := viper.Unmarshal(&redisx.BqConfig); err != nil {
+		log.Fatalf("viper unmarshal err:%+v \n", err)
 	}
 }
 

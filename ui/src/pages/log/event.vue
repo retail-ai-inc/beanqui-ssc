@@ -75,7 +75,8 @@
                   actions
                 </button>
                 <ul class="dropdown-menu">
-                  <li v-if="item.status != 'success'"><a class="dropdown-item" href="javascript:;" @click="retryInfo(item)">Retry</a></li>
+                  <!--v-if="item.status == 'failed'"-->
+                  <li ><a class="dropdown-item" href="javascript:;" @click="retryInfo(item)">Retry</a></li>
                   <li><a class="dropdown-item" href="javascript:;" @click="deleteInfo(item)">Delete</a></li>
                   <li><a class="dropdown-item" href="javascript:;" @click="editModal(item)">Edit Payload</a></li>
                 </ul>
