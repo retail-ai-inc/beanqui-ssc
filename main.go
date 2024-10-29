@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	port string = ":9090"
+	port string = ":80"
 )
 
 func init() {
