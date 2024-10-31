@@ -124,8 +124,8 @@ func (t *EventLog) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 type editInfo struct {
-	Id      string `json:"id"`
 	Payload any    `json:"payload"`
+	Id      string `json:"id"`
 }
 
 func (t *EventLog) Edit(w http.ResponseWriter, r *http.Request) {

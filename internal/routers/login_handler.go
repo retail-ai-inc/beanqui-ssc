@@ -1,6 +1,8 @@
 package routers
 
 import (
+	"fmt"
+	"github.com/retail-ai-inc/beanqui/internal/googleAuth"
 	"net/http"
 	"time"
 
@@ -68,4 +70,68 @@ func (t *Login) Login(w http.ResponseWriter, r *http.Request) {
 	_ = result.Json(w, http.StatusOK)
 	return
 
+}
+
+func (t *Login) GoogleLogin(w http.ResponseWriter, r *http.Request) {
+	gAuth := googleAuth.New()
+	state := "test_self"
+	if state == "" {
+		//do something
+	}
+	url := gAuth.AuthCodeUrl(state)
+	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
+	w.Header().Set("Location", url)
+	w.WriteHeader(http.StatusTemporaryRedirect)
+	return
+}
+
+func (t *Login) GoogleCallBack(w http.ResponseWriter, r *http.Request) {
+
+	state := r.FormValue("state")
+	if state != "test_self" {
+		//return ctx.Redirect(http.StatusTemporaryRedirect, "/login")
+	}
+
+	code := r.FormValue("code")
+	auth := googleAuth.New()
+
+	token, err := auth.Exchange(r.Context(), code)
+
+	if err != nil {
+		fmt.Printf("--------token err:%+v \n", err)
+		//return ctx.JSON(http.StatusInternalServerError, echo.Map{"err": err.Error()})
+	}
+
+	userInfo, err := auth.Response(token.AccessToken)
+	if err != nil {
+		fmt.Printf("-------userInfo err:%+v \n", err)
+		//return ctx.JSON(http.StatusInternalServerError, echo.Map{"err": err.Error()})
+	}
+	//admin, err := handler.authService.CheckEmailByGoogleAuth(userInfo)
+	//if err != nil {
+	//	return ctx.JSON(http.StatusInternalServerError, echo.Map{"code": 10500, "msg": err.Error()})
+	//}
+	fmt.Printf("------token:%+v \n", userInfo)
+
+	claim := jwtx.Claim{
+		UserName: "111",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    viper.GetString("issuer"),
+			Subject:   viper.GetString("subject"),
+			Audience:  nil,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(viper.GetDuration("expiresAt"))),
+			NotBefore: nil,
+			IssuedAt:  nil,
+			ID:        "",
+		},
+	}
+	jwtToken, err := jwtx.MakeHsToken(claim)
+	if err != nil {
+
+	}
+	fmt.Printf("jwtToken:%+v \n", jwtToken)
+	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
+	w.Header().Set("Location", "http://localhost:9090/#/login?token="+jwtToken)
+	w.WriteHeader(http.StatusFound)
+	return
 }

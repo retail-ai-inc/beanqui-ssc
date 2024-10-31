@@ -2,6 +2,7 @@ package routers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -53,7 +54,7 @@ func Auth(next HandleFunc) HandleFunc {
 		if auth == "" {
 			auth = request.FormValue("token")
 			token, err = jwtx.ParseHsToken(auth)
-
+			fmt.Printf("======middleWare Token:%+v \n", token)
 			if err != nil {
 				result.Code = errorx.InternalServerErrorMsg
 				result.Msg = err.Error()

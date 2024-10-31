@@ -12,9 +12,9 @@ const (
 
 type HandleFunc func(w http.ResponseWriter, r *http.Request)
 type Route struct {
+	handle  HandleFunc
 	method  string
 	pattern string
-	handle  HandleFunc
 }
 
 type Router struct {

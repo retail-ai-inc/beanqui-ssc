@@ -63,6 +63,9 @@ func main() {
 	router.Put("/event_log/edit", Auth(NewEventLog().Edit))
 	router.Post("/event_log/retry", Auth(NewEventLog().Retry))
 
+	router.Get("/googleLogin", NewLogin().GoogleLogin)
+	router.Get("/callback", NewLogin().GoogleCallBack)
+
 	log.Printf("server start on port %+v", port)
 	if err := http.ListenAndServe(port, router); err != nil {
 		log.Fatalln(err)

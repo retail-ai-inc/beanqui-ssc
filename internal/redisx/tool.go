@@ -13,8 +13,8 @@ import (
 
 type ObjectStruct struct {
 	ValueAt          string
-	RefCount         int
 	Encoding         string
+	RefCount         int
 	SerizlizedLength int
 	Lru              int
 	LruSecondsIdle   int

@@ -17,12 +17,6 @@
           <li class="nav-item">
             <router-link to="/admin/queue" class="nav-link text-muted" :class="route == '/admin/queue' ? 'active' : ''">Channel</router-link>
           </li>
-<!--          <li class="nav-item">-->
-<!--            <router-link to="/admin/log/event" class="nav-link text-muted" :class="route == '/admin/log/event' ? 'active' : ''">EventLog</router-link>-->
-<!--          </li>-->
-<!--          <li class="nav-item">-->
-<!--            <router-link to="/admin/log/workflow" class="nav-link text-muted" :class="route == '/admin/log/workflow' ? 'active' : ''">WorkFlowLog</router-link>-->
-<!--          </li>-->
           <li class="nav-item dropdown">
 
             <a class="nav-link dropdown-toggle text-muted" :class="route == '/admin/log/event' || route == '/admin/log/workflow' ? 'active' : ''"  role="button" data-bs-toggle="dropdown" aria-expanded="false">

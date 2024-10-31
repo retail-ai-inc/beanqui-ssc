@@ -37,7 +37,7 @@
         </div>
       <!--search end-->
       <Pagination :page="page" :total="total" :cursor="cursor" @changePage="changePage"/>
-      <table class="table">
+      <table class="table table-striped table-hover">
         <thead>
           <tr>
             <th scope="col">#</th>
