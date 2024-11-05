@@ -45,8 +45,8 @@
               Setting
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" @click="userList">User</a></li>
-              <li><a class="dropdown-item" @click="logout">Logout</a></li>
+              <li><a class="dropdown-item" @click="userList" href="javascript:;">User</a></li>
+              <li><a class="dropdown-item" @click="logout" href="javascript:;">Logout</a></li>
             </ul>
           </div>
         </span>
