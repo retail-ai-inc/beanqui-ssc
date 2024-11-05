@@ -45,7 +45,7 @@
               Setting
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" @click="setting">Setting</a></li>
+              <li><a class="dropdown-item" @click="userList">User</a></li>
               <li><a class="dropdown-item" @click="logout">Logout</a></li>
             </ul>
           </div>
@@ -74,8 +74,8 @@ onMounted(()=>{
 watch(()=>uroute.fullPath,(newVal,oldVal)=>{
   route.value = newVal;
 })
-function setting(){
-
+function userList(){
+  urouter.push("/admin/user")
 }
 function logout(){
   sessionStorage.clear();

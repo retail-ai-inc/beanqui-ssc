@@ -4,13 +4,26 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 const (
 	FILE = "FILE"
 )
 
-type HandleFunc func(w http.ResponseWriter, r *http.Request)
+type BeanContext struct {
+	Writer  http.ResponseWriter
+	Request *http.Request
+}
+
+var bCtx = sync.Pool{New: func() any {
+	return &BeanContext{
+		Writer:  nil,
+		Request: nil,
+	}
+}}
+
+type HandleFunc func(ctx *BeanContext)
 type Route struct {
 	handle  HandleFunc
 	method  string
@@ -87,7 +100,11 @@ func (t *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Method:%+v,UserAgent:%+v,URI:%+v \n", r.Method, r.UserAgent(), r.RequestURI)
 	handle, b := t.match(pattern, method)
 	if b {
-		handle(w, r)
+		ctx := bCtx.Get().(*BeanContext)
+		ctx.Writer = w
+		ctx.Request = r
+		defer bCtx.Put(ctx)
+		handle(ctx)
 		return
 	}
 	http.NotFound(w, r)

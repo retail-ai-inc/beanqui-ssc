@@ -5,7 +5,7 @@
         {{title}}
       </div>
       <div class="col right-col" >
-        <div class="bq-box">
+        <div class="bq-box shadow p-3 mb-5 bg-body-tertiary rounded">
           <div style="width: 100%">
             <input class="form-control" type="text" placeholder="Username" name="userName" autocomplete="off" aria-label="default input example" v-model="user.username">
             <input class="form-control" type="password" placeholder="Password" name="password" autocomplete="off" aria-label="default input example" style="margin-top: 0.9375rem" v-model="user.password">
@@ -87,12 +87,7 @@ const {user,msg,title} = toRefs(data);
 .bq-box{
   display: flex;width: 70%;
   background: #fff;
-  padding: 1.56rem;
-  border:0.0625rem solid #ced4da;
-  border-radius: 0.3125rem;
-  box-shadow:0.1rem 0.2rem 0.2rem #ccc;
   flex-direction: column;
-  align-items: flex-start;
   justify-content: center;
   margin-left: 1.875rem;
 }

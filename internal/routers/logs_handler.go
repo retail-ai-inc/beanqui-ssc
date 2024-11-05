@@ -18,7 +18,7 @@ func NewLogs() *Logs {
 	return &Logs{}
 }
 
-func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
+func (t *Logs) List(ctx *BeanContext) {
 
 	resultRes, cancel := response.Get()
 	defer cancel()
@@ -27,6 +27,8 @@ func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
 		dataType string = "success"
 		matchStr string = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "success"}, ":")
 	)
+	w := ctx.Writer
+	r := ctx.Request
 
 	dataType = r.FormValue("type")
 	gCursor := cast.ToUint64(r.FormValue("cursor"))

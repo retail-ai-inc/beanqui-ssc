@@ -20,7 +20,10 @@ func NewLogin() *Login {
 	return &Login{}
 }
 
-func (t *Login) Login(w http.ResponseWriter, r *http.Request) {
+func (t *Login) Login(ctx *BeanContext) {
+
+	r := ctx.Request
+	w := ctx.Writer
 
 	username := r.PostFormValue("username")
 	password := r.PostFormValue("password")
@@ -72,7 +75,9 @@ func (t *Login) Login(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (t *Login) GoogleLogin(w http.ResponseWriter, r *http.Request) {
+func (t *Login) GoogleLogin(ctx *BeanContext) {
+	w := ctx.Writer
+
 	gAuth := googleAuth.New()
 	state := "test_self"
 	if state == "" {
@@ -85,7 +90,10 @@ func (t *Login) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (t *Login) GoogleCallBack(w http.ResponseWriter, r *http.Request) {
+func (t *Login) GoogleCallBack(ctx *BeanContext) {
+
+	r := ctx.Request
+	w := ctx.Writer
 
 	state := r.FormValue("state")
 	if state != "test_self" {

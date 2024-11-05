@@ -16,6 +16,8 @@
       scheduleApi,
       eventApi,
       loginApi,
+      userApi,
+      dlqApi,
       //apis end
     },
 
@@ -57,6 +59,7 @@
           // { path: 'log/error',component:()=>loadModule("./src/pages/log/error.vue",options)},
           { path: 'log/detail/:id',component:()=>loadModule("./src/pages/log/detail.vue",options)},
           { path: 'redis', component: () => loadModule("./src/pages/redis.vue", options) },
+          { path: 'user',component:()=>loadModule("./src/pages/user.vue",options)}
         ]
   };
   // login route

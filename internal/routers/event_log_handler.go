@@ -21,7 +21,10 @@ func NewEventLog() *EventLog {
 	return &EventLog{}
 }
 
-func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
+func (t *EventLog) List(ctx *BeanContext) {
+
+	r := ctx.Request
+	w := ctx.Writer
 
 	result, cancel := response.Get()
 	defer func() {
@@ -60,15 +63,15 @@ func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
 	defer ticker.Stop()
 
 	datas := make(map[string]any, 3)
-	ctx := r.Context()
+	nctx := r.Context()
 
 	for {
 		select {
-		case <-ctx.Done():
+		case <-nctx.Done():
 			return
 		case <-ticker.C:
 
-			data, total, err := mog.EventLogs(ctx, filter, page, pageSize)
+			data, total, err := mog.EventLogs(nctx, filter, page, pageSize)
 			if err != nil {
 				result.Code = "1001"
 				result.Msg = err.Error()
@@ -87,9 +90,12 @@ func (t *EventLog) List(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (t *EventLog) Detail(w http.ResponseWriter, r *http.Request) {
+func (t *EventLog) Detail(ctx *BeanContext) {
 	res, cancel := response.Get()
 	defer cancel()
+
+	r := ctx.Request
+	w := ctx.Writer
 
 	id := r.URL.Query().Get("id")
 	mog := mongox.NewMongo()
@@ -105,9 +111,12 @@ func (t *EventLog) Detail(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (t *EventLog) Delete(w http.ResponseWriter, r *http.Request) {
+func (t *EventLog) Delete(ctx *BeanContext) {
 	res, cancel := response.Get()
 	defer cancel()
+
+	w := ctx.Writer
+	r := ctx.Request
 
 	id := r.URL.Query().Get("id")
 	mog := mongox.NewMongo()
@@ -128,9 +137,12 @@ type editInfo struct {
 	Id      string `json:"id"`
 }
 
-func (t *EventLog) Edit(w http.ResponseWriter, r *http.Request) {
+func (t *EventLog) Edit(ctx *BeanContext) {
 	res, cancel := response.Get()
 	defer cancel()
+
+	r := ctx.Request
+	w := ctx.Writer
 
 	var info editInfo
 	b, err := io.ReadAll(r.Body)
@@ -160,13 +172,17 @@ func (t *EventLog) Edit(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (t *EventLog) Retry(w http.ResponseWriter, r *http.Request) {
+func (t *EventLog) Retry(ctx *BeanContext) {
 	res, cancel := response.Get()
 	defer cancel()
+
+	w := ctx.Writer
+	r := ctx.Request
+
 	m := make(map[string]any)
 	id := r.FormValue("id")
 	m["uniqueId"] = id
-	ctx := r.Context()
+	nctx := r.Context()
 
 	data := make(map[string]any)
 	if err := json.Unmarshal([]byte(r.FormValue("data")), &data); err != nil {
@@ -210,7 +226,7 @@ func (t *EventLog) Retry(w http.ResponseWriter, r *http.Request) {
 			_ = res.Json(w, http.StatusOK)
 			return
 		}
-		if err := bq.BQ().WithContext(ctx).PublishAtTime(channel, topic, []byte(payload), dup); err != nil {
+		if err := bq.BQ().WithContext(nctx).PublishAtTime(channel, topic, []byte(payload), dup); err != nil {
 			res.Msg = err.Error()
 			res.Code = errorx.InternalServerErrorCode
 			_ = res.Json(w, http.StatusOK)
@@ -218,7 +234,7 @@ func (t *EventLog) Retry(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	if err := bq.BQ().WithContext(ctx).Publish(channel, topic, []byte(payload)); err != nil {
+	if err := bq.BQ().WithContext(nctx).Publish(channel, topic, []byte(payload)); err != nil {
 		res.Msg = err.Error()
 		res.Code = errorx.InternalServerErrorCode
 		_ = res.Json(w, http.StatusOK)

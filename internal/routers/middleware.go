@@ -13,10 +13,12 @@ import (
 )
 
 func Auth(next HandleFunc) HandleFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
+	return func(ctx *BeanContext) {
 
 		result, cancelr := response.Get()
 		defer cancelr()
+		request := ctx.Request
+		writer := ctx.Writer
 
 		accept := request.Header.Get("Accept")
 		//for SSE
@@ -72,6 +74,6 @@ func Auth(next HandleFunc) HandleFunc {
 			return
 		}
 
-		next(writer, request)
+		next(ctx)
 	}
 }

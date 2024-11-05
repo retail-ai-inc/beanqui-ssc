@@ -18,10 +18,13 @@ func NewDashboard() *Dashboard {
 	return &Dashboard{}
 }
 
-func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
+func (t *Dashboard) Info(ctx *BeanContext) {
 
 	result, cancel := response.Get()
 	defer cancel()
+
+	w := ctx.Writer
+	r := ctx.Request
 
 	numCpu := runtime.NumCPU()
 

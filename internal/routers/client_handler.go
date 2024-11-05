@@ -14,7 +14,10 @@ func NewClient() *Client {
 	return &Client{}
 }
 
-func (t *Client) List(w http.ResponseWriter, r *http.Request) {
+func (t *Client) List(ctx *BeanContext) {
+
+	r := ctx.Request
+	w := ctx.Writer
 
 	result, cancel := response.Get()
 	defer cancel()

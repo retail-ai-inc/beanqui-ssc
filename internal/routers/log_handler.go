@@ -22,10 +22,12 @@ func NewLog() *Log {
 }
 
 // del ,retry,archive,detail
-func (t *Log) List(w http.ResponseWriter, r *http.Request) {
+func (t *Log) List(beanContext *BeanContext) {
 
 	result, cancel := response.Get()
 	defer cancel()
+	r := beanContext.Request
+	w := beanContext.Writer
 
 	id := r.FormValue("id")
 	msgType := r.FormValue("msgType")
@@ -50,10 +52,13 @@ func (t *Log) List(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
+func (t *Log) Retry(beanContext *BeanContext) {
 
 	result, cancel := response.Get()
 	defer cancel()
+
+	r := beanContext.Request
+	w := beanContext.Writer
 
 	id := r.PostFormValue("id")
 	msgType := r.PostFormValue("msgType")
@@ -75,9 +80,12 @@ func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (t *Log) Delete(w http.ResponseWriter, r *http.Request) {
+func (t *Log) Delete(beanContext *BeanContext) {
 	result, cancel := response.Get()
 	defer cancel()
+
+	w := beanContext.Writer
+	r := beanContext.Request
 
 	msgType := r.FormValue("msgType")
 	score := r.FormValue("score")
