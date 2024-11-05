@@ -1,5 +1,5 @@
 <template>
-  <div class="workflow">
+  <div class="dlq">
     <table class="table table-striped table-hover">
       <thead>
       <tr>
@@ -61,7 +61,6 @@ let data = reactive({
 onMounted(async ()=>{
   let res = await dlqApi.List();
   data.dlqLogs = res.data;
-  console.info(res)
 })
 
 function detailDlq(item){
@@ -79,7 +78,7 @@ function deleteItem(item){
 const {dlqLogs} = toRefs(data);
 </script>
 <style scoped>
-.workflow{
+.dlq{
   transition: opacity 0.5s ease;
   opacity: 1;
 }
