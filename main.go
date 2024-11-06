@@ -64,6 +64,9 @@ func main() {
 	router.Post("/event_log/retry", Auth(NewEventLog().Retry))
 
 	router.Get("/user/list", Auth(NewUser().List))
+	router.Post("/user/add", Auth(NewUser().Add))
+	router.Delete("/user/del", Auth(NewUser().Delete))
+	router.Put("/user/edit", Auth(NewUser().Edit))
 
 	router.Get("/googleLogin", NewLogin().GoogleLogin)
 	router.Get("/callback", NewLogin().GoogleCallBack)
