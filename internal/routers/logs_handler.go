@@ -18,7 +18,7 @@ func NewLogs() *Logs {
 	return &Logs{}
 }
 
-func (t *Logs) List(ctx *BeanContext) {
+func (t *Logs) List(ctx *BeanContext) error {
 
 	resultRes, cancel := response.Get()
 	defer cancel()
@@ -37,9 +37,7 @@ func (t *Logs) List(ctx *BeanContext) {
 		resultRes.Code = errorx.TypeErrorCode
 		resultRes.Msg = errorx.TypeErrorMsg
 
-		_ = resultRes.Json(w, http.StatusInternalServerError)
-		return
-
+		return resultRes.Json(w, http.StatusInternalServerError)
 	}
 
 	if dataType == "error" {
@@ -57,8 +55,7 @@ func (t *Logs) List(ctx *BeanContext) {
 	if err != nil {
 		resultRes.Code = "1005"
 		resultRes.Msg = err.Error()
-		_ = resultRes.Json(w, http.StatusInternalServerError)
-		return
+		return resultRes.Json(w, http.StatusInternalServerError)
 	}
 
 	msgs := make([]*redisx.Msg, 0, 10)
@@ -78,6 +75,6 @@ func (t *Logs) List(ctx *BeanContext) {
 	data["cursor"] = cursor
 	resultRes.Data = data
 
-	_ = resultRes.Json(w, http.StatusOK)
-	return
+	return resultRes.Json(w, http.StatusOK)
+
 }

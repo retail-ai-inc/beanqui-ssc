@@ -17,7 +17,7 @@ func NewDlq() *Dlq {
 	return &Dlq{}
 }
 
-func (t *Dlq) List(ctx *BeanContext) {
+func (t *Dlq) List(ctx *BeanContext) error {
 
 	w := ctx.Writer
 	r := ctx.Request
@@ -31,8 +31,8 @@ func (t *Dlq) List(ctx *BeanContext) {
 	if err != nil {
 		res.Code = errorx.InternalServerErrorMsg
 		res.Msg = err.Error()
-		_ = res.Json(w, http.StatusOK)
-		return
+		return res.Json(w, http.StatusOK)
+
 	}
 	data := make([]map[string]any, 0)
 	for _, msg := range msgs {
@@ -44,6 +44,6 @@ func (t *Dlq) List(ctx *BeanContext) {
 		}
 	}
 	res.Data = data
-	_ = res.Json(w, http.StatusOK)
-	return
+	return res.Json(w, http.StatusOK)
+
 }

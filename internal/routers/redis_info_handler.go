@@ -14,7 +14,7 @@ type RedisInfo struct {
 func NewRedisInfo() *RedisInfo {
 	return &RedisInfo{}
 }
-func (t *RedisInfo) Info(ctx *BeanContext) {
+func (t *RedisInfo) Info(ctx *BeanContext) error {
 
 	result, cancel := response.Get()
 	defer cancel()
@@ -24,7 +24,7 @@ func (t *RedisInfo) Info(ctx *BeanContext) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "server error", http.StatusInternalServerError)
-		return
+		return nil
 	}
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -37,7 +37,7 @@ func (t *RedisInfo) Info(ctx *BeanContext) {
 	for {
 		select {
 		case <-nctx.Done():
-			return
+			return nctx.Err()
 		case <-ticker.C:
 			d, err := redisx.Info(nctx)
 

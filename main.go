@@ -39,12 +39,13 @@ func main() {
 	// init http server
 	router := NewRouter()
 	// FS static files
-	router.File("/", func(ctx *BeanContext) {
+	router.File("/", func(ctx *BeanContext) error {
 		fd, err := fs.Sub(folder, "ui")
 		if err != nil {
 			log.Fatalf("static files error:%+v \n", err)
 		}
 		http.FileServer(http.FS(fd)).ServeHTTP(ctx.Writer, ctx.Request)
+		return nil
 	})
 
 	router.Get("/ping", ping)
@@ -80,7 +81,7 @@ func main() {
 
 }
 
-func ping(ctx *BeanContext) {
+func ping(ctx *BeanContext) error {
 
 	// clientId := r.Header.Get("Client-Id")
 	// clientSecret := r.Header.Get("Client-Secret")
@@ -96,6 +97,6 @@ func ping(ctx *BeanContext) {
 	// }
 	ctx.Writer.WriteHeader(http.StatusOK)
 	_, _ = ctx.Writer.Write([]byte("pong"))
-	return
+	return nil
 
 }

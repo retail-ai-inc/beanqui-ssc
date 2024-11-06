@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -23,7 +24,7 @@ var bCtx = sync.Pool{New: func() any {
 	}
 }}
 
-type HandleFunc func(ctx *BeanContext)
+type HandleFunc func(ctx *BeanContext) error
 type Route struct {
 	handle  HandleFunc
 	method  string
@@ -104,7 +105,12 @@ func (t *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ctx.Writer = w
 		ctx.Request = r
 		defer bCtx.Put(ctx)
-		handle(ctx)
+		if err := handle(ctx); err != nil {
+			w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			w.Header().Set("X-Content-Type-Options", "nosniff")
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = fmt.Fprintln(w, err)
+		}
 		return
 	}
 	http.NotFound(w, r)

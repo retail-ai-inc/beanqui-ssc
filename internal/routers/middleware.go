@@ -13,7 +13,7 @@ import (
 )
 
 func Auth(next HandleFunc) HandleFunc {
-	return func(ctx *BeanContext) {
+	return func(ctx *BeanContext) error {
 
 		result, cancelr := response.Get()
 		defer cancelr()
@@ -40,8 +40,8 @@ func Auth(next HandleFunc) HandleFunc {
 				// return data format err
 				result.Code = errorx.InternalServerErrorCode
 				result.Msg = "missing parameter"
-				_ = result.Json(writer, http.StatusInternalServerError)
-				return
+				return result.Json(writer, http.StatusInternalServerError)
+
 			}
 
 			token, err = jwtx.ParseHsToken(strs[1])
@@ -49,8 +49,8 @@ func Auth(next HandleFunc) HandleFunc {
 			if err != nil {
 				result.Code = errorx.InternalServerErrorCode
 				result.Msg = err.Error()
-				_ = result.Json(writer, http.StatusUnauthorized)
-				return
+				return result.Json(writer, http.StatusUnauthorized)
+
 			}
 		}
 		if auth == "" {
@@ -60,8 +60,8 @@ func Auth(next HandleFunc) HandleFunc {
 			if err != nil {
 				result.Code = errorx.InternalServerErrorMsg
 				result.Msg = err.Error()
-				_ = result.Json(writer, http.StatusUnauthorized)
-				return
+				return result.Json(writer, http.StatusUnauthorized)
+
 			}
 		}
 
@@ -70,10 +70,9 @@ func Auth(next HandleFunc) HandleFunc {
 		if err != nil {
 			result.Code = errorx.AuthExpireCode
 			result.Msg = err.Error()
-			_ = result.Json(writer, http.StatusUnauthorized)
-			return
-		}
+			return result.Json(writer, http.StatusUnauthorized)
 
-		next(ctx)
+		}
+		return next(ctx)
 	}
 }

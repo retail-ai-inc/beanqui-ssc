@@ -180,10 +180,10 @@ async function addUser(e){
 async function editUser(){
   console.info(data.userForm);
   let res = await userApi.Edit(data.userForm);
+  data.addUserDetail.hide();
   let users = await userApi.List();
   data.users = users.data;
   return
-  console.log(res);
 }
 
 async function deleteUser(item){
@@ -194,7 +194,6 @@ async function deleteUser(item){
     data.users = res.data;
     return
   }
-  console.log(res);
 }
 
 function editUserModal(item){

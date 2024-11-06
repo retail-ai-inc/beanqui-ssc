@@ -17,7 +17,7 @@ func NewUser() *User {
 	return &User{}
 }
 
-func (t *User) List(ctx *BeanContext) {
+func (t *User) List(ctx *BeanContext) error {
 
 	res, cancel := response.Get()
 	defer cancel()
@@ -32,8 +32,7 @@ func (t *User) List(ctx *BeanContext) {
 	if err != nil {
 		res.Code = errorx.InternalServerErrorMsg
 		res.Msg = err.Error()
-		_ = res.Json(w, http.StatusOK)
-		return
+		return res.Json(w, http.StatusOK)
 	}
 
 	data := make([]any, 0)
@@ -48,12 +47,10 @@ func (t *User) List(ctx *BeanContext) {
 		data = append(data, r)
 	}
 	res.Data = data
-	_ = res.Json(w, http.StatusOK)
-	return
-
+	return res.Json(w, http.StatusOK)
 }
 
-func (t *User) Add(ctx *BeanContext) {
+func (t *User) Add(ctx *BeanContext) error {
 	res, cancal := response.Get()
 	defer cancal()
 
@@ -69,8 +66,8 @@ func (t *User) Add(ctx *BeanContext) {
 	if account == "" {
 		res.Code = errorx.MissParameterCode
 		res.Msg = "missing account"
-		_ = res.Json(w, http.StatusOK)
-		return
+		return res.Json(w, http.StatusOK)
+
 	}
 
 	client := redisx.Client()
@@ -85,15 +82,13 @@ func (t *User) Add(ctx *BeanContext) {
 	if err := client.HSet(r.Context(), key, data).Err(); err != nil {
 		res.Code = errorx.InternalServerErrorCode
 		res.Msg = err.Error()
-		_ = res.Json(w, http.StatusOK)
-		return
-	}
-	_ = res.Json(w, http.StatusOK)
-	return
+		return res.Json(w, http.StatusOK)
 
+	}
+	return res.Json(w, http.StatusOK)
 }
 
-func (t *User) Delete(ctx *BeanContext) {
+func (t *User) Delete(ctx *BeanContext) error {
 
 	res, cancel := response.Get()
 	defer cancel()
@@ -101,8 +96,8 @@ func (t *User) Delete(ctx *BeanContext) {
 	if account == "" {
 		res.Code = errorx.MissParameterMsg
 		res.Msg = "missing account field"
-		_ = res.Json(ctx.Writer, http.StatusOK)
-		return
+		return res.Json(ctx.Writer, http.StatusOK)
+
 	}
 
 	client := redisx.Client()
@@ -110,15 +105,14 @@ func (t *User) Delete(ctx *BeanContext) {
 	if err := client.Del(ctx.Request.Context(), key).Err(); err != nil {
 		res.Code = errorx.InternalServerErrorCode
 		res.Msg = err.Error()
-		_ = res.Json(ctx.Writer, http.StatusOK)
-		return
+		return res.Json(ctx.Writer, http.StatusOK)
+
 	}
-	_ = res.Json(ctx.Writer, http.StatusOK)
-	return
+	return res.Json(ctx.Writer, http.StatusOK)
 
 }
 
-func (t *User) Edit(ctx *BeanContext) {
+func (t *User) Edit(ctx *BeanContext) error {
 
 	res, cancel := response.Get()
 	defer cancel()
@@ -144,9 +138,9 @@ func (t *User) Edit(ctx *BeanContext) {
 	if err := client.HSet(r.Context(), key, data).Err(); err != nil {
 		res.Code = errorx.InternalServerErrorMsg
 		res.Msg = err.Error()
-		_ = res.Json(w, http.StatusOK)
-		return
+		return res.Json(w, http.StatusOK)
+
 	}
-	_ = res.Json(w, http.StatusOK)
-	return
+	return res.Json(w, http.StatusOK)
+
 }

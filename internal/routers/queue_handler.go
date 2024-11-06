@@ -18,7 +18,7 @@ func NewQueue() *Queue {
 	return &Queue{}
 }
 
-func (t *Queue) List(ctx *BeanContext) {
+func (t *Queue) List(ctx *BeanContext) error {
 	result, cancel := response.Get()
 	defer cancel()
 
@@ -26,18 +26,16 @@ func (t *Queue) List(ctx *BeanContext) {
 	if err != nil {
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
-		_ = result.Json(ctx.Writer, http.StatusInternalServerError)
-		return
+		return result.Json(ctx.Writer, http.StatusInternalServerError)
 	}
 
 	result.Data = bt
-	_ = result.Json(ctx.Writer, http.StatusOK)
-	return
+	return result.Json(ctx.Writer, http.StatusOK)
 
 }
-func (t *Queue) Detail(ctx *BeanContext) {
+func (t *Queue) Detail(ctx *BeanContext) error {
 	queueDetail(ctx.Writer, ctx.Request)
-	return
+	return nil
 }
 
 func queueDetail(w http.ResponseWriter, r *http.Request) {

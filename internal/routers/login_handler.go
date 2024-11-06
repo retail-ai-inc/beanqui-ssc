@@ -20,7 +20,7 @@ func NewLogin() *Login {
 	return &Login{}
 }
 
-func (t *Login) Login(ctx *BeanContext) {
+func (t *Login) Login(ctx *BeanContext) error {
 
 	r := ctx.Request
 	w := ctx.Writer
@@ -43,8 +43,7 @@ func (t *Login) Login(ctx *BeanContext) {
 	if username != user || password != pwd {
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = "username or password mismatch"
-		_ = result.Json(w, http.StatusUnauthorized)
-		return
+		return result.Json(w, http.StatusUnauthorized)
 	}
 
 	claim := jwtx.Claim{
@@ -64,18 +63,16 @@ func (t *Login) Login(ctx *BeanContext) {
 	if err != nil {
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
-		_ = result.Json(w, http.StatusInternalServerError)
-		return
+		return result.Json(w, http.StatusInternalServerError)
 	}
 
 	result.Data = map[string]any{"token": token}
 
-	_ = result.Json(w, http.StatusOK)
-	return
+	return result.Json(w, http.StatusOK)
 
 }
 
-func (t *Login) GoogleLogin(ctx *BeanContext) {
+func (t *Login) GoogleLogin(ctx *BeanContext) error {
 	w := ctx.Writer
 
 	gAuth := googleAuth.New()
@@ -87,13 +84,16 @@ func (t *Login) GoogleLogin(ctx *BeanContext) {
 	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
 	w.Header().Set("Location", url)
 	w.WriteHeader(http.StatusTemporaryRedirect)
-	return
+	return nil
 }
 
-func (t *Login) GoogleCallBack(ctx *BeanContext) {
+func (t *Login) GoogleCallBack(ctx *BeanContext) error {
 
 	r := ctx.Request
 	w := ctx.Writer
+
+	res, cancel := response.Get()
+	defer cancel()
 
 	state := r.FormValue("state")
 	if state != "test_self" {
@@ -106,14 +106,16 @@ func (t *Login) GoogleCallBack(ctx *BeanContext) {
 	token, err := auth.Exchange(r.Context(), code)
 
 	if err != nil {
-		fmt.Printf("--------token err:%+v \n", err)
-		//return ctx.JSON(http.StatusInternalServerError, echo.Map{"err": err.Error()})
+		res.Code = errorx.InternalServerErrorCode
+		res.Msg = err.Error()
+		return res.Json(w, http.StatusOK)
 	}
 
 	userInfo, err := auth.Response(token.AccessToken)
 	if err != nil {
-		fmt.Printf("-------userInfo err:%+v \n", err)
-		//return ctx.JSON(http.StatusInternalServerError, echo.Map{"err": err.Error()})
+		res.Code = errorx.InternalServerErrorCode
+		res.Msg = err.Error()
+		return res.Json(w, http.StatusOK)
 	}
 	//admin, err := handler.authService.CheckEmailByGoogleAuth(userInfo)
 	//if err != nil {
@@ -135,11 +137,12 @@ func (t *Login) GoogleCallBack(ctx *BeanContext) {
 	}
 	jwtToken, err := jwtx.MakeHsToken(claim)
 	if err != nil {
-
+		res.Code = errorx.InternalServerErrorCode
+		res.Msg = err.Error()
+		return res.Json(w, http.StatusOK)
 	}
-	fmt.Printf("jwtToken:%+v \n", jwtToken)
 	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
 	w.Header().Set("Location", "http://localhost:9090/#/login?token="+jwtToken)
 	w.WriteHeader(http.StatusFound)
-	return
+	return nil
 }
