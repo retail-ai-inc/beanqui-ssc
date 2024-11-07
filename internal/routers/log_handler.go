@@ -94,9 +94,6 @@ func (t *Log) Delete(beanContext *BeanContext) error {
 	return result.Json(w, http.StatusOK)
 }
 func (t *Log) Add(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPut {
-
-	}
 }
 
 // log detail

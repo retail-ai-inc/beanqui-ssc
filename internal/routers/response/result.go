@@ -26,6 +26,7 @@ func (t *Result) reset() {
 func (t *Result) Json(w http.ResponseWriter, httpCode int) error {
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(httpCode)
 
 	if err := json.NewEncoder(w).Encode(t); err != nil {
@@ -34,6 +35,7 @@ func (t *Result) Json(w http.ResponseWriter, httpCode int) error {
 
 	return nil
 }
+
 func (t *Result) EventMsg(w http.ResponseWriter, eventName string) error {
 
 	b, err := json.Marshal(t)

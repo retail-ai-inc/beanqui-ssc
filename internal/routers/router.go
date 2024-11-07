@@ -114,5 +114,5 @@ func (t *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.NotFound(w, r)
-	return
+
 }

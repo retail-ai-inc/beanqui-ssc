@@ -24,8 +24,8 @@ func (t *Logs) List(ctx *BeanContext) error {
 	defer cancel()
 
 	var (
-		dataType string = "success"
-		matchStr string = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "success"}, ":")
+		dataType string
+		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "success"}, ":")
 	)
 	w := ctx.Writer
 	r := ctx.Request

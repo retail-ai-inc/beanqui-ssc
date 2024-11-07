@@ -3,7 +3,9 @@ package routers
 import (
 	"fmt"
 	"github.com/retail-ai-inc/beanqui/internal/googleAuth"
+	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -76,10 +78,7 @@ func (t *Login) GoogleLogin(ctx *BeanContext) error {
 	w := ctx.Writer
 
 	gAuth := googleAuth.New()
-	state := "test_self"
-	if state == "" {
-		//do something
-	}
+	state := viper.GetString("googleAuth.state")
 	url := gAuth.AuthCodeUrl(state)
 	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
 	w.Header().Set("Location", url)
@@ -97,7 +96,8 @@ func (t *Login) GoogleCallBack(ctx *BeanContext) error {
 
 	state := r.FormValue("state")
 	if state != "test_self" {
-		//return ctx.Redirect(http.StatusTemporaryRedirect, "/login")
+		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+		return nil
 	}
 
 	code := r.FormValue("code")
@@ -117,14 +117,29 @@ func (t *Login) GoogleCallBack(ctx *BeanContext) error {
 		res.Msg = err.Error()
 		return res.Json(w, http.StatusOK)
 	}
-	//admin, err := handler.authService.CheckEmailByGoogleAuth(userInfo)
-	//if err != nil {
-	//	return ctx.JSON(http.StatusInternalServerError, echo.Map{"code": 10500, "msg": err.Error()})
-	//}
-	fmt.Printf("------token:%+v \n", userInfo)
+
+	client := redisx.Client()
+	key := strings.Join([]string{viper.GetString("redis.prefix"), "users", userInfo.Email}, ":")
+	result, err := client.HGetAll(r.Context(), key).Result()
+	if err != nil {
+		res.Code = errorx.InternalServerErrorCode
+		res.Msg = err.Error()
+		return res.Json(w, http.StatusOK)
+	}
+	if result == nil {
+		res.Code = errorx.InternalServerErrorCode
+		res.Msg = "data empty"
+		return res.Json(w, http.StatusOK)
+	}
+
+	if result["active"] == "2" {
+		res.Code = errorx.AuthExpireCode
+		res.Msg = "No permission"
+		return res.Json(w, http.StatusOK)
+	}
 
 	claim := jwtx.Claim{
-		UserName: "111",
+		UserName: userInfo.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    viper.GetString("issuer"),
 			Subject:   viper.GetString("subject"),
@@ -141,8 +156,17 @@ func (t *Login) GoogleCallBack(ctx *BeanContext) error {
 		res.Msg = err.Error()
 		return res.Json(w, http.StatusOK)
 	}
+	proto := r.Header.Get("X-Forwarded-Proto")
+	if proto == "" {
+		proto = "http"
+		if r.TLS != nil {
+			proto = "https"
+		}
+	}
+	url := fmt.Sprintf("%s://%s/#/login?token=%s", proto, r.Host, jwtToken)
+
 	w.Header().Set("Content-Type", "text/html;charset=UTF-8")
-	w.Header().Set("Location", "http://localhost:9090/#/login?token="+jwtToken)
+	w.Header().Set("Location", url)
 	w.WriteHeader(http.StatusFound)
 	return nil
 }
