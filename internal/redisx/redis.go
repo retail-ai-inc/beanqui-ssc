@@ -11,7 +11,7 @@ import (
 
 var (
 	redisOnce sync.Once
-	client    redis.UniversalClient
+	rdb       redis.UniversalClient
 	BqConfig  beanq.BeanqConfig
 )
 
@@ -29,7 +29,7 @@ func Client() redis.UniversalClient {
 				hosts[i] = strings.Join([]string{h, BqConfig.Redis.Port}, ":")
 			}
 		}
-		client = redis.NewUniversalClient(&redis.UniversalOptions{
+		rdb = redis.NewUniversalClient(&redis.UniversalOptions{
 			Addrs:        hosts,
 			Password:     BqConfig.Redis.Password,
 			DB:           BqConfig.Redis.Database,
@@ -44,5 +44,5 @@ func Client() redis.UniversalClient {
 		})
 	})
 
-	return client
+	return rdb
 }

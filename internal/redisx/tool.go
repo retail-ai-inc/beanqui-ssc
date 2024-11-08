@@ -22,8 +22,8 @@ type ObjectStruct struct {
 }
 
 func Object(ctx context.Context, queueName string) (objstr ObjectStruct) {
-	client = Client()
-	obj := client.DebugObject(ctx, queueName)
+	rdb = Client()
+	obj := rdb.DebugObject(ctx, queueName)
 
 	str, _ := obj.Result()
 	// Value at:0x7fc38fe77cc0 refcount:1 encoding:stream serializedlength:12 lru:7878503 lru_seconds_idle:3
@@ -57,58 +57,58 @@ func Object(ctx context.Context, queueName string) (objstr ObjectStruct) {
 }
 
 func DbSize(ctx context.Context) (int64, error) {
-	client = Client()
-	return client.DBSize(ctx).Result()
+	rdb = Client()
+	return rdb.DBSize(ctx).Result()
 }
 
 func ZCard(ctx context.Context, key string) int64 {
-	client = Client()
-	return client.ZCard(ctx, key).Val()
+	rdb = Client()
+	return rdb.ZCard(ctx, key).Val()
 }
 
 func HGetAll(ctx context.Context, key string) (map[string]string, error) {
-	client = Client()
-	return client.HGetAll(ctx, key).Result()
+	rdb = Client()
+	return rdb.HGetAll(ctx, key).Result()
 }
 
 func HSet(ctx context.Context, key string, data map[string]any) error {
-	client = Client()
-	return client.HSet(ctx, key, data).Err()
+	rdb = Client()
+	return rdb.HSet(ctx, key, data).Err()
 }
 
 func Del(ctx context.Context, key string) error {
-	client = Client()
-	return client.Del(ctx, key).Err()
+	rdb = Client()
+	return rdb.Del(ctx, key).Err()
 }
 
 func ZScan(ctx context.Context, key string, cursor uint64, match string, count int64) ([]string, uint64, error) {
-	client = Client()
-	return client.ZScan(ctx, key, cursor, match, count).Result()
+	rdb = Client()
+	return rdb.ZScan(ctx, key, cursor, match, count).Result()
 }
 
 func XRevRange(ctx context.Context, stream, start, stop string) ([]redis.XMessage, error) {
-	client = Client()
-	return client.XRevRange(ctx, stream, start, stop).Result()
+	rdb = Client()
+	return rdb.XRevRange(ctx, stream, start, stop).Result()
 }
 
 func ZRemRangeByScore(ctx context.Context, key, min, max string) error {
-	client = Client()
-	return client.ZRemRangeByScore(ctx, key, min, max).Err()
+	rdb = Client()
+	return rdb.ZRemRangeByScore(ctx, key, min, max).Err()
 }
 
 func XRangeN(ctx context.Context, stream string, start, stop string, count int64) ([]redis.XMessage, error) {
-	client = Client()
-	return client.XRangeN(ctx, stream, start, stop, count).Result()
+	rdb = Client()
+	return rdb.XRangeN(ctx, stream, start, stop, count).Result()
 }
 
 func Monitor(ctx context.Context) string {
-	client = Client()
-	return client.Do(ctx, "MONITOR").String()
+	rdb = Client()
+	return rdb.Do(ctx, "MONITOR").String()
 }
 
 func Keys(ctx context.Context, key string) ([]string, error) {
-	client = Client()
-	cmd := client.Keys(ctx, key)
+	rdb = Client()
+	cmd := rdb.Keys(ctx, key)
 	queues, err := cmd.Result()
 	if err != nil {
 		return nil, err
@@ -116,8 +116,8 @@ func Keys(ctx context.Context, key string) ([]string, error) {
 	return queues, nil
 }
 func Info(ctx context.Context) (map[string]string, error) {
-	client = Client()
-	infoStr, err := client.Info(ctx).Result()
+	rdb = Client()
+	infoStr, err := rdb.Info(ctx).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -134,8 +134,8 @@ func Info(ctx context.Context) (map[string]string, error) {
 }
 
 func Memory(ctx context.Context) (map[string]any, error) {
-	client = Client()
-	memory, err := client.Info(ctx, "MEMORY").Result()
+	rdb = Client()
+	memory, err := rdb.Info(ctx, "MEMORY").Result()
 	if err != nil {
 		return nil, err
 	}
@@ -155,8 +155,8 @@ func Memory(ctx context.Context) (map[string]any, error) {
 }
 
 func CommandStats(ctx context.Context) ([]map[string]any, error) {
-	client = Client()
-	command, err := client.Info(ctx, "Commandstats").Result()
+	rdb = Client()
+	command, err := rdb.Info(ctx, "Commandstats").Result()
 	if err != nil {
 		return nil, err
 	}
@@ -187,8 +187,8 @@ func CommandStats(ctx context.Context) ([]map[string]any, error) {
 }
 
 func ClientList(ctx context.Context) ([]map[string]any, error) {
-	client = Client()
-	cmd := client.ClientList(ctx)
+	rdb = Client()
+	cmd := rdb.ClientList(ctx)
 	if err := cmd.Err(); err != nil {
 		return nil, err
 	}
@@ -219,8 +219,8 @@ func ClientList(ctx context.Context) ([]map[string]any, error) {
 	return rdata, nil
 }
 func ZRange(ctx context.Context, match string, page, pageSize int64) (map[string]any, error) {
-	client = Client()
-	cmd := client.ZRange(ctx, match, page, pageSize)
+	rdb = Client()
+	cmd := rdb.ZRange(ctx, match, page, pageSize)
 	if cmd.Err() != nil {
 		return nil, cmd.Err()
 	}
@@ -232,14 +232,14 @@ func ZRange(ctx context.Context, match string, page, pageSize int64) (map[string
 
 	njson := json.Json
 
-	length, err := client.ZLexCount(ctx, match, "-", "+").Result()
+	length, err := rdb.ZLexCount(ctx, match, "-", "+").Result()
 	if err != nil {
 		return nil, err
 	}
 	d := make([]map[string]any, 0, pageSize)
 	for _, v := range result {
 
-		cmd := client.ZRank(ctx, match, v)
+		cmd := rdb.ZRank(ctx, match, v)
 		key, err := cmd.Result()
 		if err != nil {
 			continue
@@ -294,9 +294,9 @@ type Stream struct {
 
 func QueueInfo(ctx context.Context) (any, error) {
 
-	client = Client()
+	rdb = Client()
 	// get queues
-	cmd := client.Keys(ctx, QueueKey(BqConfig.Redis.Prefix))
+	cmd := rdb.Keys(ctx, QueueKey(BqConfig.Redis.Prefix))
 	queues, err := cmd.Result()
 	if err != nil {
 		return nil, err
