@@ -37,13 +37,4 @@
   padding: 0;
   height: 100%;
 }
-
-.my-container {
-  height: 100%;
-  margin: 1.25rem;
-  border: 0.0625rem solid #f8f9fa;
-  border-radius: 0.32rem;
-  padding: 0.9375rem;
-  background-color: #f8f9fa;
-}
 </style>

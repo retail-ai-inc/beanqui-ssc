@@ -36,24 +36,89 @@
       </div>
     </div>
     <div class="d-flex justify-content-between">
-      <table class="table" style="width: 50%">
-        <thead>
-        <tr>
-          <th scope="col">Command</th>
-          <th scope="col">Calls</th>
-          <th scope="col">Usec</th>
-          <th scope="col">UsecPerCall</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="(v,k) in commands" :key="k">
-          <th scope="row">{{v.command}}</th>
-          <td>{{v.calls}}</td>
-          <td>{{v.usec}}</td>
-          <td>{{v.usec_per_call}}</td>
-        </tr>
-        </tbody>
-      </table>
+
+      <div style="width: 45%">
+        <div class="card">
+          <div class="card-header">
+            Command
+          </div>
+          <table class="table">
+            <thead>
+            <tr>
+              <th scope="col">Command</th>
+              <th scope="col">Calls</th>
+              <th scope="col">Usec</th>
+              <th scope="col">UsecPerCall</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(v,k) in commands" :key="k">
+              <th scope="row">{{v.command}}</th>
+              <td>{{v.calls}}</td>
+              <td>{{v.usec}}</td>
+              <td>{{v.usec_per_call}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="width: 30%">
+        <div class="card">
+          <div class="card-header">
+            Client
+          </div>
+          <div class="mb-3 row" style="padding: 0 1.5rem">
+            <label for="connected" class="col-sm-7 col-form-label">Connected Clients</label>
+            <div class="col-sm-5">
+              <input type="text" readonly class="form-control-plaintext" id="connected" :value="clients.connected_clients">
+            </div>
+          </div>
+          <div class="mb-3 row" style="padding: 0 1.5rem">
+            <label for="blocked" class="col-sm-7 col-form-label">Blocked Clients</label>
+            <div class="col-sm-5">
+              <input type="text" readonly class="form-control-plaintext" id="blocked" :value="clients.blocked_clients">
+            </div>
+          </div>
+          <div class="mb-3 row" style="padding: 0 1.5rem">
+            <label for="maxInBuffer" class="col-sm-7 col-form-label">Client Recent Max Input Buffer</label>
+            <div class="col-sm-5">
+              <input type="text" readonly class="form-control-plaintext" id="maxInBuffer" :value="clients.client_recent_max_input_buffer">
+            </div>
+          </div>
+          <div class="mb-3 row" style="padding: 0 1.5rem">
+            <label for="maxOutBuffer" class="col-sm-7 col-form-label">Client Recent Max Output Buffer</label>
+            <div class="col-sm-5">
+              <input type="text" readonly class="form-control-plaintext" id="maxOutBuffer" :value="clients.client_recent_max_output_buffer">
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top: 2rem;">
+          <div class="card-header">
+            Key Space
+          </div>
+          <table class="table">
+            <thead>
+            <tr>
+              <th scope="col">DbName</th>
+              <th scope="col">Keys</th>
+              <th scope="col">Expires</th>
+              <th scope="col">Avg ttl</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(item,key) in keyspace" :key="key">
+              <th scope="row">{{item.dbname}}</th>
+              <td>{{item.keys}}</td>
+              <td>{{item.expires}}</td>
+              <td>{{item.avg_ttl}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="width: 20%">
+
+      </div>
     </div>
 
 
@@ -85,7 +150,10 @@ let data = reactive({
   "num_cpu":0,
   "fail_count":0,
   "success_count":0,
-  "commands":[]
+  "commands":[],
+  "clients":{},
+  "stats":{},
+  "keyspace":[]
 })
 function getTotal(){
   return request.get("dashboard");
@@ -96,7 +164,9 @@ onMounted(async ()=>{
 
   Object.assign(data,total.data);
   data.commands = total.data.commands;
-
+  data.clients = total.data.clients;
+  data.stats = total.data.stats;
+  data.keyspace = total.data.keyspace;
 })
 
 const barOption = ref({
@@ -303,7 +373,7 @@ const gaugeOption = ref({
     }
   ]
 });
-const {queue_total,db_size,num_cpu,fail_count,success_count,commands} = toRefs(data);
+const {queue_total,db_size,num_cpu,fail_count,success_count,commands,clients,stats,keyspace} = toRefs(data);
 </script>
 <style scoped>
 .home{

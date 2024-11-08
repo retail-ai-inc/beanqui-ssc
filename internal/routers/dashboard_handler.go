@@ -41,6 +41,26 @@ func (t *Dashboard) Info(ctx *BeanContext) error {
 		return result.Json(w, http.StatusOK)
 	}
 
+	clients, err := redisx.Clients(r.Context())
+	if err != nil {
+		result.Code = errorx.InternalServerErrorCode
+		result.Msg = err.Error()
+		return result.Json(w, http.StatusOK)
+	}
+	stats, err := redisx.Stats(r.Context())
+	if err != nil {
+		result.Code = errorx.InternalServerErrorCode
+		result.Msg = err.Error()
+		return result.Json(w, http.StatusOK)
+	}
+
+	keyspace, err := redisx.KeySpace(r.Context())
+	if err != nil {
+		result.Code = errorx.InternalServerErrorCode
+		result.Msg = err.Error()
+		return result.Json(w, http.StatusOK)
+	}
+
 	numCpu := runtime.NumCPU()
 
 	// get queue total
@@ -78,6 +98,9 @@ func (t *Dashboard) Info(ctx *BeanContext) error {
 		"used_memory":   cast.ToInt(memory["used_memory_rss"]) / 1024 / 1024,
 		"total_memory":  cast.ToInt(memory["total_system_memory"]) / 1024 / 1024,
 		"commands":      command,
+		"clients":       clients,
+		"stats":         stats,
+		"keyspace":      keyspace,
 	}
 	return result.Json(w, http.StatusOK)
 }

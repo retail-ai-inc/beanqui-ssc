@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"sort"
 	"strings"
 	"time"
 
@@ -133,27 +134,98 @@ func Info(ctx context.Context) (map[string]string, error) {
 
 }
 
+func handleInfos(data string) map[string]any {
+	if strings.Contains(data, "\r\n") {
+		data = strings.ReplaceAll(data, "\r\n", "\n")
+	}
+	dataM := make(map[string]any, 0)
+	arr := strings.Split(data, "\n")
+	for _, m := range arr[1:] {
+		if !strings.Contains(m, ":") {
+			continue
+		}
+		s := strings.Split(m, ":")
+		dataM[s[0]] = s[1]
+	}
+	return dataM
+}
+
+// Clients
+// redis command: info clients
+func Clients(ctx context.Context) (map[string]any, error) {
+	rdb = Client()
+	clients, err := rdb.Info(ctx, "Clients").Result()
+	if err != nil {
+		return nil, err
+	}
+	m := handleInfos(clients)
+	return m, nil
+}
+
+// Memory
+// redis command:info memory
 func Memory(ctx context.Context) (map[string]any, error) {
 	rdb = Client()
 	memory, err := rdb.Info(ctx, "MEMORY").Result()
 	if err != nil {
 		return nil, err
 	}
-	if strings.Contains(memory, "\r\n") {
-		memory = strings.ReplaceAll(memory, "\r\n", "\n")
-	}
-	memorys := strings.Split(memory, "\n")
-	memMap := make(map[string]any, 0)
-	for _, m := range memorys[1:] {
-		if !strings.Contains(m, ":") {
-			continue
-		}
-		s := strings.Split(m, ":")
-		memMap[s[0]] = s[1]
-	}
-	return memMap, nil
+	m := handleInfos(memory)
+	return m, nil
 }
 
+// Stats
+// redis command:info stats
+func Stats(ctx context.Context) (map[string]any, error) {
+	rdb = Client()
+	stats, err := rdb.Info(ctx, "Stats").Result()
+	if err != nil {
+		return nil, err
+	}
+	return handleInfos(stats), nil
+}
+
+// Keyspace
+// redis command:info keyspace
+func KeySpace(ctx context.Context) ([]map[string]any, error) {
+	rdb = Client()
+	spaces, err := rdb.Info(ctx, "Keyspace").Result()
+	if err != nil {
+		return nil, err
+	}
+	m := handleInfos(spaces)
+	slic := make([]map[string]any, 0)
+	for i, v := range m {
+		nmap := make(map[string]any, 0)
+		vv := strings.Split(cast.ToString(v), ",")
+		for _, sv := range vv {
+			lv := strings.Split(sv, "=")
+			nmap[lv[0]] = lv[1]
+		}
+		nmap["dbname"] = i
+		slic = append(slic, nmap)
+	}
+	return slic, nil
+}
+
+// Commands
+// sort in reverse order based on the `usec_per_call` field
+type Commands []map[string]any
+
+func (t Commands) Len() int {
+	return len(t)
+}
+
+func (t Commands) Less(i, j int) bool {
+	return cast.ToFloat64(t[j]["usec_per_call"]) < cast.ToFloat64(t[i]["usec_per_call"])
+}
+
+func (t Commands) Swap(i, j int) {
+	t[j], t[i] = t[i], t[j]
+}
+
+// CommandStats
+// redis command: info Commandstats
 func CommandStats(ctx context.Context) ([]map[string]any, error) {
 	rdb = Client()
 	command, err := rdb.Info(ctx, "Commandstats").Result()
@@ -166,7 +238,7 @@ func CommandStats(ctx context.Context) ([]map[string]any, error) {
 	}
 	commands := strings.Split(command, "\n")
 
-	commandMap := make([]map[string]any, 0)
+	var commandMap Commands
 	for _, m := range commands[1:] {
 		if !strings.Contains(m, ":") {
 			continue
@@ -183,6 +255,7 @@ func CommandStats(ctx context.Context) ([]map[string]any, error) {
 		}
 		commandMap = append(commandMap, nmap)
 	}
+	sort.Sort(commandMap)
 	return commandMap, nil
 }
 
