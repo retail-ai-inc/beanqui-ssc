@@ -54,7 +54,10 @@ func main() {
 	router.Get("/queue/detail", Auth(NewQueue().Detail))
 	router.Get("/logs", Auth(NewLogs().List))
 	router.Get("/log", Auth(NewLog().List))
+
 	router.Get("/redis", Auth(NewRedisInfo().Info))
+	router.Get("/redis/monitor", Auth(NewRedisInfo().Monitor))
+
 	router.Post("/login", NewLogin().Login)
 	router.Get("/clients", Auth(NewClient().List))
 	router.Get("/dashboard", Auth(NewDashboard().Info))
@@ -95,6 +98,7 @@ func ping(ctx *BeanContext) error {
 	// 	_, _ = w.Write([]byte("No permission"))
 	// 	return
 	// }
+
 	ctx.Writer.WriteHeader(http.StatusOK)
 	_, _ = ctx.Writer.Write([]byte("pong"))
 	return nil

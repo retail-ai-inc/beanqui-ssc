@@ -35,14 +35,40 @@
         </div>
       </div>
     </div>
+    <div class="d-flex justify-content-between">
+      <table class="table" style="width: 50%">
+        <thead>
+        <tr>
+          <th scope="col">Command</th>
+          <th scope="col">Calls</th>
+          <th scope="col">Usec</th>
+          <th scope="col">UsecPerCall</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(v,k) in commands" :key="k">
+          <th scope="row">{{v.command}}</th>
+          <td>{{v.calls}}</td>
+          <td>{{v.usec}}</td>
+          <td>{{v.usec_per_call}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+
 <!--    <div class="d-flex justify-content-between">-->
-<!--      <div></div>-->
-<!--      <div style="width:50%">-->
-<!--        <v-chart class="chart" :option="barOption" />-->
-<!--      </div>-->
-<!--      <div style="width:50%">-->
-<!--        <v-chart class="chart" :option="lineOption"/>-->
-<!--      </div>-->
+
+<!--        <div style="width:30%">-->
+<!--          <v-chart class="chart" :option="barOption" />-->
+<!--        </div>-->
+<!--        <div style="width:30%">-->
+<!--          <v-chart class="chart" :option="lineOption"/>-->
+<!--        </div>-->
+<!--        <div style="width: 30%">-->
+<!--          <v-chart class="chart" :option="gaugeOption" />-->
+<!--        </div>-->
+
 <!--    </div>-->
 
   </div>
@@ -58,7 +84,8 @@ let data = reactive({
   "db_size":0,
   "num_cpu":0,
   "fail_count":0,
-  "success_count":0
+  "success_count":0,
+  "commands":[]
 })
 function getTotal(){
   return request.get("dashboard");
@@ -66,7 +93,9 @@ function getTotal(){
 onMounted(async ()=>{
 
   let total = await getTotal();
+
   Object.assign(data,total.data);
+  data.commands = total.data.commands;
 
 })
 
@@ -161,7 +190,120 @@ const lineOption = ref({
     }
   ]
 });
-const {queue_total,db_size,num_cpu,fail_count,success_count} = toRefs(data);
+
+const gaugeOption = ref({
+  title:{
+    text:"Memory usage"
+  },
+  series: [
+    {
+      type: 'gauge',
+      center: ['50%', '60%'],
+      startAngle: 200,
+      endAngle: -20,
+      min: 0,
+      max: 60,
+      splitNumber: 5,
+      itemStyle: {
+        color: '#FFAB91'
+      },
+      progress: {
+        show: true,
+        width: 30
+      },
+      pointer: {
+        show: false
+      },
+      axisLine: {
+        lineStyle: {
+          width: 30
+        }
+      },
+      axisTick: {
+        distance: -45,
+        splitNumber: 5,
+        lineStyle: {
+          width: 2,
+          color: '#999'
+        }
+      },
+      splitLine: {
+        distance: -52,
+        length: 14,
+        lineStyle: {
+          width: 3,
+          color: '#999'
+        }
+      },
+      axisLabel: {
+        distance: -20,
+        color: '#999',
+        fontSize: 20
+      },
+      anchor: {
+        show: false
+      },
+      title: {
+        show: false
+      },
+      detail: {
+        valueAnimation: true,
+        width: '60%',
+        lineHeight: 40,
+        borderRadius: 8,
+        offsetCenter: [0, '-15%'],
+        fontSize: 60,
+        fontWeight: 'bolder',
+        formatter: '{value} M',
+        color: 'inherit'
+      },
+      data: [
+        {
+          value: 20
+        }
+      ]
+    },
+    {
+      type: 'gauge',
+      center: ['50%', '60%'],
+      startAngle: 200,
+      endAngle: -20,
+      min: 0,
+      max: 60,
+      itemStyle: {
+        color: '#FD7347'
+      },
+      progress: {
+        show: true,
+        width: 8
+      },
+      pointer: {
+        show: false
+      },
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      splitLine: {
+        show: false
+      },
+      axisLabel: {
+        show: false
+      },
+      detail: {
+        show: false
+      },
+      data: [
+        {
+          value: 20
+        }
+      ]
+    }
+  ]
+});
+const {queue_total,db_size,num_cpu,fail_count,success_count,commands} = toRefs(data);
 </script>
 <style scoped>
 .home{

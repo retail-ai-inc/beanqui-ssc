@@ -1,7 +1,9 @@
 package routers
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
@@ -53,6 +55,45 @@ func (t *RedisInfo) Info(ctx *BeanContext) error {
 			flusher.Flush()
 			ticker.Reset(10 * time.Second)
 
+		}
+	}
+}
+
+func (t *RedisInfo) Monitor(ctx *BeanContext) error {
+
+	res, cancel := response.Get()
+	defer cancel()
+
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
+	w := ctx.Writer
+	r := ctx.Request
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "server error", http.StatusInternalServerError)
+		return nil
+	}
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	for {
+		select {
+		case <-r.Context().Done():
+			return nil
+		case <-ticker.C:
+
+			str := redisx.Monitor(r.Context())
+			str = strings.ReplaceAll(str, "MONITOR:", "")
+			if strings.Contains(str, "OK") {
+				continue
+			}
+			res.Data = fmt.Sprintf("Time:%s,Command:%s", time.Now(), str)
+			_ = res.EventMsg(w, "redis_monitor")
+			flusher.Flush()
+			ticker.Reset(time.Second)
 		}
 	}
 }

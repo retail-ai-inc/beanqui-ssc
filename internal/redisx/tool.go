@@ -3,6 +3,7 @@ package redisx
 import (
 	"context"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"strings"
 	"time"
 
@@ -54,10 +55,60 @@ func Object(ctx context.Context, queueName string) (objstr ObjectStruct) {
 	}
 	return
 }
+
+func DbSize(ctx context.Context) (int64, error) {
+	client = Client()
+	return client.DBSize(ctx).Result()
+}
+
+func ZCard(ctx context.Context, key string) int64 {
+	client = Client()
+	return client.ZCard(ctx, key).Val()
+}
+
+func HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	client = Client()
+	return client.HGetAll(ctx, key).Result()
+}
+
+func HSet(ctx context.Context, key string, data map[string]any) error {
+	client = Client()
+	return client.HSet(ctx, key, data).Err()
+}
+
+func Del(ctx context.Context, key string) error {
+	client = Client()
+	return client.Del(ctx, key).Err()
+}
+
+func ZScan(ctx context.Context, key string, cursor uint64, match string, count int64) ([]string, uint64, error) {
+	client = Client()
+	return client.ZScan(ctx, key, cursor, match, count).Result()
+}
+
+func XRevRange(ctx context.Context, stream, start, stop string) ([]redis.XMessage, error) {
+	client = Client()
+	return client.XRevRange(ctx, stream, start, stop).Result()
+}
+
+func ZRemRangeByScore(ctx context.Context, key, min, max string) error {
+	client = Client()
+	return client.ZRemRangeByScore(ctx, key, min, max).Err()
+}
+
+func XRangeN(ctx context.Context, stream string, start, stop string, count int64) ([]redis.XMessage, error) {
+	client = Client()
+	return client.XRangeN(ctx, stream, start, stop, count).Result()
+}
+
+func Monitor(ctx context.Context) string {
+	client = Client()
+	return client.Do(ctx, "MONITOR").String()
+}
+
 func Keys(ctx context.Context, key string) ([]string, error) {
 	client = Client()
 	cmd := client.Keys(ctx, key)
-	fmt.Println(cmd.String())
 	queues, err := cmd.Result()
 	if err != nil {
 		return nil, err
@@ -80,6 +131,59 @@ func Info(ctx context.Context) (map[string]string, error) {
 	}
 	return info, nil
 
+}
+
+func Memory(ctx context.Context) (map[string]any, error) {
+	client = Client()
+	memory, err := client.Info(ctx, "MEMORY").Result()
+	if err != nil {
+		return nil, err
+	}
+	if strings.Contains(memory, "\r\n") {
+		memory = strings.ReplaceAll(memory, "\r\n", "\n")
+	}
+	memorys := strings.Split(memory, "\n")
+	memMap := make(map[string]any, 0)
+	for _, m := range memorys[1:] {
+		if !strings.Contains(m, ":") {
+			continue
+		}
+		s := strings.Split(m, ":")
+		memMap[s[0]] = s[1]
+	}
+	return memMap, nil
+}
+
+func CommandStats(ctx context.Context) ([]map[string]any, error) {
+	client = Client()
+	command, err := client.Info(ctx, "Commandstats").Result()
+	if err != nil {
+		return nil, err
+	}
+
+	if strings.Contains(command, "\r\n") {
+		command = strings.ReplaceAll(command, "\r\n", "\n")
+	}
+	commands := strings.Split(command, "\n")
+
+	commandMap := make([]map[string]any, 0)
+	for _, m := range commands[1:] {
+		if !strings.Contains(m, ":") {
+			continue
+		}
+		s := strings.Split(m, ":")
+		key := strings.ReplaceAll(s[0], "cmdstat_", "")
+		val := s[1]
+		vals := strings.Split(val, ",")
+		nmap := make(map[string]any, 0)
+		nmap["command"] = key
+		for _, v := range vals {
+			vv := strings.Split(v, "=")
+			nmap[vv[0]] = vv[1]
+		}
+		commandMap = append(commandMap, nmap)
+	}
+	return commandMap, nil
 }
 
 func ClientList(ctx context.Context) ([]map[string]any, error) {
