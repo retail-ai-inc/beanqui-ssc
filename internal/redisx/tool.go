@@ -150,6 +150,17 @@ func handleInfos(data string) map[string]any {
 	return dataM
 }
 
+// Server
+// redis command: info server
+func Server(ctx context.Context) (map[string]any, error) {
+	rdb = Client()
+	server, err := rdb.Info(ctx, "Server").Result()
+	if err != nil {
+		return nil, err
+	}
+	return handleInfos(server), nil
+}
+
 // Clients
 // redis command: info clients
 func Clients(ctx context.Context) (map[string]any, error) {
@@ -160,6 +171,17 @@ func Clients(ctx context.Context) (map[string]any, error) {
 	}
 	m := handleInfos(clients)
 	return m, nil
+}
+
+// Persistence
+// redis command: info persistence
+func Persistence(ctx context.Context) (map[string]any, error) {
+	rdb = Client()
+	persistence, err := rdb.Info(ctx, "Persistence").Result()
+	if err != nil {
+		return nil, err
+	}
+	return handleInfos(persistence), nil
 }
 
 // Memory

@@ -1,5 +1,5 @@
 <template>
-  <div class="card" style="margin-top: 1rem;">
+  <div class="card">
     <div class="card-header">
       Key Space
     </div>

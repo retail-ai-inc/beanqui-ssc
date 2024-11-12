@@ -27,6 +27,18 @@ func (t *Dashboard) Info(ctx *BeanContext) error {
 	w := ctx.Writer
 	r := ctx.Request
 
+	server, err := redisx.Server(r.Context())
+	if err != nil {
+		result.Code = errorx.InternalServerErrorCode
+		result.Msg = err.Error()
+		return result.Json(w, http.StatusOK)
+	}
+	persistence, err := redisx.Persistence(r.Context())
+	if err != nil {
+		result.Code = errorx.InternalServerErrorCode
+		result.Msg = err.Error()
+		return result.Json(w, http.StatusOK)
+	}
 	memory, err := redisx.Memory(r.Context())
 	if err != nil {
 		result.Code = errorx.InternalServerErrorCode
@@ -101,6 +113,9 @@ func (t *Dashboard) Info(ctx *BeanContext) error {
 		"clients":       clients,
 		"stats":         stats,
 		"keyspace":      keyspace,
+		"memory":        memory,
+		"server":        server,
+		"persistence":   persistence,
 	}
 	return result.Json(w, http.StatusOK)
 }

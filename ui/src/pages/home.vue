@@ -13,10 +13,11 @@
       <div class="row justify-content-between">
         <div class="col-5">
           <Command :commands="commands" />
+          <KeySpace :keyspace="keyspace"  style="margin-top: 1rem;"/>
         </div>
         <div class="col-4">
           <Client :clients="clients" />
-          <KeySpace :keyspace="keyspace" />
+          <Memory :memory="memory" style="margin-top: 1rem;"/>
         </div>
         <div class="col-3">
           <Stats :stats="stats" />
@@ -49,6 +50,7 @@ import {ref,reactive,onMounted,toRefs,} from "vue";
 import Dashboard from "./components/dashboard.vue";
 import Command from "./components/command.vue";
 import Client from "./components/client.vue";
+import Memory from "./components/memory.vue";
 import KeySpace from "./components/keySpace.vue";
 import Stats from "./components/stats.vue";
 
@@ -62,7 +64,8 @@ let data = reactive({
   "commands":[],
   "clients":{},
   "stats":{},
-  "keyspace":[]
+  "keyspace":[],
+  "memory":{}
 })
 function getTotal(){
   return request.get("dashboard");
@@ -76,6 +79,7 @@ onMounted(async ()=>{
   data.clients = total.data.clients;
   data.stats = total.data.stats;
   data.keyspace = total.data.keyspace;
+  data.memory = total.data.memory;
 })
 
 const barOption = ref({
@@ -282,7 +286,7 @@ const gaugeOption = ref({
     }
   ]
 });
-const {queue_total,db_size,num_cpu,fail_count,success_count,commands,clients,stats,keyspace} = toRefs(data);
+const {queue_total,db_size,num_cpu,fail_count,success_count,commands,clients,stats,keyspace,memory} = toRefs(data);
 </script>
 <style scoped>
 .home{
