@@ -18,15 +18,17 @@ func NewLogs() *Logs {
 	return &Logs{}
 }
 
-func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
+func (t *Logs) List(ctx *BeanContext) error {
 
 	resultRes, cancel := response.Get()
 	defer cancel()
 
 	var (
-		dataType string = "success"
-		matchStr string = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "success"}, ":")
+		dataType string
+		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "success"}, ":")
 	)
+	w := ctx.Writer
+	r := ctx.Request
 
 	dataType = r.FormValue("type")
 	gCursor := cast.ToUint64(r.FormValue("cursor"))
@@ -35,9 +37,7 @@ func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
 		resultRes.Code = errorx.TypeErrorCode
 		resultRes.Msg = errorx.TypeErrorMsg
 
-		_ = resultRes.Json(w, http.StatusInternalServerError)
-		return
-
+		return resultRes.Json(w, http.StatusInternalServerError)
 	}
 
 	if dataType == "error" {
@@ -55,8 +55,7 @@ func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		resultRes.Code = "1005"
 		resultRes.Msg = err.Error()
-		_ = resultRes.Json(w, http.StatusInternalServerError)
-		return
+		return resultRes.Json(w, http.StatusInternalServerError)
 	}
 
 	msgs := make([]*redisx.Msg, 0, 10)
@@ -76,6 +75,6 @@ func (t *Logs) List(w http.ResponseWriter, r *http.Request) {
 	data["cursor"] = cursor
 	resultRes.Data = data
 
-	_ = resultRes.Json(w, http.StatusOK)
-	return
+	return resultRes.Json(w, http.StatusOK)
+
 }

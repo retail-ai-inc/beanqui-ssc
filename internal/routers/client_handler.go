@@ -14,7 +14,10 @@ func NewClient() *Client {
 	return &Client{}
 }
 
-func (t *Client) List(w http.ResponseWriter, r *http.Request) {
+func (t *Client) List(ctx *BeanContext) error {
+
+	r := ctx.Request
+	w := ctx.Writer
 
 	result, cancel := response.Get()
 	defer cancel()
@@ -23,11 +26,10 @@ func (t *Client) List(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		result.Code = "1001"
 		result.Msg = err.Error()
-		_ = result.Json(w, http.StatusInternalServerError)
-		return
+		return result.Json(w, http.StatusInternalServerError)
+
 	}
 	result.Data = data
-	_ = result.Json(w, http.StatusOK)
-	return
+	return result.Json(w, http.StatusOK)
 
 }

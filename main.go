@@ -39,12 +39,13 @@ func main() {
 	// init http server
 	router := NewRouter()
 	// FS static files
-	router.File("/", func(w http.ResponseWriter, r *http.Request) {
+	router.File("/", func(ctx *BeanContext) error {
 		fd, err := fs.Sub(folder, "ui")
 		if err != nil {
 			log.Fatalf("static files error:%+v \n", err)
 		}
-		http.FileServer(http.FS(fd)).ServeHTTP(w, r)
+		http.FileServer(http.FS(fd)).ServeHTTP(ctx.Writer, ctx.Request)
+		return nil
 	})
 
 	router.Get("/ping", ping)
@@ -63,6 +64,16 @@ func main() {
 	router.Put("/event_log/edit", Auth(NewEventLog().Edit))
 	router.Post("/event_log/retry", Auth(NewEventLog().Retry))
 
+	router.Get("/user/list", Auth(NewUser().List))
+	router.Post("/user/add", Auth(NewUser().Add))
+	router.Delete("/user/del", Auth(NewUser().Delete))
+	router.Put("/user/edit", Auth(NewUser().Edit))
+
+	router.Get("/googleLogin", NewLogin().GoogleLogin)
+	router.Get("/callback", NewLogin().GoogleCallBack)
+
+	router.Get("/dlq/list", Auth(NewDlq().List))
+
 	log.Printf("server start on port %+v", port)
 	if err := http.ListenAndServe(port, router); err != nil {
 		log.Fatalln(err)
@@ -70,7 +81,7 @@ func main() {
 
 }
 
-func ping(w http.ResponseWriter, r *http.Request) {
+func ping(ctx *BeanContext) error {
 
 	// clientId := r.Header.Get("Client-Id")
 	// clientSecret := r.Header.Get("Client-Secret")
@@ -84,8 +95,8 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	// 	_, _ = w.Write([]byte("No permission"))
 	// 	return
 	// }
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte("pong"))
-	return
+	ctx.Writer.WriteHeader(http.StatusOK)
+	_, _ = ctx.Writer.Write([]byte("pong"))
+	return nil
 
 }

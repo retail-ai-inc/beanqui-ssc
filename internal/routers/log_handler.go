@@ -22,10 +22,12 @@ func NewLog() *Log {
 }
 
 // del ,retry,archive,detail
-func (t *Log) List(w http.ResponseWriter, r *http.Request) {
+func (t *Log) List(beanContext *BeanContext) error {
 
 	result, cancel := response.Get()
 	defer cancel()
+	r := beanContext.Request
+	w := beanContext.Writer
 
 	id := r.FormValue("id")
 	msgType := r.FormValue("msgType")
@@ -34,26 +36,25 @@ func (t *Log) List(w http.ResponseWriter, r *http.Request) {
 		// error
 		result.Code = errorx.MissParameterCode
 		result.Msg = errorx.MissParameterMsg
-		_ = result.Json(w, http.StatusBadRequest)
-		return
+		return result.Json(w, http.StatusBadRequest)
 	}
 	data, err := detailHandler(r.Context(), id, msgType)
 	if err != nil {
 		result.Code = "1003"
 		result.Msg = err.Error()
-		_ = result.Json(w, http.StatusInternalServerError)
-		return
+		return result.Json(w, http.StatusInternalServerError)
 	}
 	result.Data = data
-	_ = result.Json(w, http.StatusOK)
-	return
-
+	return result.Json(w, http.StatusOK)
 }
 
-func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
+func (t *Log) Retry(beanContext *BeanContext) error {
 
 	result, cancel := response.Get()
 	defer cancel()
+
+	r := beanContext.Request
+	w := beanContext.Writer
 
 	id := r.PostFormValue("id")
 	msgType := r.PostFormValue("msgType")
@@ -63,21 +64,22 @@ func (t *Log) Retry(w http.ResponseWriter, r *http.Request) {
 	if id == "" {
 		result.Code = errorx.MissParameterCode
 		result.Msg = errorx.MissParameterMsg
-		_ = result.Json(w, http.StatusInternalServerError)
-		return
+		return result.Json(w, http.StatusInternalServerError)
 	}
 	if err := retryHandler(r.Context(), id, msgType); err != nil {
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
-		_ = result.Json(w, http.StatusInternalServerError)
-		return
+		return result.Json(w, http.StatusInternalServerError)
 	}
-	return
+	return result.Json(w, http.StatusOK)
 }
 
-func (t *Log) Delete(w http.ResponseWriter, r *http.Request) {
+func (t *Log) Delete(beanContext *BeanContext) error {
 	result, cancel := response.Get()
 	defer cancel()
+
+	w := beanContext.Writer
+	r := beanContext.Request
 
 	msgType := r.FormValue("msgType")
 	score := r.FormValue("score")
@@ -87,16 +89,11 @@ func (t *Log) Delete(w http.ResponseWriter, r *http.Request) {
 	if cmd.Err() != nil {
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = cmd.Err().Error()
-		_ = result.Json(w, http.StatusInternalServerError)
-		return
+		return result.Json(w, http.StatusInternalServerError)
 	}
-	_ = result.Json(w, http.StatusOK)
-	return
+	return result.Json(w, http.StatusOK)
 }
 func (t *Log) Add(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPut {
-
-	}
 }
 
 // log detail

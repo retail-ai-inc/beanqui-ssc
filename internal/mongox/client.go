@@ -75,7 +75,7 @@ func (t *MongoX) EventLogs(ctx context.Context, filter bson.M, page, pageSize in
 	opts := options.Find()
 	opts.SetSkip(skip)
 	opts.SetLimit(pageSize)
-	opts.SetSort(bson.D{{"addTime", 1}})
+	opts.SetSort(bson.D{{Key: "addTime", Value: 1}})
 
 	cursor, err := t.database.Collection(t.collection).Find(ctx, filter, opts)
 	if err != nil {
@@ -136,7 +136,7 @@ func (t *MongoX) Edit(ctx context.Context, id string, payload any) (int64, error
 		filter["_id"] = nid
 	}
 	update := bson.D{
-		{"$set", bson.D{{"payload", payload}}},
+		{Key: "$set", Value: bson.D{{Key: "payload", Value: payload}}},
 	}
 	result, err := t.database.Collection(t.collection).UpdateOne(ctx, filter, update)
 	if err != nil {

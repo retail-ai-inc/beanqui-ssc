@@ -14,22 +14,19 @@ func NewSchedule() *Schedule {
 	return &Schedule{}
 }
 
-func (t *Schedule) List(w http.ResponseWriter, r *http.Request) {
+func (t *Schedule) List(ctx *BeanContext) error {
+
 	result, cancel := response.Get()
 	defer cancel()
 
-	bt, err := redisx.QueueInfo(r.Context())
+	bt, err := redisx.QueueInfo(ctx.Request.Context())
 
 	if err != nil {
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
 
-		_ = result.Json(w, http.StatusInternalServerError)
-
-		return
+		return result.Json(ctx.Writer, http.StatusInternalServerError)
 	}
 	result.Data = bt
-	_ = result.Json(w, http.StatusOK)
-
-	return
+	return result.Json(ctx.Writer, http.StatusOK)
 }

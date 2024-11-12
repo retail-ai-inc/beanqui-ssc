@@ -18,10 +18,13 @@ func NewDashboard() *Dashboard {
 	return &Dashboard{}
 }
 
-func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
+func (t *Dashboard) Info(ctx *BeanContext) error {
 
 	result, cancel := response.Get()
 	defer cancel()
+
+	w := ctx.Writer
+	r := ctx.Request
 
 	numCpu := runtime.NumCPU()
 
@@ -30,8 +33,8 @@ func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
-		_ = result.Json(w, http.StatusInternalServerError)
-		return
+		return result.Json(w, http.StatusInternalServerError)
+
 	}
 	keysLen := len(keys)
 	client := redisx.Client()
@@ -41,9 +44,7 @@ func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
-		_ = result.Json(w, http.StatusInternalServerError)
-
-		return
+		return result.Json(w, http.StatusInternalServerError)
 	}
 
 	// Queue Past 10 Minutes
@@ -61,6 +62,5 @@ func (t *Dashboard) Info(w http.ResponseWriter, r *http.Request) {
 		"fail_count":    failCount,
 		"success_count": successCount,
 	}
-	_ = result.Json(w, http.StatusOK)
-	return
+	return result.Json(w, http.StatusOK)
 }

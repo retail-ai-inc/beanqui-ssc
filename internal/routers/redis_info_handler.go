@@ -14,30 +14,32 @@ type RedisInfo struct {
 func NewRedisInfo() *RedisInfo {
 	return &RedisInfo{}
 }
-func (t *RedisInfo) Info(w http.ResponseWriter, r *http.Request) {
+func (t *RedisInfo) Info(ctx *BeanContext) error {
 
 	result, cancel := response.Get()
 	defer cancel()
+	w := ctx.Writer
+	r := ctx.Request
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		http.Error(w, "server error", http.StatusInternalServerError)
-		return
+		return nil
 	}
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	ctx := r.Context()
+	nctx := r.Context()
 	ticker := time.NewTicker(300 * time.Millisecond)
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-ctx.Done():
-			return
+		case <-nctx.Done():
+			return nctx.Err()
 		case <-ticker.C:
-			d, err := redisx.Info(ctx)
+			d, err := redisx.Info(nctx)
 
 			if err != nil {
 				result.Code = "1001"

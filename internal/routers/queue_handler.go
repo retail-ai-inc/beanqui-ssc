@@ -18,26 +18,24 @@ func NewQueue() *Queue {
 	return &Queue{}
 }
 
-func (t *Queue) List(w http.ResponseWriter, r *http.Request) {
+func (t *Queue) List(ctx *BeanContext) error {
 	result, cancel := response.Get()
 	defer cancel()
 
-	bt, err := redisx.QueueInfo(r.Context())
+	bt, err := redisx.QueueInfo(ctx.Request.Context())
 	if err != nil {
 		result.Code = errorx.InternalServerErrorCode
 		result.Msg = err.Error()
-		_ = result.Json(w, http.StatusInternalServerError)
-		return
+		return result.Json(ctx.Writer, http.StatusInternalServerError)
 	}
 
 	result.Data = bt
-	_ = result.Json(w, http.StatusOK)
-	return
+	return result.Json(ctx.Writer, http.StatusOK)
 
 }
-func (t *Queue) Detail(w http.ResponseWriter, r *http.Request) {
-	queueDetail(w, r)
-	return
+func (t *Queue) Detail(ctx *BeanContext) error {
+	queueDetail(ctx.Writer, ctx.Request)
+	return nil
 }
 
 func queueDetail(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +45,7 @@ func queueDetail(w http.ResponseWriter, r *http.Request) {
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-
+		return
 	}
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")

@@ -13,8 +13,8 @@ import (
 
 type ObjectStruct struct {
 	ValueAt          string
-	RefCount         int
 	Encoding         string
+	RefCount         int
 	SerizlizedLength int
 	Lru              int
 	LruSecondsIdle   int
@@ -153,7 +153,7 @@ func ZRange(ctx context.Context, match string, page, pageSize int64) (map[string
 			queue = queues[2]
 		}
 
-		ttl := cast.ToTime(njson.Get(payloadByte, "ExpireTime").ToString()).Sub(time.Now()).Seconds()
+		ttl := time.Until(cast.ToTime(njson.Get(payloadByte, "ExpireTime").ToString())).Seconds()
 		d = append(d, map[string]any{"key": key, "ttl": fmt.Sprintf("%.3f", ttl), "addTime": addTime, "runTime": runTime, "group": group, "queue": queue, "payload": npayload})
 
 	}
