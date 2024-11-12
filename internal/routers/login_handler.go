@@ -118,9 +118,8 @@ func (t *Login) GoogleCallBack(ctx *BeanContext) error {
 		return res.Json(w, http.StatusOK)
 	}
 
-	client := redisx.Client()
 	key := strings.Join([]string{viper.GetString("redis.prefix"), "users", userInfo.Email}, ":")
-	result, err := client.HGetAll(r.Context(), key).Result()
+	result, err := redisx.HGetAll(r.Context(), key)
 	if err != nil {
 		res.Code = errorx.InternalServerErrorCode
 		res.Msg = err.Error()

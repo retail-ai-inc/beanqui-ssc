@@ -83,12 +83,11 @@ func (t *Log) Delete(beanContext *BeanContext) error {
 
 	msgType := r.FormValue("msgType")
 	score := r.FormValue("score")
-	client := redisx.Client()
 	key := strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", msgType}, ":")
-	cmd := client.ZRemRangeByScore(r.Context(), key, score, score)
-	if cmd.Err() != nil {
+
+	if err := redisx.ZRemRangeByScore(r.Context(), key, score, score); err != nil {
 		result.Code = errorx.InternalServerErrorCode
-		result.Msg = cmd.Err().Error()
+		result.Msg = err.Error()
 		return result.Json(w, http.StatusInternalServerError)
 	}
 	return result.Json(w, http.StatusOK)
@@ -106,8 +105,11 @@ func detailHandler(ctx context.Context, id, msgType string) (map[string]any, err
 	build.WriteString("*")
 	build.WriteString(id)
 	build.WriteString("*")
-	client := redisx.Client()
-	vals, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
+
+	vals, _, err := redisx.ZScan(ctx, key, 0, build.String(), 1)
+	if err != nil {
+		return nil, err
+	}
 	if len(vals) <= 0 {
 		return nil, errors.New("record is empty")
 	}
@@ -128,9 +130,11 @@ func retryHandler(ctx context.Context, id, msgType string) error {
 	build.WriteString("*")
 	build.WriteString(id)
 	build.WriteString("*")
-	client := redisx.Client()
 
-	keys, _ := client.ZScan(ctx, key, 0, build.String(), 1).Val()
+	keys, _, err := redisx.ZScan(ctx, key, 0, build.String(), 1)
+	if err != nil {
+		return err
+	}
 	if len(keys) <= 0 {
 		return errors.New("record is empty")
 	}

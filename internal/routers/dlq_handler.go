@@ -25,9 +25,9 @@ func (t *Dlq) List(ctx *BeanContext) error {
 	res, cancel := response.Get()
 	defer cancel()
 
-	client := redisx.Client()
 	stream := strings.Join([]string{viper.GetString("redis.prefix"), "beanq-logic-log"}, ":")
-	msgs, err := client.XRevRange(r.Context(), stream, "+", "-").Result()
+
+	msgs, err := redisx.XRevRange(r.Context(), stream, "+", "-")
 	if err != nil {
 		res.Code = errorx.InternalServerErrorMsg
 		res.Msg = err.Error()

@@ -35,9 +35,20 @@
             </ul>
 
           </li>
-          <li class="nav-item">
-            <router-link to="/admin/redis" class="nav-link text-muted" :class="route == '/admin/redis' ? 'active' : ''">Redis</router-link>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-muted" :class="route=='/admin/redis' || route == '/admin/redis/monitor' ? 'active' : ''"  role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Redis
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark" >
+              <li>
+                <router-link to="/admin/redis" class="dropdown-item nav-link text-muted" :class="route=='/admin/redis' ? 'active' : ''">Info</router-link>
+              </li>
+              <li>
+                <router-link to="/admin/redis/monitor" class="dropdown-item nav-link text-muted" :class="route == '/admin/redis/monitor' ? 'active' : ''">Command</router-link>
+              </li>
+            </ul>
           </li>
+
         </ul>
         <span class="navbar-text" style="color:#fff">
           <div class="dropdown">

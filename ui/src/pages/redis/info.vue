@@ -207,9 +207,6 @@ onUnmounted(()=>{
 </script>
   
 <style scoped>
-.example {
-    color: v-bind('color');
-}
 .redis{
   transition: opacity 0.5s ease;
   opacity: 1;

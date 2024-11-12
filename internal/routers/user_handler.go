@@ -26,9 +26,7 @@ func (t *User) List(ctx *BeanContext) error {
 	w := ctx.Writer
 
 	pattern := strings.Join([]string{viper.GetString("redis.prefix"), "users:*"}, ":")
-	client := redisx.Client()
-
-	keys, err := client.Keys(r.Context(), pattern).Result()
+	keys, err := redisx.Keys(r.Context(), pattern)
 	if err != nil {
 		res.Code = errorx.InternalServerErrorMsg
 		res.Msg = err.Error()
@@ -38,7 +36,7 @@ func (t *User) List(ctx *BeanContext) error {
 	data := make([]any, 0)
 	for _, key := range keys {
 
-		r, err := client.HGetAll(r.Context(), key).Result()
+		r, err := redisx.HGetAll(r.Context(), key)
 		if err != nil {
 			fmt.Printf("hget err:%+v \n", err)
 			continue
@@ -70,7 +68,6 @@ func (t *User) Add(ctx *BeanContext) error {
 
 	}
 
-	client := redisx.Client()
 	key := strings.Join([]string{viper.GetString("redis.prefix"), "users", account}, ":")
 	data := make(map[string]any, 0)
 	data["account"] = account
@@ -79,7 +76,7 @@ func (t *User) Add(ctx *BeanContext) error {
 	data["active"] = active
 	data["detail"] = detail
 
-	if err := client.HSet(r.Context(), key, data).Err(); err != nil {
+	if err := redisx.HSet(r.Context(), key, data); err != nil {
 		res.Code = errorx.InternalServerErrorCode
 		res.Msg = err.Error()
 		return res.Json(w, http.StatusOK)
@@ -100,9 +97,8 @@ func (t *User) Delete(ctx *BeanContext) error {
 
 	}
 
-	client := redisx.Client()
 	key := strings.Join([]string{viper.GetString("redis.prefix"), "users", account}, ":")
-	if err := client.Del(ctx.Request.Context(), key).Err(); err != nil {
+	if err := redisx.Del(ctx.Request.Context(), key); err != nil {
 		res.Code = errorx.InternalServerErrorCode
 		res.Msg = err.Error()
 		return res.Json(ctx.Writer, http.StatusOK)
@@ -134,8 +130,7 @@ func (t *User) Edit(ctx *BeanContext) error {
 		"detail":   detail,
 		"type":     typ,
 	}
-	client := redisx.Client()
-	if err := client.HSet(r.Context(), key, data).Err(); err != nil {
+	if err := redisx.HSet(r.Context(), key, data); err != nil {
 		res.Code = errorx.InternalServerErrorMsg
 		res.Msg = err.Error()
 		return res.Json(w, http.StatusOK)

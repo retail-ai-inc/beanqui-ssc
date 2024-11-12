@@ -58,16 +58,13 @@ func queueDetail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ticker := time.NewTicker(300 * time.Millisecond)
 	defer ticker.Stop()
-	client := redisx.Client()
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-
-			cmd := client.XRangeN(ctx, id, "-", "+", 50)
-			stream, err := cmd.Result()
+			stream, err := redisx.XRangeN(ctx, id, "-", "+", 50)
 
 			if err != nil {
 				result.Code = "1004"

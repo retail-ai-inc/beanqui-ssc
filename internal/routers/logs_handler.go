@@ -44,13 +44,10 @@ func (t *Logs) List(ctx *BeanContext) error {
 		matchStr = strings.Join([]string{redisx.BqConfig.Redis.Prefix, "logs", "fail"}, ":")
 	}
 	data := make(map[string]any)
-	client := redisx.Client()
-	count := client.ZCard(r.Context(), matchStr).Val()
+	count := redisx.ZCard(r.Context(), matchStr)
 	data["total"] = count
 
-	cmd := client.ZScan(r.Context(), matchStr, gCursor, "", 10)
-
-	keys, cursor, err := cmd.Result()
+	keys, cursor, err := redisx.ZScan(r.Context(), matchStr, gCursor, "", 10)
 
 	if err != nil {
 		resultRes.Code = "1005"
