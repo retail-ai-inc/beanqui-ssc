@@ -1,13 +1,5 @@
 package routers
 
-import (
-	"net/http"
-	"path"
-	"path/filepath"
-	"runtime"
-	"strings"
-)
-
 type Index struct {
 }
 
@@ -15,18 +7,6 @@ func NewIndex() *Index {
 	return &Index{}
 }
 
-func (t *Index) File(w http.ResponseWriter, r *http.Request) {
-	url := r.RequestURI
-	if strings.HasSuffix(url, ".vue") {
-		w.Header().Set("Content-Type", "application/octet-stream")
-	}
-	var dir string = "./"
-	_, f, _, ok := runtime.Caller(0)
-	if ok {
-		dir = filepath.Dir(f)
-	}
-
-	http.FileServer(http.Dir(path.Join(dir, "../../ui/"))).ServeHTTP(w, r)
-
-	return
+func (t *Index) Home(ctx *BeanContext) error {
+	return nil
 }

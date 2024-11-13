@@ -16,6 +16,8 @@
       scheduleApi,
       eventApi,
       loginApi,
+      userApi,
+      dlqApi,
       //apis end
     },
 
@@ -52,10 +54,13 @@
           { path: 'queue/detail/:id',component:()=>loadModule("./src/pages/queue/detail.vue",options)},
           { path: 'log/event',component:()=>loadModule("./src/pages/log/event.vue",options)},
           { path: 'log/workflow',component:()=>loadModule("./src/pages/log/workflow.vue",options)},
+          { path: 'log/dlq',component:()=>loadModule("./src/pages/log/dlq.vue",options)},
           // { path: 'log/success',component:()=>loadModule("./src/pages/log/success.vue",options)},
           // { path: 'log/error',component:()=>loadModule("./src/pages/log/error.vue",options)},
           { path: 'log/detail/:id',component:()=>loadModule("./src/pages/log/detail.vue",options)},
-          { path: 'redis', component: () => loadModule("./src/pages/redis.vue", options) },
+          { path: 'redis', component: () => loadModule("./src/pages/redis/info.vue", options) },
+          {path:'redis/monitor',component:()=>loadModule("./src/pages/redis/monitor.vue",options)},
+          { path: 'user',component:()=>loadModule("./src/pages/user.vue",options)}
         ]
   };
   // login route

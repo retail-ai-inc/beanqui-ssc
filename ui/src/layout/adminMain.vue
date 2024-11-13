@@ -56,7 +56,7 @@ watch(() => useR.fullPath, (newVal, oldVal) => {
     border: 0.0625rem solid #f8f9fa;
     border-radius: 0.3125rem;
     padding: 0.9375rem;
-    background-color: #f8f9fa;
+    background-color: #fff;
 }
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s ease;
