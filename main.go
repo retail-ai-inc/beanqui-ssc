@@ -39,43 +39,43 @@ func main() {
 	// init http server
 	router := NewRouter()
 	// FS static files
-	router.File("/", func(ctx *BeanContext) error {
+	router.File("/", HeaderRule(func(ctx *BeanContext) error {
 		fd, err := fs.Sub(folder, "ui")
 		if err != nil {
 			log.Fatalf("static files error:%+v \n", err)
 		}
 		http.FileServer(http.FS(fd)).ServeHTTP(ctx.Writer, ctx.Request)
 		return nil
-	})
+	}))
 
-	router.Get("/ping", ping)
-	router.Get("/schedule", Auth(NewSchedule().List))
-	router.Get("/queue/list", Auth(NewQueue().List))
-	router.Get("/queue/detail", Auth(NewQueue().Detail))
-	router.Get("/logs", Auth(NewLogs().List))
-	router.Get("/log", Auth(NewLog().List))
+	router.Get("/ping", HeaderRule(ping))
+	router.Get("/schedule", MigrateMiddleWare(NewSchedule().List))
+	router.Get("/queue/list", MigrateMiddleWare(NewQueue().List))
+	router.Get("/queue/detail", MigrateMiddleWare(NewQueue().Detail))
+	router.Get("/logs", MigrateMiddleWare(NewLogs().List))
+	router.Get("/log", MigrateMiddleWare(NewLog().List))
 
-	router.Get("/redis", Auth(NewRedisInfo().Info))
-	router.Get("/redis/monitor", Auth(NewRedisInfo().Monitor))
+	router.Get("/redis", MigrateMiddleWare(NewRedisInfo().Info))
+	router.Get("/redis/monitor", MigrateMiddleWare(NewRedisInfo().Monitor))
 
-	router.Post("/login", NewLogin().Login)
-	router.Get("/clients", Auth(NewClient().List))
-	router.Get("/dashboard", Auth(NewDashboard().Info))
-	router.Get("/event_log/list", Auth(NewEventLog().List))
-	router.Get("/event_log/detail", Auth(NewEventLog().Detail))
-	router.Delete("/event_log/delete", Auth(NewEventLog().Delete))
-	router.Put("/event_log/edit", Auth(NewEventLog().Edit))
-	router.Post("/event_log/retry", Auth(NewEventLog().Retry))
+	router.Post("/login", HeaderRule(NewLogin().Login))
+	router.Get("/clients", MigrateMiddleWare(NewClient().List))
+	router.Get("/dashboard", MigrateMiddleWare(NewDashboard().Info))
+	router.Get("/event_log/list", MigrateMiddleWare(NewEventLog().List))
+	router.Get("/event_log/detail", MigrateMiddleWare(NewEventLog().Detail))
+	router.Delete("/event_log/delete", MigrateMiddleWare(NewEventLog().Delete))
+	router.Put("/event_log/edit", MigrateMiddleWare(NewEventLog().Edit))
+	router.Post("/event_log/retry", MigrateMiddleWare(NewEventLog().Retry))
 
-	router.Get("/user/list", Auth(NewUser().List))
-	router.Post("/user/add", Auth(NewUser().Add))
-	router.Delete("/user/del", Auth(NewUser().Delete))
-	router.Put("/user/edit", Auth(NewUser().Edit))
+	router.Get("/user/list", MigrateMiddleWare(NewUser().List))
+	router.Post("/user/add", MigrateMiddleWare(NewUser().Add))
+	router.Delete("/user/del", MigrateMiddleWare(NewUser().Delete))
+	router.Put("/user/edit", MigrateMiddleWare(NewUser().Edit))
 
 	router.Get("/googleLogin", NewLogin().GoogleLogin)
 	router.Get("/callback", NewLogin().GoogleCallBack)
 
-	router.Get("/dlq/list", Auth(NewDlq().List))
+	router.Get("/dlq/list", MigrateMiddleWare(NewDlq().List))
 
 	log.Printf("server start on port %+v", port)
 	if err := http.ListenAndServe(port, router); err != nil {
