@@ -1,16 +1,19 @@
 package routers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/viper"
+	"io"
 	"net/http"
 	"strings"
 )
 
 type User struct {
+	Account string `json:"account"`
 }
 
 func NewUser() *User {
@@ -85,11 +88,28 @@ func (t *User) Add(ctx *BeanContext) error {
 	return res.Json(w, http.StatusOK)
 }
 
+type UserInfo struct {
+	Account string `json:"account"`
+}
+
 func (t *User) Delete(ctx *BeanContext) error {
 
 	res, cancel := response.Get()
 	defer cancel()
-	account := ctx.Request.FormValue("account")
+
+	body, err := io.ReadAll(ctx.Request.Body)
+	if err != nil {
+		res.Code = errorx.TypeErrorCode
+		res.Msg = err.Error()
+		return res.Json(ctx.Writer, http.StatusOK)
+	}
+	if err := json.Unmarshal(body, &t); err != nil {
+		res.Code = errorx.TypeErrorCode
+		res.Msg = err.Error()
+		return res.Json(ctx.Writer, http.StatusOK)
+	}
+
+	account := t.Account
 	if account == "" {
 		res.Code = errorx.MissParameterMsg
 		res.Msg = "missing account field"

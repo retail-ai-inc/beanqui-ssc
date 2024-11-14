@@ -7,7 +7,7 @@ const userApi = {
     },
     Delete(account){
         let params = {account:account};
-        return request.delete(`/user/del`,{params});
+        return request.delete(`/user/del`,{data:params});
     },
     Edit(data){
         const headers = {
