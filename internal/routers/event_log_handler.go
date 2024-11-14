@@ -9,7 +9,6 @@ import (
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/cast"
 	"go.mongodb.org/mongo-driver/bson"
-	"io"
 	"net/http"
 	"time"
 )
@@ -121,19 +120,7 @@ func (t *EventLog) Delete(ctx *BeanContext) error {
 	w := ctx.Writer
 	r := ctx.Request
 
-	body, err := io.ReadAll(ctx.Request.Body)
-	if err != nil {
-		res.Code = errorx.TypeErrorCode
-		res.Msg = err.Error()
-		return res.Json(ctx.Writer, http.StatusOK)
-	}
-	if err := json.Unmarshal(body, &t); err != nil {
-		res.Code = errorx.TypeErrorCode
-		res.Msg = err.Error()
-		return res.Json(ctx.Writer, http.StatusOK)
-	}
-
-	id := t.Id
+	id := r.PostFormValue("id")
 	mog := mongox.NewMongo()
 	count, err := mog.Delete(r.Context(), id)
 	if err != nil {
@@ -157,23 +144,11 @@ func (t *EventLog) Edit(ctx *BeanContext) error {
 	r := ctx.Request
 	w := ctx.Writer
 
-	var info editInfo
-	b, err := io.ReadAll(r.Body)
-	if err != nil {
-		res.Msg = err.Error()
-		res.Code = errorx.InternalServerErrorCode
-		return res.Json(w, http.StatusInternalServerError)
-
-	}
-	if err := json.Unmarshal(b, &info); err != nil {
-		res.Msg = err.Error()
-		res.Code = errorx.InternalServerErrorCode
-		return res.Json(w, http.StatusInternalServerError)
-
-	}
+	id := r.PostFormValue("id")
+	payload := r.PostFormValue("payload")
 
 	mog := mongox.NewMongo()
-	count, err := mog.Edit(r.Context(), info.Id, info.Payload)
+	count, err := mog.Edit(r.Context(), id, payload)
 	if err != nil {
 		res.Msg = err.Error()
 		res.Code = errorx.InternalServerErrorCode
