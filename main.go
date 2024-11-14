@@ -63,13 +63,13 @@ func main() {
 	router.Get("/dashboard", MigrateMiddleWare(NewDashboard().Info))
 	router.Get("/event_log/list", MigrateMiddleWare(NewEventLog().List))
 	router.Get("/event_log/detail", MigrateMiddleWare(NewEventLog().Detail))
-	router.Delete("/event_log/delete", MigrateMiddleWare(NewEventLog().Delete))
-	router.Put("/event_log/edit", MigrateMiddleWare(NewEventLog().Edit))
+	router.Post("/event_log/delete", MigrateMiddleWare(NewEventLog().Delete))
+	router.Post("/event_log/edit", MigrateMiddleWare(NewEventLog().Edit))
 	router.Post("/event_log/retry", MigrateMiddleWare(NewEventLog().Retry))
 
 	router.Get("/user/list", MigrateMiddleWare(NewUser().List))
 	router.Post("/user/add", MigrateMiddleWare(NewUser().Add))
-	router.Delete("/user/del", MigrateMiddleWare(NewUser().Delete))
+	router.Post("/user/del", MigrateMiddleWare(NewUser().Delete))
 	router.Post("/user/edit", MigrateMiddleWare(NewUser().Edit))
 
 	router.Get("/googleLogin", NewLogin().GoogleLogin)

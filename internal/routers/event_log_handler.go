@@ -15,6 +15,7 @@ import (
 )
 
 type EventLog struct {
+	Id string `json:"id"`
 }
 
 func NewEventLog() *EventLog {
@@ -120,7 +121,19 @@ func (t *EventLog) Delete(ctx *BeanContext) error {
 	w := ctx.Writer
 	r := ctx.Request
 
-	id := r.URL.Query().Get("id")
+	body, err := io.ReadAll(ctx.Request.Body)
+	if err != nil {
+		res.Code = errorx.TypeErrorCode
+		res.Msg = err.Error()
+		return res.Json(ctx.Writer, http.StatusOK)
+	}
+	if err := json.Unmarshal(body, &t); err != nil {
+		res.Code = errorx.TypeErrorCode
+		res.Msg = err.Error()
+		return res.Json(ctx.Writer, http.StatusOK)
+	}
+
+	id := t.Id
 	mog := mongox.NewMongo()
 	count, err := mog.Delete(r.Context(), id)
 	if err != nil {

@@ -7,7 +7,7 @@ const userApi = {
     },
     Delete(account){
         let params = {account:account};
-        return request.delete(`/user/del`,{data:params,headers:{"Content-Type":"application/json"}});
+        return request.post(`/user/del`,params,{headers:{"Content-Type":"application/json"}});
     },
     Edit(data){
         const headers = {
