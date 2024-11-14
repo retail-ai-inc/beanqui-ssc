@@ -11,6 +11,20 @@ import (
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 )
 
+func MigrateMiddleWare(next HandleFunc) HandleFunc {
+	return HeaderRule(Auth(next))
+}
+
+func HeaderRule(next HandleFunc) HandleFunc {
+	return func(ctx *BeanContext) error {
+		ctx.Writer.Header().Set("X-Content-Type-Options", "nosniff")
+		ctx.Writer.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';")
+		ctx.Writer.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		ctx.Writer.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		return next(ctx)
+	}
+}
+
 func Auth(next HandleFunc) HandleFunc {
 	return func(ctx *BeanContext) error {
 
