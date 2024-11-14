@@ -70,7 +70,7 @@ func main() {
 	router.Get("/user/list", MigrateMiddleWare(NewUser().List))
 	router.Post("/user/add", MigrateMiddleWare(NewUser().Add))
 	router.Delete("/user/del", MigrateMiddleWare(NewUser().Delete))
-	router.Put("/user/edit", MigrateMiddleWare(NewUser().Edit))
+	router.Post("/user/edit", MigrateMiddleWare(NewUser().Edit))
 
 	router.Get("/googleLogin", NewLogin().GoogleLogin)
 	router.Get("/callback", NewLogin().GoogleCallBack)
