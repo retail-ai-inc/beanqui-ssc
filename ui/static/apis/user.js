@@ -6,7 +6,8 @@ const userApi = {
         return request.post("/user/add",data);
     },
     Delete(account){
-        return request.delete(`/user/del?account=${account}`);
+        let params = {account:account};
+        return request.delete(`/user/del`,{params});
     },
     Edit(data){
         const headers = {
