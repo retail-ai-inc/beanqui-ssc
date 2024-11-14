@@ -7,12 +7,12 @@ const userApi = {
     },
     Delete(account){
         let params = {account:account};
-        return request.delete(`/user/del`,{data:params});
+        return request.delete(`/user/del`,{data:params,headers:{"Content-Type":"application/json"}});
     },
     Edit(data){
         const headers = {
             "Content-Type":"application/x-www-form-urlencoded"
         }
-        return request.put(`/user/edit`,data,{headers:headers});
+        return request.post(`/user/edit`,data,{headers:headers});
     }
 }
