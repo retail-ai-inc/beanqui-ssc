@@ -8,12 +8,16 @@ const eventApi = {
       </div>`;
     },
     Delete(id){
-        return request.delete(`event_log/delete?id=${id}`);
+        let params = {id:id};
+        return request.delete(`event_log/delete`,{params});
     },
     Edit(id,payload){
-        return request.put(`/event_log/edit`,{id:id,payload:payload});
+        const headers = {
+            "Content-Type":"application/x-www-form-urlencoded"
+        }
+        return request.put(`/event_log/edit`,{id:id,payload:payload},{headers:headers});
     },
     Retry(id,data){
-        return request.post(`/event_log/retry`,{uniqueId:id,data:JSON.stringify(data)},{headers:{"Content-Type":"multipart/form-data"}});
+        return request.post(`/event_log/retry`,{uniqueId:id,data:JSON.stringify(data)});
     }
 }

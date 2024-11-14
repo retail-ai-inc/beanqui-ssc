@@ -1,6 +1,6 @@
 
 axios.defaults.baseURL = "./"
-axios.defaults.headers.post["Content-Type"] = "multipart/form-data";
+axios.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
 
 const request = axios.create({
     timeout:5000,
