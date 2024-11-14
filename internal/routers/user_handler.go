@@ -1,13 +1,11 @@
 package routers
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/retail-ai-inc/beanqui/internal/redisx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/errorx"
 	"github.com/retail-ai-inc/beanqui/internal/routers/response"
 	"github.com/spf13/viper"
-	"io"
 	"net/http"
 	"strings"
 )
@@ -97,24 +95,12 @@ func (t *User) Delete(ctx *BeanContext) error {
 	res, cancel := response.Get()
 	defer cancel()
 
-	body, err := io.ReadAll(ctx.Request.Body)
-	if err != nil {
-		res.Code = errorx.TypeErrorCode
-		res.Msg = err.Error()
-		return res.Json(ctx.Writer, http.StatusOK)
-	}
-	if err := json.Unmarshal(body, &t); err != nil {
-		res.Code = errorx.TypeErrorCode
-		res.Msg = err.Error()
-		return res.Json(ctx.Writer, http.StatusOK)
-	}
+	account := ctx.Request.PostFormValue("account")
 
-	account := t.Account
 	if account == "" {
 		res.Code = errorx.MissParameterMsg
 		res.Msg = "missing account field"
 		return res.Json(ctx.Writer, http.StatusOK)
-
 	}
 
 	key := strings.Join([]string{viper.GetString("redis.prefix"), "users", account}, ":")
