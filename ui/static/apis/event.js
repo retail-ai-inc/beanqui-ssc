@@ -9,13 +9,10 @@ const eventApi = {
     },
     Delete(id){
         let params = {id:id};
-        return request.post(`event_log/delete`,params,{headers:{"Content-Type":"application/json"}});
+        return request.post(`event_log/delete`,params);
     },
     Edit(id,payload){
-        const headers = {
-            "Content-Type":"application/x-www-form-urlencoded"
-        }
-        return request.post(`/event_log/edit`,{id:id,payload:payload},{headers:headers});
+        return request.post(`/event_log/edit`,{id:id,payload:payload});
     },
     Retry(id,data){
         return request.post(`/event_log/retry`,{uniqueId:id,data:JSON.stringify(data)});
